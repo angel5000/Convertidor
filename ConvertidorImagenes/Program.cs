@@ -1,22 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+// ConvertidorImagenes, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// ConvertidorImagenes.Program
+using System;
 using System.Windows.Forms;
+using ConvertidorImagenes;
 
-namespace ConvertidorImagenes
+internal static class Program
 {
-    static class Program
-    {
-        /// <summary>
-        /// Punto de entrada principal para la aplicación.
-        /// </summary>
-        [STAThread]
-        static void Main()
-        {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Principal());
-        }
-    }
+	[STAThread]
+	private static void Main()
+	{
+		Application.EnableVisualStyles();
+		Application.SetCompatibleTextRenderingDefault(defaultValue: false);
+		Application.Run(new Principal());
+	}
 }

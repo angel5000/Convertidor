@@ -60,7 +60,7 @@
     <GenerateManifests>true</GenerateManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <SignManifests>true</SignManifests>
+    <SignManifests>false</SignManifests>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="bcmail-jdk15-1.44, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -296,35 +296,26 @@
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
-    </Compile>
     <Compile Include="Lector.cs">
       <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Lector.Designer.cs">
-      <DependentUpon>Lector.cs</DependentUpon>
     </Compile>
     <Compile Include="OCR.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="OCR.Designer.cs">
-      <DependentUpon>OCR.cs</DependentUpon>
-    </Compile>
     <Compile Include="Offices.cs">
       <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Offices.Designer.cs">
-      <DependentUpon>Offices.cs</DependentUpon>
     </Compile>
     <Compile Include="Principal.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Principal.Designer.cs">
-      <DependentUpon>Principal.cs</DependentUpon>
-    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="redimension.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="visualizador.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>

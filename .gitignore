@@ -1,0 +1,53 @@
+## ===============================
+## Visual Studio / .NET
+## ===============================
+
+# Build results
+bin/
+obj/
+
+# Visual Studio cache/settings
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# ClickOnce publish folders
+publish/
+*.publish/
+
+# Build log files
+*.log
+
+# Rider / ReSharper (por si acaso)
+.idea/
+*.sln.iml
+
+# NuGet
+packages/
+*.nupkg
+*.snupkg
+**/project.assets.json
+**/project.nuget.cache
+
+# Debug / Release folders (extra seguridad)
+Debug/
+Release/
+x64/
+x86/
+
+# Temp files
+*.tmp
+*.cache
+*.ilk
+*.obj
+*.pch
+*.ipch
+
+# Crash reports
+*.dmp
+
+# Windows thumbnails / system
+Thumbs.db
+Desktop.ini
