@@ -3,8 +3,11 @@
 using System;
 using System.ComponentModel;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Reflection;
+using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,8 +16,6 @@ using ConvertidorImagenes;
 using ConvertidorImagenes.Properties;
 using iTextSharp.text.pdf;
 using iTextSharp.text.pdf.parser;
-using Patagames.Ocr;
-using Patagames.Ocr.Enums;
 
 namespace ConvertidorImagenes
 {
@@ -110,6 +111,10 @@ public class OCR : Form
 
 	private Label label9;
 
+	private Label label10;
+
+	private ComboBox cboidioma;
+
 	public OCR()
 	{
 		InitializeComponent();
@@ -125,6 +130,17 @@ public class OCR : Form
 		btcopiar.Enabled = false;
 		btguarda.Enabled = false;
 		chpag.Enabled = false;
+       cboidioma.Items.Clear();
+		cboidioma.Items.Add("Español");
+		cboidioma.Items.Add("Inglés");
+		if (File.Exists(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tessdata", "spa.traineddata")))
+		{
+			cboidioma.SelectedItem = "Español";
+		}
+		else
+		{
+			cboidioma.SelectedItem = "Inglés";
+		}
 	}
 
 	private void panel2_DragEnter(object sender, DragEventArgs e)
@@ -212,92 +228,11 @@ public class OCR : Form
 			rbpdf.Enabled = false;
 			chpag.Enabled = false;
 			btlect.Enabled = false;
-			using (Image image = Image.FromFile(ruta))
+            string selectedLanguage = GetSelectedLanguageCode();
+          Task.Factory.StartNew(delegate
 			{
-				if (image.Height > 500)
-				{
-					int num = (int)((double)image.Width / (double)image.Height * 490.0);
-					Image image2 = ResizeImage(image, num, 490);
-					if (ext.Equals("jpg"))
-					{
-						image2.Save("C:\\Users\\" + Environment.UserName + "\\AppData\\Local\\Temp\\img.jpg", ImageFormat.Jpeg);
-					}
-					if (ext.Equals("png"))
-					{
-						image2.Save("C:\\Users\\" + Environment.UserName + "\\AppData\\Local\\Temp\\img.png", ImageFormat.Png);
-					}
-					Task.Factory.StartNew(delegate
-					{
-						try
-						{
-							OcrApi.PathToEngine = "C:\\ConvertidorImagenes\\bin\\Debug\\x86\\Tesseract.dll";
-							using (OcrApi ocrApi = OcrApi.Create())
-							{
-								bar3.Value = 90;
-								lbbar.Text = "Leyendo...";
-								ocrApi.Init(Languages.Spanish);
-								string textFromImage = ocrApi.GetTextFromImage("C:\\Users\\" + Environment.UserName + "\\AppData\\Local\\Temp\\img." + ext);
-								ocrApi.Recognize();
-								bar3.Value = 100;
-								txtresult.Text = textFromImage;
-								btconver.Enabled = true;
-								btcopiar.Enabled = true;
-								btguarda.Enabled = true;
-								lbfia.Text = ocrApi.TextConfidences.ToString() ?? "";
-								ocrApi.Release();
-							}
-							File.Delete("C:\\Users\\" + Environment.UserName + "\\AppData\\Local\\Temp\\img." + ext);
-							lbbar.Text = "Finalizo!";
-							bar3.Value = 0;
-							completado = false;
-						}
-						catch (Exception)
-						{
-							MessageBox.Show("Error! Verifique que la imagen contenga texto. ");
-							lbbar.Text = "Error de Lectura!";
-							label2.Text = "Error de Lectura!";
-							bar3.Value = 0;
-							btconver.Enabled = true;
-						}
-					});
-				}
-				else
-				{
-					Task.Factory.StartNew(delegate
-					{
-						try
-						{
-							OcrApi.PathToEngine = "C:\\ConvertidorImagenes\\bin\\Debug\\x86\\Tesseract.dll";
-							using (OcrApi ocrApi = OcrApi.Create())
-							{
-								lbbar.Text = "Leyendo...";
-								bar3.Value = 90;
-								ocrApi.Init(Languages.Spanish);
-								string textFromImage = ocrApi.GetTextFromImage(ruta);
-								bar3.Value = 100;
-								txtresult.Text = textFromImage;
-								lbfia.Text = ocrApi.TextConfidences.ToString() ?? "";
-								lbbar.Text = "Finalizo!";
-								btcopiar.Enabled = true;
-								btguarda.Enabled = true;
-								btconver.Enabled = true;
-								bar3.Value = 0;
-								completado = false;
-								panel2.Enabled = false;
-								File.Delete("C:\\Users\\" + Environment.UserName + "\\AppData\\Local\\Temp\\img." + ext);
-							}
-						}
-						catch (Exception ex)
-						{
-							MessageBox.Show("Error! Verifique que el texto de la imagen sea suficientemente claro, y en una resolucion Optima\n" + ex.Message);
-							lbbar.Text = "Error de Lectura!";
-							label2.Text = "Error de Lectura!";
-							bar3.Value = 0;
-							btconver.Enabled = true;
-						}
-					});
-				}
-			}
+                ProcesarImagenConTesseract(ruta, false, selectedLanguage);
+			});
 		}
 
 		Task.Factory.StartNew(delegate
@@ -352,6 +287,480 @@ public class OCR : Form
 			graphics.DrawImage(image, new Rectangle(0, 0, width, height));
 		}
 		return bitmap;
+	}
+
+  private void ProcesarImagenConTesseract(string imagePath, bool removeTempFile, string languageCode)
+	{
+     string enhancedImagePath = null;
+		try
+		{
+			lbbar.Text = "Leyendo...";
+			bar3.Value = 90;
+			float confidence;
+          string textFromImage = LeerTextoConTesseract(imagePath, languageCode, out confidence);
+
+			if (confidence < 90f)
+			{
+				enhancedImagePath = CreateEnhancedOcrImage(imagePath);
+				float enhancedConfidence;
+				string enhancedText = LeerTextoConTesseract(enhancedImagePath, languageCode, out enhancedConfidence);
+				if (enhancedConfidence > confidence)
+				{
+					confidence = enhancedConfidence;
+					textFromImage = enhancedText;
+				}
+			}
+
+			bar3.Value = 100;
+			txtresult.Text = textFromImage;
+			lbfia.Text = confidence.ToString("0.00") + "%";
+			lbbar.Text = "Finalizo!";
+			btcopiar.Enabled = true;
+			btguarda.Enabled = true;
+			btconver.Enabled = true;
+			bar3.Value = 0;
+			completado = false;
+			panel2.Enabled = false;
+		}
+		catch (Exception ex)
+		{
+            MessageBox.Show("Error! Verifique que el texto de la imagen sea suficientemente claro, y en una resolucion optima.\n" + GetDetailedExceptionMessage(ex));
+			lbbar.Text = "Error de Lectura!";
+			label2.Text = "Error de Lectura!";
+			bar3.Value = 0;
+			btconver.Enabled = true;
+		}
+		finally
+		{
+         if (!string.IsNullOrEmpty(enhancedImagePath))
+			{
+				try
+				{
+					if (File.Exists(enhancedImagePath))
+					{
+						File.Delete(enhancedImagePath);
+					}
+				}
+				catch
+				{
+				}
+			}
+
+			if (removeTempFile)
+			{
+				try
+				{
+					if (File.Exists(imagePath))
+					{
+						File.Delete(imagePath);
+					}
+				}
+				catch
+				{
+				}
+			}
+		}
+	}
+
+	private string GetSelectedLanguageCode()
+	{
+		if (cboidioma != null && cboidioma.SelectedItem != null && cboidioma.SelectedItem.ToString() == "Inglés")
+		{
+			return "eng";
+		}
+		return "spa";
+	}
+
+ private static string LeerTextoConTesseract(string imagePath, string languageCode, out float confidence)
+	{
+		Assembly tesseractAssembly = LoadTesseractAssembly();
+		Type tesseractEngineType = tesseractAssembly.GetType("Tesseract.TesseractEngine", true);
+		Type pixType = tesseractAssembly.GetType("Tesseract.Pix", true);
+		Type engineModeType = tesseractAssembly.GetType("Tesseract.EngineMode", true);
+
+		string[] tessdataCandidates = GetTessdataCandidatePaths();
+
+      string language = string.IsNullOrWhiteSpace(languageCode) ? "eng" : languageCode;
+      string fallbackLanguage = language == "spa" ? "eng" : "spa";
+		string tessdataPath = null;
+
+		for (int i = 0; i < tessdataCandidates.Length; i++)
+		{
+			if (File.Exists(System.IO.Path.Combine(tessdataCandidates[i], language + ".traineddata")))
+			{
+				tessdataPath = tessdataCandidates[i];
+				break;
+			}
+		}
+
+		if (string.IsNullOrEmpty(tessdataPath))
+		{
+            for (int j = 0; j < tessdataCandidates.Length; j++)
+			{
+                if (File.Exists(System.IO.Path.Combine(tessdataCandidates[j], fallbackLanguage + ".traineddata")))
+				{
+					language = fallbackLanguage;
+					tessdataPath = tessdataCandidates[j];
+					break;
+				}
+			}
+        }
+
+		if (string.IsNullOrEmpty(tessdataPath))
+		{
+			if (tessdataCandidates.Length == 0)
+			{
+				throw new DirectoryNotFoundException("No se encontro la carpeta tessdata en el directorio de salida ni en el proyecto.");
+			}
+			else
+			{
+				throw new FileNotFoundException("No se encontraron archivos de idioma OCR. Faltan: spa.traineddata y eng.traineddata");
+			}
+		}
+		object engineModeDefault = Enum.Parse(engineModeType, "Default");
+
+		object engine = null;
+		object pix = null;
+		object page = null;
+		try
+		{
+            try
+			{
+				engine = Activator.CreateInstance(tesseractEngineType, new object[3] { tessdataPath, language, engineModeDefault });
+               TryConfigureEngineForAccuracy(engine);
+			}
+			catch (TargetInvocationException ex)
+			{
+				if (ex.InnerException != null)
+				{
+					ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				}
+				throw;
+			}
+
+			pix = InvokeStaticMethodByName(pixType, "LoadFromFile", new object[1] { imagePath });
+          Type pageSegModeType = tesseractAssembly.GetType("Tesseract.PageSegMode", false);
+			object autoPageSegMode = pageSegModeType != null ? Enum.Parse(pageSegModeType, "Auto") : null;
+			page = InvokeMethodByName(engine, "Process", new object[2] { pix, autoPageSegMode });
+			string text = InvokeMethodByName(page, "GetText", new object[0]) as string;
+			object meanConfidence = InvokeMethodByName(page, "GetMeanConfidence", new object[0]);
+			confidence = Convert.ToSingle(meanConfidence) * 100f;
+			return text ?? string.Empty;
+		}
+		finally
+		{
+			CloseOrDispose(page);
+			CloseOrDispose(pix);
+			CloseOrDispose(engine);
+		}
+	}
+
+	private static string[] GetTessdataCandidatePaths()
+	{
+		string[] candidates = new string[3]
+		{
+			System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tessdata"),
+			System.IO.Path.GetFullPath(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\\..\\tessdata")),
+			System.IO.Path.GetFullPath(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\\..\\..\\tessdata"))
+		};
+
+		StringBuilder uniqueBuilder = new StringBuilder();
+		for (int i = 0; i < candidates.Length; i++)
+		{
+			if (Directory.Exists(candidates[i]))
+			{
+				if (uniqueBuilder.Length > 0)
+				{
+					uniqueBuilder.Append("|");
+				}
+				uniqueBuilder.Append(candidates[i]);
+			}
+		}
+
+		if (uniqueBuilder.Length == 0)
+		{
+			return new string[0];
+		}
+
+		return uniqueBuilder.ToString().Split(new char[1] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+	}
+
+	private static void TryConfigureEngineForAccuracy(object engine)
+	{
+		try
+		{
+			InvokeMethodByName(engine, "SetVariable", new object[2] { "user_defined_dpi", "300" });
+		}
+		catch
+		{
+		}
+
+		try
+		{
+			InvokeMethodByName(engine, "SetVariable", new object[2] { "preserve_interword_spaces", "1" });
+		}
+		catch
+		{
+		}
+	}
+
+	private static string CreateEnhancedOcrImage(string imagePath)
+	{
+		using (Bitmap source = new Bitmap(imagePath))
+		{
+			int targetWidth = source.Width < 1600 ? source.Width * 2 : source.Width;
+			int targetHeight = source.Width < 1600 ? source.Height * 2 : source.Height;
+
+			using (Bitmap scaled = new Bitmap(targetWidth, targetHeight, PixelFormat.Format24bppRgb))
+			{
+				using (Graphics g = Graphics.FromImage(scaled))
+				{
+					g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+					g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+					g.SmoothingMode = SmoothingMode.HighQuality;
+					g.DrawImage(source, 0, 0, targetWidth, targetHeight);
+				}
+
+				using (Bitmap binarized = new Bitmap(targetWidth, targetHeight, PixelFormat.Format24bppRgb))
+				{
+					for (int y = 0; y < targetHeight; y++)
+					{
+						for (int x = 0; x < targetWidth; x++)
+						{
+							Color pixel = scaled.GetPixel(x, y);
+							double gray = (pixel.R * 0.299) + (pixel.G * 0.587) + (pixel.B * 0.114);
+							gray = (gray - 128d) * 1.25d + 128d;
+							byte value = gray >= 150d ? (byte)255 : (byte)0;
+							binarized.SetPixel(x, y, Color.FromArgb(value, value, value));
+						}
+					}
+
+					string enhancedPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), Guid.NewGuid().ToString("N") + "-ocr.png");
+					binarized.Save(enhancedPath, ImageFormat.Png);
+					return enhancedPath;
+				}
+			}
+		}
+	}
+
+	private static string GetDetailedExceptionMessage(Exception ex)
+	{
+		StringBuilder stringBuilder = new StringBuilder();
+		Exception ex2 = ex;
+		while (ex2 != null)
+		{
+			if (stringBuilder.Length > 0)
+			{
+				stringBuilder.Append(" -> ");
+			}
+			stringBuilder.Append(ex2.Message);
+			ex2 = ex2.InnerException;
+		}
+		return stringBuilder.ToString();
+	}
+
+	private static Assembly LoadTesseractAssembly()
+	{
+		Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+		for (int i = 0; i < assemblies.Length; i++)
+		{
+			if (assemblies[i].GetName().Name == "Tesseract")
+			{
+				return assemblies[i];
+			}
+		}
+
+     string[] candidates = new string[4]
+		{
+			System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Tesseract.dll"),
+           System.IO.Path.GetFullPath(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\\..\\..\\packages\\Tesseract.5.2.0\\lib\\net47\\Tesseract.dll")),
+			System.IO.Path.GetFullPath(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\\..\\..\\..\\packages\\Tesseract.5.2.0\\lib\\net47\\Tesseract.dll")),
+			System.IO.Path.GetFullPath(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\\..\\packages\\Tesseract.5.2.0\\lib\\net47\\Tesseract.dll"))
+		};
+
+		for (int j = 0; j < candidates.Length; j++)
+		{
+			if (File.Exists(candidates[j]))
+			{
+                EnsureTesseractNativePath(candidates[j]);
+				return Assembly.LoadFrom(candidates[j]);
+			}
+		}
+
+		throw new FileNotFoundException("No se encontro Tesseract.dll. Instale/restaure el paquete NuGet Tesseract 5.2.0.");
+	}
+
+ private static void EnsureTesseractNativePath(string tesseractAssemblyPath)
+	{
+		string text = Environment.Is64BitProcess ? "x64" : "x86";
+     string text2 = null;
+
+		try
+		{
+			string directoryName = System.IO.Path.GetDirectoryName(tesseractAssemblyPath);
+			if (!string.IsNullOrEmpty(directoryName))
+			{
+				string text3 = System.IO.Path.GetFullPath(System.IO.Path.Combine(directoryName, "..\\.."));
+				text2 = System.IO.Path.Combine(text3, text);
+			}
+		}
+		catch
+		{
+		}
+
+		if (string.IsNullOrEmpty(text2) || !Directory.Exists(text2))
+		{
+			text2 = System.IO.Path.GetFullPath(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\\..\\..\\packages\\Tesseract.5.2.0\\" + text));
+		}
+
+		if (!Directory.Exists(text2))
+		{
+			return;
+		}
+
+		EnsureLeptonicaCompatibility(text2);
+
+		string environmentVariable = Environment.GetEnvironmentVariable("PATH") ?? string.Empty;
+		if (environmentVariable.IndexOf(text2, StringComparison.OrdinalIgnoreCase) < 0)
+		{
+			Environment.SetEnvironmentVariable("PATH", text2 + ";" + environmentVariable);
+		}
+	}
+
+	private static void EnsureLeptonicaCompatibility(string nativeDirectory)
+	{
+		try
+		{
+			string text = System.IO.Path.Combine(nativeDirectory, "leptonica-1.82.1.dll");
+			string text2 = System.IO.Path.Combine(nativeDirectory, "leptonica-1.82.0.dll");
+			if (!File.Exists(text) && File.Exists(text2))
+			{
+				File.Copy(text2, text);
+			}
+
+			string text3 = Environment.Is64BitProcess ? "x64" : "x86";
+			string text4 = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, text3);
+			if (Directory.Exists(text4))
+			{
+				string text5 = System.IO.Path.Combine(text4, "leptonica-1.82.0.dll");
+				string text6 = System.IO.Path.Combine(text4, "leptonica-1.82.1.dll");
+				string text7 = System.IO.Path.Combine(text4, "tesseract50.dll");
+				string text8 = System.IO.Path.Combine(nativeDirectory, "tesseract50.dll");
+
+				if (!File.Exists(text5) && File.Exists(text2))
+				{
+					File.Copy(text2, text5);
+				}
+				if (!File.Exists(text6) && (File.Exists(text) || File.Exists(text2)))
+				{
+					File.Copy(File.Exists(text) ? text : text2, text6);
+				}
+				if (!File.Exists(text7) && File.Exists(text8))
+				{
+					File.Copy(text8, text7);
+				}
+			}
+		}
+		catch
+		{
+		}
+	}
+
+	private static object InvokeMethodByName(object instance, string methodName, object[] args)
+	{
+		MethodInfo[] methods = instance.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance);
+		for (int i = 0; i < methods.Length; i++)
+		{
+          if (methods[i].Name == methodName && AreParametersCompatible(methods[i].GetParameters(), args))
+			{
+               try
+				{
+					return methods[i].Invoke(instance, args);
+				}
+				catch (TargetInvocationException ex)
+				{
+					if (ex.InnerException != null)
+					{
+						ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+					}
+					throw;
+				}
+			}
+		}
+		throw new MissingMethodException(instance.GetType().FullName, methodName);
+	}
+
+	private static object InvokeStaticMethodByName(Type type, string methodName, object[] args)
+	{
+		MethodInfo[] methods = type.GetMethods(BindingFlags.Public | BindingFlags.Static);
+		for (int i = 0; i < methods.Length; i++)
+		{
+          if (methods[i].Name == methodName && AreParametersCompatible(methods[i].GetParameters(), args))
+			{
+               try
+				{
+					return methods[i].Invoke(null, args);
+				}
+				catch (TargetInvocationException ex)
+				{
+					if (ex.InnerException != null)
+					{
+						ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+					}
+					throw;
+				}
+			}
+		}
+		throw new MissingMethodException(type.FullName, methodName);
+	}
+
+	private static bool AreParametersCompatible(ParameterInfo[] parameters, object[] args)
+	{
+		if (parameters.Length != args.Length)
+		{
+			return false;
+		}
+
+		for (int i = 0; i < parameters.Length; i++)
+		{
+			object arg = args[i];
+			Type parameterType = parameters[i].ParameterType;
+
+			if (arg == null)
+			{
+				if (parameterType.IsValueType && Nullable.GetUnderlyingType(parameterType) == null)
+				{
+					return false;
+				}
+				continue;
+			}
+
+			if (!parameterType.IsInstanceOfType(arg))
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	private static void CloseOrDispose(object instance)
+	{
+		if (instance == null)
+		{
+			return;
+		}
+		try
+		{
+			MethodInfo method = instance.GetType().GetMethod("Dispose", Type.EmptyTypes);
+			if (method != null)
+			{
+				method.Invoke(instance, null);
+			}
+		}
+		catch
+		{
+		}
 	}
 
 	private void panel2_MouseDown(object sender, MouseEventArgs e)
@@ -772,6 +1181,8 @@ public class OCR : Form
 		this.label8 = new System.Windows.Forms.Label();
 		this.label9 = new System.Windows.Forms.Label();
 		this.lbfia = new System.Windows.Forms.Label();
+        this.label10 = new System.Windows.Forms.Label();
+		this.cboidioma = new System.Windows.Forms.ComboBox();
 		this.panel1.SuspendLayout();
 		this.panel4.SuspendLayout();
 		this.panel5.SuspendLayout();
@@ -815,6 +1226,8 @@ public class OCR : Form
 		this.panel4.Controls.Add(this.btpegar);
 		this.panel4.Controls.Add(this.btcan);
 		this.panel4.Controls.Add(this.panel5);
+      this.panel4.Controls.Add(this.cboidioma);
+		this.panel4.Controls.Add(this.label10);
 		this.panel4.Controls.Add(this.label7);
 		this.panel4.Controls.Add(this.lbbar);
 		this.panel4.Controls.Add(this.btconver);
@@ -854,6 +1267,18 @@ public class OCR : Form
 		this.panel5.Name = "panel5";
 		this.panel5.Size = new System.Drawing.Size(142, 112);
 		this.panel5.TabIndex = 31;
+     this.label10.AutoSize = true;
+		this.label10.Location = new System.Drawing.Point(343, 39);
+		this.label10.Name = "label10";
+		this.label10.Size = new System.Drawing.Size(67, 13);
+		this.label10.TabIndex = 33;
+		this.label10.Text = "Idioma OCR:";
+		this.cboidioma.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+		this.cboidioma.FormattingEnabled = true;
+		this.cboidioma.Location = new System.Drawing.Point(415, 35);
+		this.cboidioma.Name = "cboidioma";
+		this.cboidioma.Size = new System.Drawing.Size(73, 21);
+		this.cboidioma.TabIndex = 34;
 		this.chpag.AutoSize = true;
 		this.chpag.Location = new System.Drawing.Point(14, 55);
 		this.chpag.Name = "chpag";

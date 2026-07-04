@@ -5,12 +5,15 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using ConvertidorImagenes;
+using ConvertidorImagenes.Controllers;
 using ConvertidorImagenes.Properties;
 
 namespace ConvertidorImagenes
 {
 public class Principal : Form
 {
+	private readonly NavigationController navigationController = new NavigationController();
+
 	private IContainer components = null;
 
 	private Button button1;
@@ -32,35 +35,27 @@ public class Principal : Form
 
 	private void button1_Click(object sender, EventArgs e)
 	{
-		Form1 form = new Form1();
-		Hide();
-		form.Show();
+		navigationController.Show<Form1>(this);
 	}
 
 	private void Principal_FormClosed(object sender, FormClosedEventArgs e)
 	{
-		Environment.Exit(0);
+		navigationController.CloseApplication();
 	}
 
 	private void button2_Click(object sender, EventArgs e)
 	{
-		Offices offices = new Offices();
-		offices.Show();
-		Hide();
+		navigationController.Show<Offices>(this);
 	}
 
 	private void button3_Click(object sender, EventArgs e)
 	{
-		OCR oCR = new OCR();
-		oCR.Show();
-		Hide();
+		navigationController.Show<OCR>(this);
 	}
 
 	private void button5_Click(object sender, EventArgs e)
 	{
-		redimension redimension2 = new redimension();
-		redimension2.Show();
-		Hide();
+		navigationController.Show<redimension>(this);
 	}
 
 	private void Principal_Load(object sender, EventArgs e)

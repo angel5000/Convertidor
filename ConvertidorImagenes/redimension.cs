@@ -15,13 +15,29 @@ public class redimension : Form
 
 	private bool isSelecting;
 
+	private bool isPanningImage;
+
 	private Point selectionStart;
 
 	private Point selectionEnd;
 
+	private Point panStartMouse;
+
+	private Point panStartScroll;
+
 	private int contador = 1;
 
 	private Rectangle cropRectangle;
+
+	private const int MinCropZoom = 25;
+
+	private const int MaxCropZoom = 400;
+
+	private const int DefaultCropZoom = 100;
+
+	private int cropZoom = DefaultCropZoom;
+
+	private Size cropBaseSize = Size.Empty;
 
 	private bool recor = false;
 
@@ -58,6 +74,8 @@ public class redimension : Form
 	private PictureBox pictureBox1;
 
 	private Panel panel1;
+
+	private Panel imageCanvas;
 
 	private Label label1;
 
@@ -111,6 +129,10 @@ public class redimension : Form
 
 	private Label lbpxrc;
 
+	private TrackBar trzoom;
+
+	private Label lbzoom;
+
 	private Button button3;
 
 	private Button button4;
@@ -122,6 +144,7 @@ public class redimension : Form
 	public redimension()
 	{
 		InitializeComponent();
+		KeyPreview = true;
 		btzomout.Enabled = false;
 		btzomin.Enabled = false;
 		xori = pictureBox1.Size.Width;
@@ -146,36 +169,38 @@ public class redimension : Form
 		Text = "Edicion de Imagenes";
 	}
 
+	protected override void OnKeyDown(KeyEventArgs e)
+	{
+		base.OnKeyDown(e);
+		UpdatePictureCursor();
+	}
+
+	protected override void OnKeyUp(KeyEventArgs e)
+	{
+		base.OnKeyUp(e);
+		UpdatePictureCursor();
+	}
+
+	private void redimension_Resize(object sender, EventArgs e)
+	{
+		if (WindowState == FormWindowState.Minimized || originalImage == null || isPanningImage)
+		{
+			return;
+		}
+
+		cropBaseSize = CalculateFitSize(originalImage.Size);
+		SetCropZoom(cropZoom);
+	}
+
 	private void CargarImagen(string imagePath)
 	{
 		originalImage = new Bitmap(imagePath);
 		pictureBox1.Image = originalImage;
+		pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
 		mover = true;
 		ruta = imagePath;
-		if (pictureBox1.Image.Width < pictureBox1.Width && pictureBox1.Image.Height < pictureBox1.Height)
-		{
-			pictureBox1.SizeMode = PictureBoxSizeMode.CenterImage;
-			pictureBox1.ClientSize = originalImage.Size;
-			int num = (panel1.Width - pictureBox1.Width) / 2;
-			int num2 = (panel1.Height - pictureBox1.Height) / 2;
-			pictureBox1.Location = new Point(num, num2);
-		}
-		else
-		{
-			pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
-		}
-		int num3 = pictureBox1.Image.Width;
-		int num4 = pictureBox1.Image.Height;
-		if (num3 >= pictureBox1.Width || num4 >= pictureBox1.Height)
-		{
-			float num5 = Math.Min((float)pictureBox1.Width / (float)num3, (float)pictureBox1.Height / (float)num4);
-			num3 = (int)((float)num3 * num5);
-			num4 = (int)((float)num4 * num5);
-		}
-		pictureBox1.ClientSize = new Size(num3, num4);
-		int num6 = (panel1.Width - pictureBox1.Width) / 2;
-		int num7 = (panel1.Height - pictureBox1.Height) / 2;
-		pictureBox1.Location = new Point(num6, num7);
+		cropBaseSize = CalculateFitSize(originalImage.Size);
+		SetCropZoom(DefaultCropZoom);
 		cargado = true;
 		pictureBox1.AllowDrop = false;
 		lbpix2.Text = pictureBox1.Image.Width + "x" + pictureBox1.Image.Height;
@@ -186,17 +211,199 @@ public class redimension : Form
 		}
 	}
 
+	private Size CalculateFitSize(Size imageSize)
+	{
+		int availableWidth = Math.Max(1, panel1.ClientSize.Width - (p1 * 2));
+		int availableHeight = Math.Max(1, panel1.ClientSize.Height - p2 - 8);
+		float scale = Math.Min((float)availableWidth / imageSize.Width, (float)availableHeight / imageSize.Height);
+		scale = Math.Min(scale, 1f);
+
+		return new Size(Math.Max(1, (int)(imageSize.Width * scale)), Math.Max(1, (int)(imageSize.Height * scale)));
+	}
+
+	private void SetCropZoom(int zoom)
+	{
+		if (originalImage == null || cropBaseSize == Size.Empty)
+		{
+			return;
+		}
+
+		int oldWidth = Math.Max(1, pictureBox1.Width);
+		int oldHeight = Math.Max(1, pictureBox1.Height);
+		Point currentScroll = new Point(-panel1.AutoScrollPosition.X, -panel1.AutoScrollPosition.Y);
+		double centerRatioX = Math.Max(0, Math.Min(1, (currentScroll.X + panel1.ClientSize.Width / 2.0 - imageCanvas.Left - pictureBox1.Left) / oldWidth));
+		double centerRatioY = Math.Max(0, Math.Min(1, (currentScroll.Y + panel1.ClientSize.Height / 2.0 - imageCanvas.Top - pictureBox1.Top) / oldHeight));
+
+		cropZoom = Math.Max(MinCropZoom, Math.Min(MaxCropZoom, zoom));
+		if (trzoom.Value != cropZoom)
+		{
+			trzoom.Value = cropZoom;
+		}
+		lbzoom.Text = cropZoom + "%";
+
+		Size currentSize = new Size(
+			Math.Max(1, cropBaseSize.Width * cropZoom / DefaultCropZoom),
+			Math.Max(1, cropBaseSize.Height * cropZoom / DefaultCropZoom));
+
+		panel1.SuspendLayout();
+		panel1.AutoScrollPosition = new Point(0, 0);
+		imageCanvas.Location = new Point(0, p2);
+		imageCanvas.Size = new Size(
+			Math.Max(panel1.ClientSize.Width - 2, currentSize.Width + (p1 * 2)),
+			Math.Max(panel1.ClientSize.Height - p2 - 2, currentSize.Height + (p1 * 2)));
+		pictureBox1.ClientSize = currentSize;
+		int x = currentSize.Width < imageCanvas.ClientSize.Width ? (imageCanvas.ClientSize.Width - currentSize.Width) / 2 : p1;
+		int y = currentSize.Height < imageCanvas.ClientSize.Height ? (imageCanvas.ClientSize.Height - currentSize.Height) / 2 : p1;
+		pictureBox1.Location = new Point(x, y);
+
+		int scrollX = imageCanvas.Width > panel1.ClientSize.Width
+			? Math.Max(0, imageCanvas.Left + x + (int)Math.Round(centerRatioX * currentSize.Width) - panel1.ClientSize.Width / 2)
+			: 0;
+		int scrollY = imageCanvas.Bottom > panel1.ClientSize.Height
+			? Math.Max(0, imageCanvas.Top + y + (int)Math.Round(centerRatioY * currentSize.Height) - panel1.ClientSize.Height / 2)
+			: 0;
+		panel1.AutoScrollPosition = new Point(scrollX, scrollY);
+		panel1.ResumeLayout();
+		UpdatePictureCursor();
+		pictureBox1.Invalidate();
+	}
+
+	private bool CanPanImage()
+	{
+		return cargado
+			&& (imageCanvas.Width > panel1.ClientSize.Width || imageCanvas.Bottom > panel1.ClientSize.Height);
+	}
+
+	private bool ShouldPanWithLeftButton()
+	{
+		if (!CanPanImage())
+		{
+			return false;
+		}
+
+		if (redimen)
+		{
+			return true;
+		}
+
+		return recor && (ModifierKeys & Keys.Control) == Keys.Control;
+	}
+
+	private void StartImagePan(MouseEventArgs e)
+	{
+		isPanningImage = true;
+		panStartMouse = pictureBox1.PointToScreen(e.Location);
+		panStartScroll = new Point(-panel1.AutoScrollPosition.X, -panel1.AutoScrollPosition.Y);
+		pictureBox1.Cursor = Cursors.Hand;
+		pictureBox1.Capture = true;
+	}
+
+	private void PanImage(MouseEventArgs e)
+	{
+		Point currentMouse = pictureBox1.PointToScreen(e.Location);
+		int deltaX = currentMouse.X - panStartMouse.X;
+		int deltaY = currentMouse.Y - panStartMouse.Y;
+		int scrollX = Math.Max(0, panStartScroll.X - deltaX);
+		int scrollY = Math.Max(0, panStartScroll.Y - deltaY);
+		panel1.AutoScrollPosition = new Point(scrollX, scrollY);
+	}
+
+	private void StopImagePan()
+	{
+		isPanningImage = false;
+		pictureBox1.Capture = false;
+		UpdatePictureCursor();
+	}
+
+	private void UpdatePictureCursor()
+	{
+		if (!cargado)
+		{
+			pictureBox1.Cursor = Cursors.Default;
+			return;
+		}
+
+		if (redimen && CanPanImage())
+		{
+			pictureBox1.Cursor = Cursors.Hand;
+			return;
+		}
+
+		if (recor)
+		{
+			pictureBox1.Cursor = (CanPanImage() && (ModifierKeys & Keys.Control) == Keys.Control)
+				? Cursors.Hand
+				: Cursors.Cross;
+			return;
+		}
+
+		pictureBox1.Cursor = Cursors.Default;
+	}
+
 	private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
 	{
+		if (isPanningImage)
+		{
+			PanImage(e);
+			return;
+		}
+
 		if (isSelecting)
 		{
 			selectionEnd = new Point(Math.Max(Math.Min(e.Location.X, pictureBox1.Width - 1), 0), Math.Max(Math.Min(e.Location.Y, pictureBox1.Height - 1), 0));
 			pictureBox1.Invalidate();
+			return;
 		}
+
+		UpdatePictureCursor();
+	}
+
+	private void pictureBox1_MouseEnter(object sender, EventArgs e)
+	{
+		pictureBox1.Focus();
+	}
+
+	private void pictureBox1_MouseWheel(object sender, MouseEventArgs e)
+	{
+		if ((ModifierKeys & Keys.Control) != Keys.Control)
+		{
+			return;
+		}
+
+		MarkMouseWheelHandled(e);
+		int step = e.Delta > 0 ? 10 : -10;
+		SetCropZoom(cropZoom + step);
+	}
+
+	private void zoomSurface_MouseWheel(object sender, MouseEventArgs e)
+	{
+		if ((ModifierKeys & Keys.Control) != Keys.Control)
+		{
+			return;
+		}
+
+		MarkMouseWheelHandled(e);
+		int step = e.Delta > 0 ? 10 : -10;
+		SetCropZoom(cropZoom + step);
+	}
+
+	private void MarkMouseWheelHandled(MouseEventArgs e)
+	{
+		HandledMouseEventArgs handledArgs = e as HandledMouseEventArgs;
+		if (handledArgs != null)
+		{
+			handledArgs.Handled = true;
+		}
+	}
+
+	private void trzoom_Scroll(object sender, EventArgs e)
+	{
+		SetCropZoom(trzoom.Value);
 	}
 
 	private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
 	{
+		pictureBox1.Focus();
 		if (e.Button == MouseButtons.Right && !cargado)
 		{
 			OpenFileDialog openFileDialog = new OpenFileDialog();
@@ -225,9 +432,15 @@ public class redimension : Form
 				}
 			}
 		}
+		if (e.Button == MouseButtons.Left && ShouldPanWithLeftButton())
+		{
+			StartImagePan(e);
+			return;
+		}
 		if (recor && !redimen && cargado && mover && e.Button == MouseButtons.Left)
 		{
 			selectionStart = e.Location;
+			selectionEnd = e.Location;
 			isSelecting = true;
 		}
 	}
@@ -311,8 +524,17 @@ public class redimension : Form
 		txtaltura.Text = "";
 		txtancho.Text = "";
 		pictureBox1.Cursor = Cursors.Default;
+		imageCanvas.Size = new Size(Math.Max(1, panel1.ClientSize.Width - 2), Math.Max(1, panel1.ClientSize.Height - p2 - 2));
+		imageCanvas.Location = new Point(0, p2);
 		pictureBox1.Size = new Size(xori, yori);
 		pictureBox1.Location = new Point(p1, p2);
+		isSelecting = false;
+		isPanningImage = false;
+		panel1.AutoScrollPosition = new Point(0, 0);
+		cropZoom = DefaultCropZoom;
+		cropBaseSize = Size.Empty;
+		trzoom.Value = DefaultCropZoom;
+		lbzoom.Text = DefaultCropZoom + "%";
 		vistapre.Size = new Size(xori2, yori2);
 		vistapre.Location = new Point(pp1, pp2);
 		lbaviso.Show();
@@ -491,10 +713,54 @@ public class redimension : Form
 		return new Rectangle(num, num2, num3, num4);
 	}
 
+	private Rectangle ConvertDisplayRectangleToImageRectangle(Rectangle displayRectangle)
+	{
+		if (originalImage == null || pictureBox1.ClientSize.Width == 0 || pictureBox1.ClientSize.Height == 0)
+		{
+			return Rectangle.Empty;
+		}
+
+		double scaleX = (double)originalImage.Width / pictureBox1.ClientSize.Width;
+		double scaleY = (double)originalImage.Height / pictureBox1.ClientSize.Height;
+
+		int x = Math.Max(0, (int)Math.Round(displayRectangle.X * scaleX));
+		int y = Math.Max(0, (int)Math.Round(displayRectangle.Y * scaleY));
+		int width = Math.Max(1, (int)Math.Round(displayRectangle.Width * scaleX));
+		int height = Math.Max(1, (int)Math.Round(displayRectangle.Height * scaleY));
+
+		if (x + width > originalImage.Width)
+		{
+			width = originalImage.Width - x;
+		}
+
+		if (y + height > originalImage.Height)
+		{
+			height = originalImage.Height - y;
+		}
+
+		if (width <= 0 || height <= 0)
+		{
+			return Rectangle.Empty;
+		}
+
+		return new Rectangle(x, y, width, height);
+	}
+
 	private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
 	{
+		if (isPanningImage)
+		{
+			StopImagePan();
+			return;
+		}
+
 		if (e.Button == MouseButtons.Left)
 		{
+			if (!isSelecting)
+			{
+				return;
+			}
+
 			isSelecting = false;
 			cropRectangle = MakeRectangle(selectionStart, selectionEnd);
 			if (cropRectangle.Width > 0 && cropRectangle.Height > 0)
@@ -502,9 +768,13 @@ public class redimension : Form
 				lbpx.Text = pictureBox1.Image.Width + "x" + pictureBox1.Image.Height;
 				vistapre.Size = new Size(xori2, yori2);
 				vistapre.Location = new Point(pp1, pp2);
-				Bitmap bitmap = new Bitmap(pictureBox1.Image, pictureBox1.Width, pictureBox1.Height);
+				Rectangle imageRectangle = ConvertDisplayRectangleToImageRectangle(cropRectangle);
+				if (imageRectangle == Rectangle.Empty)
+				{
+					return;
+				}
 				vistapre.SizeMode = PictureBoxSizeMode.Zoom;
-				vistapre.Image = bitmap.Clone(cropRectangle, bitmap.PixelFormat);
+				vistapre.Image = originalImage.Clone(imageRectangle, originalImage.PixelFormat);
 				lbpxrc.Text = vistapre.Image.Width + "x" + vistapre.Image.Height;
 				int num = vistapre.Image.Width;
 				int num2 = vistapre.Image.Height;
@@ -532,7 +802,9 @@ public class redimension : Form
 		{
 			recor = false;
 			redimen = true;
-			pictureBox1.Cursor = Cursors.Default;
+			isSelecting = false;
+			isPanningImage = false;
+			UpdatePictureCursor();
 			mover = false;
 			txtaltura.Enabled = true;
 			txtancho.Enabled = true;
@@ -562,9 +834,18 @@ public class redimension : Form
 		cargado = false;
 		mover = false;
 		apli = false;
+		isSelecting = false;
+		isPanningImage = false;
 		pictureBox1.Cursor = Cursors.Default;
+		imageCanvas.Size = new Size(Math.Max(1, panel1.ClientSize.Width - 2), Math.Max(1, panel1.ClientSize.Height - p2 - 2));
+		imageCanvas.Location = new Point(0, p2);
 		pictureBox1.Size = new Size(xori, yori);
 		pictureBox1.Location = new Point(p1, p2);
+		panel1.AutoScrollPosition = new Point(0, 0);
+		cropZoom = DefaultCropZoom;
+		cropBaseSize = Size.Empty;
+		trzoom.Value = DefaultCropZoom;
+		lbzoom.Text = DefaultCropZoom + "%";
 		vistapre.Size = new Size(xori2, yori2);
 		vistapre.Location = new Point(pp1, pp2);
 		txtaltura.Text = "";
@@ -616,6 +897,8 @@ public class redimension : Form
 		{
 			recor = true;
 			redimen = false;
+			isSelecting = false;
+			isPanningImage = false;
 			pictureBox1.Enabled = true;
 			button1.Enabled = true;
 			txtaltura.Enabled = false;
@@ -631,7 +914,7 @@ public class redimension : Form
 			{
 				mover = false;
 			}
-			pictureBox1.Cursor = Cursors.Cross;
+			UpdatePictureCursor();
 		}
 		if (rbredi.Checked && apli)
 		{
@@ -698,6 +981,7 @@ public class redimension : Form
 	{
 		//System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ConvertidorImagenes.redimension));
 		this.panel1 = new System.Windows.Forms.Panel();
+		this.imageCanvas = new System.Windows.Forms.Panel();
 		this.lbaviso = new System.Windows.Forms.Label();
 		this.label9 = new System.Windows.Forms.Label();
 		this.lbpix2 = new System.Windows.Forms.Label();
@@ -729,22 +1013,36 @@ public class redimension : Form
 		this.button5 = new System.Windows.Forms.Button();
 		this.button6 = new System.Windows.Forms.Button();
 		this.button4 = new System.Windows.Forms.Button();
+		this.trzoom = new System.Windows.Forms.TrackBar();
+		this.lbzoom = new System.Windows.Forms.Label();
 		this.panel1.SuspendLayout();
+		this.imageCanvas.SuspendLayout();
 		((System.ComponentModel.ISupportInitialize)this.pictureBox1).BeginInit();
 		this.panel2.SuspendLayout();
 		this.panel3.SuspendLayout();
 		this.panel4.SuspendLayout();
 		((System.ComponentModel.ISupportInitialize)this.vistapre).BeginInit();
+		((System.ComponentModel.ISupportInitialize)this.trzoom).BeginInit();
 		base.SuspendLayout();
+		this.panel1.AutoScroll = true;
+		this.panel1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 		this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-		this.panel1.Controls.Add(this.lbaviso);
 		this.panel1.Controls.Add(this.label9);
 		this.panel1.Controls.Add(this.lbpix2);
-		this.panel1.Controls.Add(this.pictureBox1);
+		this.panel1.Controls.Add(this.imageCanvas);
 		this.panel1.Location = new System.Drawing.Point(12, 65);
 		this.panel1.Name = "panel1";
 		this.panel1.Size = new System.Drawing.Size(433, 520);
 		this.panel1.TabIndex = 1;
+		this.panel1.MouseWheel += new System.Windows.Forms.MouseEventHandler(zoomSurface_MouseWheel);
+		this.imageCanvas.BackColor = System.Drawing.SystemColors.AppWorkspace;
+		this.imageCanvas.Controls.Add(this.pictureBox1);
+		this.imageCanvas.Controls.Add(this.lbaviso);
+		this.imageCanvas.Location = new System.Drawing.Point(0, 18);
+		this.imageCanvas.Name = "imageCanvas";
+		this.imageCanvas.Size = new System.Drawing.Size(431, 500);
+		this.imageCanvas.TabIndex = 15;
+		this.imageCanvas.MouseWheel += new System.Windows.Forms.MouseEventHandler(zoomSurface_MouseWheel);
 		this.lbaviso.AutoSize = true;
 		this.lbaviso.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
 		this.lbaviso.Location = new System.Drawing.Point(93, 259);
@@ -773,14 +1071,17 @@ public class redimension : Form
 		this.pictureBox1.Size = new System.Drawing.Size(397, 480);
 		this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
 		this.pictureBox1.TabIndex = 0;
-		this.pictureBox1.TabStop = false;
+		this.pictureBox1.TabStop = true;
 		this.pictureBox1.DragDrop += new System.Windows.Forms.DragEventHandler(pictureBox1_DragDrop);
 		this.pictureBox1.DragEnter += new System.Windows.Forms.DragEventHandler(pictureBox1_DragEnter);
 		this.pictureBox1.Paint += new System.Windows.Forms.PaintEventHandler(pictureBox1_Paint);
 		this.pictureBox1.MouseDown += new System.Windows.Forms.MouseEventHandler(pictureBox1_MouseDown);
+		this.pictureBox1.MouseEnter += new System.EventHandler(pictureBox1_MouseEnter);
 		this.pictureBox1.MouseMove += new System.Windows.Forms.MouseEventHandler(pictureBox1_MouseMove);
 		this.pictureBox1.MouseUp += new System.Windows.Forms.MouseEventHandler(pictureBox1_MouseUp);
+		this.pictureBox1.MouseWheel += new System.Windows.Forms.MouseEventHandler(pictureBox1_MouseWheel);
 		this.label1.AutoSize = true;
+		this.label1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left;
 		this.label1.Font = new System.Drawing.Font("Times New Roman", 18f, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0);
 		this.label1.Location = new System.Drawing.Point(12, 22);
 		this.label1.Name = "label1";
@@ -788,6 +1089,9 @@ public class redimension : Form
 		this.label1.TabIndex = 2;
 		this.label1.Text = "Redimensionador de imagenes";
 		this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+		this.panel2.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+		this.panel2.Controls.Add(this.lbzoom);
+		this.panel2.Controls.Add(this.trzoom);
 		this.panel2.Controls.Add(this.button3);
 		this.panel2.Controls.Add(this.label7);
 		this.panel2.Controls.Add(this.label6);
@@ -802,13 +1106,29 @@ public class redimension : Form
 		this.panel2.Name = "panel2";
 		this.panel2.Size = new System.Drawing.Size(278, 194);
 		this.panel2.TabIndex = 3;
+		this.trzoom.Location = new System.Drawing.Point(174, 35);
+		this.trzoom.Maximum = 400;
+		this.trzoom.Minimum = 25;
+		this.trzoom.Name = "trzoom";
+		this.trzoom.Size = new System.Drawing.Size(94, 45);
+		this.trzoom.SmallChange = 10;
+		this.trzoom.TabIndex = 9;
+		this.trzoom.TickFrequency = 25;
+		this.trzoom.Value = 100;
+		this.trzoom.Scroll += new System.EventHandler(trzoom_Scroll);
+		this.lbzoom.AutoSize = true;
+		this.lbzoom.Location = new System.Drawing.Point(196, 79);
+		this.lbzoom.Name = "lbzoom";
+		this.lbzoom.Size = new System.Drawing.Size(33, 13);
+		this.lbzoom.TabIndex = 10;
+		this.lbzoom.Text = "100%";
 		this.button3.Font = new System.Drawing.Font("Microsoft Sans Serif", 9f, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0);
 		this.button3.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
 		this.button3.Location = new System.Drawing.Point(134, 65);
 		this.button3.Name = "button3";
 		this.button3.Size = new System.Drawing.Size(35, 25);
 		this.button3.TabIndex = 8;
-		this.button3.Text = " ←";
+		this.button3.Text = "<-";
 		this.button3.UseVisualStyleBackColor = true;
 		this.button3.Click += new System.EventHandler(button3_Click_1);
 		this.label7.AutoSize = true;
@@ -873,6 +1193,7 @@ public class redimension : Form
 		this.rbredi.UseVisualStyleBackColor = true;
 		this.rbredi.CheckedChanged += new System.EventHandler(rbredi_CheckedChanged);
 		this.lbruta.AutoSize = true;
+		this.lbruta.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
 		this.lbruta.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
 		this.lbruta.Location = new System.Drawing.Point(87, 588);
 		this.lbruta.Name = "lbruta";
@@ -880,6 +1201,7 @@ public class redimension : Form
 		this.lbruta.TabIndex = 9;
 		this.lbruta.Text = "n/a";
 		this.label3.AutoSize = true;
+		this.label3.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
 		this.label3.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
 		this.label3.Location = new System.Drawing.Point(14, 588);
 		this.label3.Name = "label3";
@@ -887,6 +1209,7 @@ public class redimension : Form
 		this.label3.TabIndex = 6;
 		this.label3.Text = "Ruta Origen:";
 		this.panel3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+		this.panel3.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
 		this.panel3.Controls.Add(this.btzomout);
 		this.panel3.Controls.Add(this.panel4);
 		this.panel3.Controls.Add(this.btzomin);
@@ -960,6 +1283,7 @@ public class redimension : Form
 		this.btguardar.UseVisualStyleBackColor = true;
 		this.btguardar.Click += new System.EventHandler(btguardar_Click);
 		//this.button5.Image = ConvertidorImagenes.Properties.Resources.ResourceManager.;
+		this.button5.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
 		this.button5.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
 		this.button5.Location = new System.Drawing.Point(666, 604);
 		this.button5.Name = "button5";
@@ -970,6 +1294,7 @@ public class redimension : Form
 		this.button5.UseVisualStyleBackColor = true;
 		this.button5.Click += new System.EventHandler(button5_Click);
 		//this.button6.Image = (System.Drawing.Image)resources.GetObject("button6.Image");
+		this.button6.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
 		this.button6.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
 		this.button6.Location = new System.Drawing.Point(772, 604);
 		this.button6.Name = "button6";
@@ -980,6 +1305,7 @@ public class redimension : Form
 		this.button6.UseVisualStyleBackColor = true;
 		this.button6.Click += new System.EventHandler(button6_Click);
 		//this.button4.Image = (System.Drawing.Image)resources.GetObject("button4.Image");
+		this.button4.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
 		this.button4.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
 		this.button4.Location = new System.Drawing.Point(772, 17);
 		this.button4.Name = "button4";
@@ -992,7 +1318,7 @@ public class redimension : Form
 		base.AutoScaleDimensions = new System.Drawing.SizeF(6f, 13f);
 		base.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 		base.ClientSize = new System.Drawing.Size(884, 659);
-		base.ControlBox = false;
+		base.ControlBox = true;
 		base.Controls.Add(this.button5);
 		base.Controls.Add(this.button6);
 		base.Controls.Add(this.button4);
@@ -1002,14 +1328,17 @@ public class redimension : Form
 		base.Controls.Add(this.panel2);
 		base.Controls.Add(this.label1);
 		base.Controls.Add(this.panel1);
-		base.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-		base.MaximizeBox = false;
+		base.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Sizable;
+		base.MaximizeBox = true;
+		base.MinimumSize = new System.Drawing.Size(900, 698);
 		base.Name = "redimension";
-		this.Text = "redimension";
+		this.Text = "Edicion de Imagenes";
 		base.FormClosing += new System.Windows.Forms.FormClosingEventHandler(redimension_FormClosing);
 		base.Load += new System.EventHandler(redimension_Load);
+		base.Resize += new System.EventHandler(redimension_Resize);
 		this.panel1.ResumeLayout(false);
 		this.panel1.PerformLayout();
+		this.imageCanvas.ResumeLayout(false);
 		((System.ComponentModel.ISupportInitialize)this.pictureBox1).EndInit();
 		this.panel2.ResumeLayout(false);
 		this.panel2.PerformLayout();
@@ -1018,6 +1347,7 @@ public class redimension : Form
 		this.panel4.ResumeLayout(false);
 		this.panel4.PerformLayout();
 		((System.ComponentModel.ISupportInitialize)this.vistapre).EndInit();
+		((System.ComponentModel.ISupportInitialize)this.trzoom).EndInit();
 		base.ResumeLayout(false);
 		base.PerformLayout();
 	}

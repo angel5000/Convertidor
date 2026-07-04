@@ -2,18 +2,20 @@
 // ConvertidorImagenes.Form1
 using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using ConvertidorImagenes;
+using ConvertidorImagenes.Controllers;
 using ConvertidorImagenes.Properties;
-using ImageMagick;
+using ConvertidorImagenes.Services;
 
 namespace ConvertidorImagenes
 {
 public partial class Form1 : Form
 {
+	private readonly ImageConverterController imageController = new ImageConverterController(new ImageConversionService());
+
 	private bool noproces = false;
 
 	private bool cambio = false;
@@ -22,7 +24,7 @@ public partial class Form1 : Form
 
 	private bool chkbt = true;
 
-	private string rtdestino = "C:\\Users\\" + Environment.UserName + "\\Desktop\\";
+	private string rtdestino = "";
 
 	private string formato = "";
 
@@ -109,7 +111,8 @@ public partial class Form1 : Form
 		btnomb.Enabled = false;
 		txtnombre.Enabled = false;
 		btremove.Enabled = false;
-		string[] array = new string[6] { "JPG", "PNG", "WEBP", "GIF", "BITMAP(BMP)", "ICO" };
+		rtdestino = imageController.DefaultDestination;
+		string[] array = imageController.SupportedFormats;
 		lbrutadest.Text = rtdestino;
 		string[] array2 = array;
 		foreach (string item in array2)
@@ -122,7 +125,7 @@ public partial class Form1 : Form
 	private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
 	{
 		OpenFileDialog openFileDialog = new OpenFileDialog();
-		openFileDialog.Filter = "Archivos JPG (*.jpg;*.jpeg)|*.jpg;*.jpeg|Archivos PNG (*.png)|*.png|Archivos GIF (*.gif)|*.gif|Archivos BMP (*.bmp)|*.bmp|Archivos WEBP (*.webp)|*.webp|Archivos JPEG (*.jpeg)|*.jpeg";
+        openFileDialog.Filter = "Todos los formatos de imagen (*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.webp;*.ico)|*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.webp;*.ico|Archivos JPG (*.jpg;*.jpeg)|*.jpg;*.jpeg|Archivos PNG (*.png)|*.png|Archivos GIF (*.gif)|*.gif|Archivos BMP (*.bmp)|*.bmp|Archivos WEBP (*.webp)|*.webp|Archivos ICO (*.ico)|*.ico";
 		openFileDialog.Title = "Selecciona una iamgen a convertir...";
 		DialogResult dialogResult = openFileDialog.ShowDialog();
 		if (dialogResult != DialogResult.OK)
@@ -207,15 +210,8 @@ public partial class Form1 : Form
 
 	private bool IsImageFile(string fileName)
 	{
-		if (fileName.EndsWith(".webp"))
-		{
-			noproces = true;
-		}
-		else
-		{
-			noproces = false;
-		}
-		return fileName.EndsWith(".jpg") || fileName.EndsWith(".jpeg") || fileName.EndsWith(".png") || fileName.EndsWith(".gif") || fileName.EndsWith(".webp") || fileName.EndsWith(".bmp") || fileName.EndsWith(".ico");
+		noproces = imageController.RequiresPreviewBypass(fileName);
+		return imageController.IsSupportedImageFile(fileName);
 	}
 
 	private void Form1_Load(object sender, EventArgs e)
@@ -298,6 +294,30 @@ public partial class Form1 : Form
 		panel2.Enabled = false;
 		btconvertir.Enabled = false;
 		progreso.Value = 90;
+		try
+		{
+			imageController.ConvertImage(files, rtdestino, nombarch, formato, mostrarubi);
+			progreso.Value = 100;
+			lbprogre.Text = "Finalizado!";
+			btnomb.Enabled = true;
+			btremove.Enabled = true;
+			return;
+		}
+		catch (Exception ex)
+		{
+			btremove.Enabled = true;
+			lbprogre.Text = "Fallo!";
+			if (formato == "ICO")
+			{
+				MessageBox.Show("Resolucion muy grande o imagen no apta: Resolucion de formato ico(16x16, 32x32, 64x64 y 128x128 pixeles)");
+			}
+			else
+			{
+				MessageBox.Show(ex.Message);
+			}
+			return;
+		}
+		/*
 		string text = "";
 		switch (formato)
 		{
@@ -496,6 +516,9 @@ public partial class Form1 : Form
 				break;
 			}
 		}
+	}
+
+		*/
 	}
 
 	private void pictureBox1_DragEnter(object sender, DragEventArgs e)

@@ -6,16 +6,17 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
+using System.Reflection;
+using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using ConvertidorImagenes;
 using ConvertidorImagenes.Properties;
-using Microsoft.Office.Core;
-using Microsoft.Office.Interop.Excel;
-using Microsoft.Office.Interop.PowerPoint;
-using Microsoft.Office.Interop.Word;
+using Office = Microsoft.Office.Core;
+using PowerPoint = Microsoft.Office.Interop.PowerPoint;
 using SautinSoft;
 using Button = System.Windows.Forms.Button;
+using Excel = Microsoft.Office.Interop.Excel;
 using Label = System.Windows.Forms.Label;
 using Point = System.Drawing.Point;
 
@@ -92,9 +93,16 @@ public partial class Offices : Form
 
 	private Button button4;
 
+	private Button button7;
+
+	private const string SyncfusionTrialLicense = "Ngo9BigBOggjHTQxAR8/V1JHaF1cXmhOYVJ3WmFZfVhgd19EaVZSTWY/P1ZhSXxVdkJjXX5bcn1WT2BeUUJ9XEE=";
+
+	private string rutaArchivoSeleccionado = "";
+
 	public Offices()
 	{
 		InitializeComponent();
+		TryRegisterSyncfusionLicense();
 		string[] array = new string[3] { "WORD", "EXCEL", "POWERPOINT" };
 		string[] array2 = new string[2] { "WORD", "POWERPOINT(AUN NO DESARROLLADO)" };
 		string[] array3 = array;
@@ -164,22 +172,33 @@ public partial class Offices : Form
 		if (data != null)
 		{
 			string[] array = data as string[];
-			if (array.Length != 0 && apdf)
+          if (array.Length != 0)
 			{
 				lbro.Text = array[0];
-				nombarch = Path.GetFileName(array[0]);
+                rutaArchivoSeleccionado = array[0];
+				nombarch = Path.GetFileNameWithoutExtension(array[0]);
 				contador = 40;
 				bar2.Value = contador;
-				convertirpdf(nombreft, array[0]);
+               lbestado.Text = "Archivo cargado. Presione Iniciar conversion";
 			}
-			if (array.Length != 0 && !apdf)
-			{
-				lbro.Text = array[0];
-				nombarch = Path.GetFileName(array[0]);
-				contador = 40;
-				bar2.Value = contador;
-				convertirAdoc(array[0], nombreft2);
-			}
+		}
+	}
+
+	private void button7_Click(object sender, EventArgs e)
+	{
+		if (string.IsNullOrEmpty(rutaArchivoSeleccionado) || !File.Exists(rutaArchivoSeleccionado))
+		{
+			MessageBox.Show("Primero arrastre un archivo valido al panel.");
+			return;
+		}
+
+		if (apdf)
+		{
+			convertirpdf(nombreft, rutaArchivoSeleccionado);
+		}
+		else
+		{
+			convertirAdoc(rutaArchivoSeleccionado, nombreft2);
 		}
 	}
 
@@ -187,93 +206,465 @@ public partial class Offices : Form
 	{
 		panel2.Enabled = false;
 		cbof.Enabled = false;
-		switch (formato)
+		string outputFileName = Path.Combine(rtdestino, nombarch + ".pdf");
+		try
 		{
-		case "WORD":
-			try
+			switch (formato)
 			{
-				lbestado.Text = "Abriendo MS Word";
+			case "WORD":
+				lbestado.Text = "Convirtiendo Word con Syncfusion";
 				bar2.Value = 60;
-				Microsoft.Office.Interop.Word.Application application3 = (Microsoft.Office.Interop.Word.Application)Activator.CreateInstance(Marshal.GetTypeFromCLSID(new Guid("000209FF-0000-0000-C000-000000000046")));
-               Microsoft.Office.Interop.Word.Documents documents = application3.Documents;
-				object FileName = ruta;
-				object ConfirmConversions = Type.Missing;
-				object ReadOnly = Type.Missing;
-				object AddToRecentFiles = Type.Missing;
-				object PasswordDocument = Type.Missing;
-				object PasswordTemplate = Type.Missing;
-				object Revert = Type.Missing;
-				object WritePasswordDocument = Type.Missing;
-				object WritePasswordTemplate = Type.Missing;
-				object Format = Type.Missing;
-				object Encoding = Type.Missing;
-				object Visible = Type.Missing;
-				object OpenAndRepair = Type.Missing;
-				object DocumentDirection = Type.Missing;
-				object NoEncodingDialog = Type.Missing;
-				object XMLTransform = Type.Missing;
-                Microsoft.Office.Interop.Word.Document document = documents.Open(ref FileName, ref ConfirmConversions, ref ReadOnly, ref AddToRecentFiles, ref PasswordDocument, ref PasswordTemplate, ref Revert, ref WritePasswordDocument, ref WritePasswordTemplate, ref Format, ref Encoding, ref Visible, ref OpenAndRepair, ref DocumentDirection, ref NoEncodingDialog, ref XMLTransform);
-				bar2.Value = 80;
-				string outputFileName = rtdestino + "\\" + nombarch + ".pdf";
-				XMLTransform = Type.Missing;
-				document.ExportAsFixedFormat(outputFileName, WdExportFormat.wdExportFormatPDF, OpenAfterExport: false, WdExportOptimizeFor.wdExportOptimizeForPrint, WdExportRange.wdExportAllDocument, 1, 1, WdExportItem.wdExportDocumentContent, IncludeDocProps: false, KeepIRM: true, WdExportCreateBookmarks.wdExportCreateNoBookmarks, DocStructureTags: true, BitmapMissingFonts: true, UseISO19005_1: false, ref XMLTransform);
-				XMLTransform = WdSaveOptions.wdDoNotSaveChanges;
-				NoEncodingDialog = WdOriginalFormat.wdOriginalDocumentFormat;
-				DocumentDirection = false;
-				document.Close(ref XMLTransform, ref NoEncodingDialog, ref DocumentDirection);
-				bar2.Value = 100;
-				DocumentDirection = Type.Missing;
-				NoEncodingDialog = Type.Missing;
-				XMLTransform = Type.Missing;
-				application3.Quit(ref DocumentDirection, ref NoEncodingDialog, ref XMLTransform);
-				lbestado.Text = "Finalizo Conversion";
+				ConvertWordToPdfWithSyncfusion(ruta, outputFileName);
 				break;
-			}
-			catch (Exception ex3)
-			{
-				MessageBox.Show("Verifique que tenga office instalado o que el documento no se este usando" + ex3.InnerException);
+			case "EXCEL":
+				lbestado.Text = "Convirtiendo Excel con Syncfusion";
+				bar2.Value = 60;
+				ConvertExcelToPdfWithSyncfusion(ruta, outputFileName);
 				break;
+			case "POWERPOINT":
+				lbestado.Text = "Convirtiendo PowerPoint con Syncfusion";
+				bar2.Value = 60;
+				ConvertPowerPointToPdfWithSyncfusion(ruta, outputFileName);
+				break;
+			default:
+				throw new InvalidOperationException("Formato no soportado: " + formato);
 			}
-		case "EXCEL":
+			bar2.Value = 100;
+			lbestado.Text = "Finalizo Conversion";
+		}
+		catch (Exception ex)
+		{
+			MessageBox.Show("Error al convertir con Syncfusion: " + ex.Message);
+			lbestado.Text = "Error";
+			panel2.Enabled = true;
+			cbof.Enabled = true;
+		}
+	}
+
+	private void ConvertWordToPdfWithSyncfusion(string inputFilePath, string outputFilePath)
+	{
+		object wordDocument = null;
+		object converter = null;
+		object pdfDocument = null;
+		try
+		{
+			Type wordDocumentType = GetRequiredType("Syncfusion.DocIO.DLS.WordDocument, Syncfusion.DocIO.Base", "Syncfusion.DocIO.DLS.WordDocument, Syncfusion.DocIO.NET");
+			Type formatType = GetRequiredType("Syncfusion.DocIO.FormatType, Syncfusion.DocIO.Base", "Syncfusion.DocIO.FormatType, Syncfusion.DocIO.NET");
+			Type converterType = GetRequiredType("Syncfusion.DocToPDFConverter.DocToPDFConverter, Syncfusion.DocToPDFConverter.Base", "Syncfusion.DocToPDFConverter.DocToPDFConverter, Syncfusion.DocToPDFConverter.NET");
+
+			object automaticFormat = Enum.Parse(formatType, "Automatic");
+			wordDocument = Activator.CreateInstance(wordDocumentType, new object[] { inputFilePath, automaticFormat });
+			converter = Activator.CreateInstance(converterType);
+			pdfDocument = InvokeMethodByName(converter, "ConvertToPDF", new object[] { wordDocument });
+			SavePdfDocument(pdfDocument, outputFilePath);
+		}
+		finally
+		{
+			CloseOrDispose(pdfDocument);
+			CloseOrDispose(converter);
+			CloseOrDispose(wordDocument);
+		}
+	}
+
+	private void ConvertExcelToPdfWithSyncfusion(string inputFilePath, string outputFilePath)
+	{
+		object excelEngine = null;
+		object workbook = null;
+     object converter = null;
+		object pdfDocument = null;
+     Exception syncfusionError = null;
+		try
+		{
+            EnsureAssembliesLoaded(
+				"Syncfusion.ExcelToPdfConverter.Base",
+				"Syncfusion.Pdf.Base",
+				"Syncfusion.XlsIO.Base",
+				"Syncfusion.OfficeChart.Base",
+				"Syncfusion.Compression.Base");
+
+			Type excelEngineType = GetRequiredType("Syncfusion.XlsIO.ExcelEngine, Syncfusion.XlsIO.Base", "Syncfusion.XlsIO.ExcelEngine, Syncfusion.XlsIO.NET");
+			excelEngine = Activator.CreateInstance(excelEngineType);
+			object application = excelEngineType.GetProperty("Excel").GetValue(excelEngine, null);
+
+			Type excelVersionType = GetRequiredType("Syncfusion.XlsIO.ExcelVersion, Syncfusion.XlsIO.Base", "Syncfusion.XlsIO.ExcelVersion, Syncfusion.XlsIO.NET");
+			object xlsxVersion = Enum.Parse(excelVersionType, "Xlsx");
+			application.GetType().GetProperty("DefaultVersion").SetValue(application, xlsxVersion, null);
+
+			object workbooks = application.GetType().GetProperty("Workbooks").GetValue(application, null);
+			workbook = InvokeMethodByName(workbooks, "Open", new object[] { inputFilePath });
+
+            Type converterType = GetRequiredType(
+				"Syncfusion.ExcelToPdfConverter.ExcelToPdfConverter, Syncfusion.ExcelToPdfConverter.Base",
+				"Syncfusion.XlsIORenderer.XlsIORenderer, Syncfusion.XlsIORenderer.Base",
+				"Syncfusion.XlsIORenderer.XlsIORenderer, Syncfusion.XlsIORenderer",
+				"Syncfusion.XlsIORenderer.XlsIORenderer, Syncfusion.XlsIORenderer.NET");
+			converter = Activator.CreateInstance(converterType);
+
 			try
 			{
-				lbestado.Text = "Abriendo MS Excel";
-				contador = 60;
-				bar2.Value = contador;
-				Microsoft.Office.Interop.Excel.Application application2 = (Microsoft.Office.Interop.Excel.Application)Activator.CreateInstance(Marshal.GetTypeFromCLSID(new Guid("00024500-0000-0000-C000-000000000046")));
-              Microsoft.Office.Interop.Excel.Workbook workbook = application2.Workbooks.Open(ruta, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
-				workbook.ExportAsFixedFormat(XlFixedFormatType.xlTypePDF, rtdestino + "\\" + nombarch + ".pdf", Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
-				workbook.Close(false, "", false);
-				application2.Quit();
-				bar2.Value = 100;
-				lbestado.Text = "Finalizo Conversion";
-				break;
+				pdfDocument = InvokeMethodByName(converter, "Convert", new object[] { workbook });
 			}
-			catch (Exception ex2)
+			catch (MissingMethodException)
 			{
-				MessageBox.Show("Verifique que tenga office instalado o que el documento no se este usando" + ex2.InnerException);
-				break;
+				pdfDocument = InvokeMethodByName(converter, "ConvertToPDF", new object[] { workbook });
 			}
-		case "POWERPOINT":
+
+			SavePdfDocument(pdfDocument, outputFilePath);
+		}
+     catch (Exception ex)
+		{
+			syncfusionError = ex;
+		}
+		finally
+		{
+			CloseOrDispose(pdfDocument);
+           CloseOrDispose(converter);
+			CloseOrDispose(workbook);
+			CloseOrDispose(excelEngine);
+		}
+
+		if (syncfusionError != null)
+		{
 			try
 			{
-				lbestado.Text = "Abriendo MS Power Point";
-				contador = 60;
-				bar2.Value = contador;
-				Microsoft.Office.Interop.PowerPoint.Application application = (Microsoft.Office.Interop.PowerPoint.Application)Activator.CreateInstance(Marshal.GetTypeFromCLSID(new Guid("91493441-5A91-11CF-8700-00AA0060263B")));
-              Microsoft.Office.Interop.PowerPoint.Presentation presentation = application.Presentations.Open(ruta, MsoTriState.msoTrue, MsoTriState.msoFalse, MsoTriState.msoFalse);
-				presentation.ExportAsFixedFormat(rtdestino + "\\" + nombarch + ".pdf", PpFixedFormatType.ppFixedFormatTypePDF, PpFixedFormatIntent.ppFixedFormatIntentScreen, MsoTriState.msoFalse, PpPrintHandoutOrder.ppPrintHandoutVerticalFirst, PpPrintOutputType.ppPrintOutputSlides, MsoTriState.msoFalse, null, PpPrintRangeType.ppPrintAll, "", IncludeDocProperties: false, KeepIRMSettings: true, DocStructureTags: true, BitmapMissingFonts: true, UseISO19005_1: false, Type.Missing);
-				presentation.Close();
-				application.Quit();
-				bar2.Value = 100;
-				lbestado.Text = "Finalizo Conversion";
-				break;
+				ConvertExcelToPdfWithInterop(inputFilePath, outputFilePath);
 			}
-			catch (Exception ex)
+			catch (Exception interopEx)
 			{
-				MessageBox.Show("Verifique que tenga office instalado o que el documento no se este usando" + ex.InnerException);
-				break;
+				throw new InvalidOperationException("No se pudo convertir Excel con Syncfusion ni con Interop. Syncfusion: " + syncfusionError.Message + " | Interop: " + interopEx.Message);
 			}
+		}
+	}
+
+	private void ConvertExcelToPdfWithInterop(string inputFilePath, string outputFilePath)
+	{
+		Excel.Application excelApp = null;
+		Excel.Workbook excelWorkbook = null;
+
+		try
+		{
+			excelApp = new Excel.Application();
+			excelApp.DisplayAlerts = false;
+			excelWorkbook = excelApp.Workbooks.Open(inputFilePath);
+			excelWorkbook.ExportAsFixedFormat(Excel.XlFixedFormatType.xlTypePDF, outputFilePath);
+		}
+		finally
+		{
+			if (excelWorkbook != null)
+			{
+				excelWorkbook.Close(false);
+				Marshal.FinalReleaseComObject(excelWorkbook);
+			}
+
+			if (excelApp != null)
+			{
+				excelApp.Quit();
+				Marshal.FinalReleaseComObject(excelApp);
+			}
+		}
+	}
+
+	private void ConvertPowerPointToPdfWithSyncfusion(string inputFilePath, string outputFilePath)
+	{
+		object presentation = null;
+		object pdfDocument = null;
+     Exception syncfusionError = null;
+		try
+		{
+			Type presentationType = GetRequiredType("Syncfusion.Presentation.Presentation, Syncfusion.Presentation.Base", "Syncfusion.Presentation.Presentation, Syncfusion.Presentation.NET");
+			presentation = InvokeStaticMethodByName(presentationType, "Open", new object[] { inputFilePath });
+
+			Type converterType = GetRequiredType("Syncfusion.PresentationToPdfConverter.PresentationToPdfConverter, Syncfusion.PresentationToPdfConverter.Base", "Syncfusion.PresentationToPdfConverter.PresentationToPdfConverter, Syncfusion.PresentationToPdfConverter.NET");
+			pdfDocument = InvokeStaticMethodByName(converterType, "Convert", new object[] { presentation });
+			SavePdfDocument(pdfDocument, outputFilePath);
+		}
+     catch (Exception ex)
+		{
+			syncfusionError = ex;
+		}
+		finally
+		{
+			CloseOrDispose(pdfDocument);
+			CloseOrDispose(presentation);
+		}
+
+		if (syncfusionError != null)
+		{
+			try
+			{
+				ConvertPowerPointToPdfWithInterop(inputFilePath, outputFilePath);
+			}
+			catch (Exception interopEx)
+			{
+				throw new InvalidOperationException("No se pudo convertir PowerPoint con Syncfusion ni con Interop. Syncfusion: " + syncfusionError.Message + " | Interop: " + interopEx.Message);
+			}
+		}
+	}
+
+	private void ConvertPowerPointToPdfWithInterop(string inputFilePath, string outputFilePath)
+	{
+		PowerPoint.Application powerPointApp = null;
+		PowerPoint.Presentation powerPointPresentation = null;
+
+		try
+		{
+			powerPointApp = new PowerPoint.Application();
+			powerPointPresentation = powerPointApp.Presentations.Open(
+				inputFilePath,
+				Office.MsoTriState.msoFalse,
+				Office.MsoTriState.msoFalse,
+				Office.MsoTriState.msoFalse);
+
+			powerPointPresentation.SaveAs(outputFilePath, PowerPoint.PpSaveAsFileType.ppSaveAsPDF, Office.MsoTriState.msoFalse);
+		}
+		finally
+		{
+			if (powerPointPresentation != null)
+			{
+				powerPointPresentation.Close();
+				Marshal.FinalReleaseComObject(powerPointPresentation);
+			}
+
+			if (powerPointApp != null)
+			{
+				powerPointApp.Quit();
+				Marshal.FinalReleaseComObject(powerPointApp);
+			}
+		}
+	}
+
+	private static void TryRegisterSyncfusionLicense()
+	{
+		try
+		{
+			Type licenseProviderType = GetRequiredType("Syncfusion.Licensing.SyncfusionLicenseProvider, Syncfusion.Licensing");
+			MethodInfo registerMethod = licenseProviderType.GetMethod("RegisterLicense", BindingFlags.Public | BindingFlags.Static);
+			if (registerMethod != null)
+			{
+				registerMethod.Invoke(null, new object[] { SyncfusionTrialLicense });
+			}
+		}
+		catch
+		{
+			// Se ignora aquí para no bloquear el formulario. El error aparece al intentar convertir.
+		}
+	}
+
+	private static Type GetRequiredType(params string[] candidates)
+	{
+		for (int i = 0; i < candidates.Length; i++)
+		{
+         Type resolvedType = ResolveType(candidates[i]);
+			if (resolvedType != null)
+			{
+				return resolvedType;
+			}
+		}
+		throw new InvalidOperationException("No se encontraron los ensamblados de Syncfusion requeridos. Instala los paquetes NuGet de Syncfusion para Office a PDF.");
+	}
+
+	private static Type ResolveType(string candidate)
+	{
+		Type resolvedType = Type.GetType(candidate, false);
+		if (resolvedType != null)
+		{
+			return resolvedType;
+		}
+
+		string[] parts = candidate.Split(new char[] { ',' }, 2);
+		if (parts.Length != 2)
+		{
+			return null;
+		}
+
+		string typeName = parts[0].Trim();
+		string assemblyName = parts[1].Trim();
+
+		Assembly[] loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+		for (int i = 0; i < loadedAssemblies.Length; i++)
+		{
+			AssemblyName currentAssemblyName = loadedAssemblies[i].GetName();
+			if (string.Equals(currentAssemblyName.Name, assemblyName, StringComparison.OrdinalIgnoreCase))
+			{
+				resolvedType = loadedAssemblies[i].GetType(typeName, false);
+				if (resolvedType != null)
+				{
+					return resolvedType;
+				}
+			}
+		}
+
+		try
+		{
+          Assembly assembly = TryLoadAssembly(assemblyName);
+			if (assembly != null)
+			{
+				return assembly.GetType(typeName, false);
+			}
+			return null;
+		}
+		catch
+		{
+			return null;
+		}
+	}
+
+	private static void EnsureAssembliesLoaded(params string[] assemblyNames)
+	{
+		for (int i = 0; i < assemblyNames.Length; i++)
+		{
+			TryLoadAssembly(assemblyNames[i]);
+		}
+	}
+
+	private static Assembly TryLoadAssembly(string assemblyName)
+	{
+		try
+		{
+			return Assembly.Load(new AssemblyName(assemblyName));
+		}
+		catch
+		{
+		}
+
+		try
+		{
+			string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+			string localAssemblyPath = Path.Combine(baseDirectory, assemblyName + ".dll");
+			if (File.Exists(localAssemblyPath))
+			{
+				return Assembly.LoadFrom(localAssemblyPath);
+			}
+
+			string packagesDirectory = Path.GetFullPath(Path.Combine(baseDirectory, "..\\..\\packages"));
+			if (Directory.Exists(packagesDirectory))
+			{
+				string[] matches = Directory.GetFiles(packagesDirectory, assemblyName + ".dll", SearchOption.AllDirectories);
+				if (matches.Length > 0)
+				{
+					return Assembly.LoadFrom(matches[0]);
+				}
+			}
+		}
+		catch
+		{
+		}
+
+		return null;
+	}
+
+	private static object InvokeMethodByName(object instance, string methodName, object[] args)
+	{
+		MethodInfo[] methods = instance.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance);
+		for (int i = 0; i < methods.Length; i++)
+		{
+          if (methods[i].Name == methodName && AreParametersCompatible(methods[i].GetParameters(), args))
+			{
+               try
+				{
+					return methods[i].Invoke(instance, args);
+				}
+				catch (TargetInvocationException ex)
+				{
+					if (ex.InnerException != null)
+					{
+						ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+					}
+					throw;
+				}
+			}
+		}
+		throw new MissingMethodException(instance.GetType().FullName, methodName);
+	}
+
+	private static object InvokeStaticMethodByName(Type type, string methodName, object[] args)
+	{
+		MethodInfo[] methods = type.GetMethods(BindingFlags.Public | BindingFlags.Static);
+		for (int i = 0; i < methods.Length; i++)
+		{
+          if (methods[i].Name == methodName && AreParametersCompatible(methods[i].GetParameters(), args))
+			{
+               try
+				{
+					return methods[i].Invoke(null, args);
+				}
+				catch (TargetInvocationException ex)
+				{
+					if (ex.InnerException != null)
+					{
+						ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+					}
+					throw;
+				}
+			}
+		}
+		throw new MissingMethodException(type.FullName, methodName);
+	}
+
+	private static bool AreParametersCompatible(ParameterInfo[] parameters, object[] args)
+	{
+		if (parameters.Length != args.Length)
+		{
+			return false;
+		}
+
+		for (int i = 0; i < parameters.Length; i++)
+		{
+			object arg = args[i];
+			Type parameterType = parameters[i].ParameterType;
+
+			if (arg == null)
+			{
+				if (parameterType.IsValueType && Nullable.GetUnderlyingType(parameterType) == null)
+				{
+					return false;
+				}
+				continue;
+			}
+
+			if (!parameterType.IsInstanceOfType(arg))
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	private static void SavePdfDocument(object pdfDocument, string outputFilePath)
+	{
+		InvokeMethodByName(pdfDocument, "Save", new object[] { outputFilePath });
+	}
+
+	private static void CloseOrDispose(object instance)
+	{
+		if (instance == null)
+		{
+			return;
+		}
+
+		try
+		{
+			MethodInfo closeMethod = instance.GetType().GetMethod("Close", Type.EmptyTypes);
+			if (closeMethod != null)
+			{
+				closeMethod.Invoke(instance, null);
+			}
+		}
+		catch
+		{
+		}
+
+		try
+		{
+			MethodInfo disposeMethod = instance.GetType().GetMethod("Dispose", Type.EmptyTypes);
+			if (disposeMethod != null)
+			{
+				disposeMethod.Invoke(instance, null);
+			}
+		}
+		catch
+		{
 		}
 	}
 
@@ -375,6 +766,8 @@ public partial class Offices : Form
 		cbof.Enabled = true;
 		bar2.Value = 0;
 		lbestado.Text = "n/a";
+       rutaArchivoSeleccionado = "";
+		lbro.Text = "n/a";
 	}
 
 	private void button5_Click(object sender, EventArgs e)
@@ -386,7 +779,7 @@ public partial class Offices : Form
 
 	private void btay_Click(object sender, EventArgs e)
 	{
-		MessageBox.Show("Aviso: \nESTAS FUNCIONES ESTAN EN PRUEBA ASI QUE PARA SU CORRECTO USO DEBE TENER OFFICE INSTALADO,\nYA QUE ESTE HACE USO DEL MODULO DE OFFICES PARA CONVERTIR LOS ARCHIVOS EN PDF, ESTO A FALTA DE RECURSOS.\n LA CONVERSION DE PDF A DOCUMENTOS OFFICES AUN ESTA EN DESARROLLO POR LO QUE SU RESULTADO NO PUEDE SER MUY BUENO, SE ESPERA QUE PRONTO SE SOLUCIONE ESTO.");
+     MessageBox.Show("Aviso:\nLa conversion de Office a PDF ahora usa Syncfusion y no requiere Microsoft Office instalado.\nLa conversion de PDF a Office aun esta en desarrollo y puede tener resultados limitados.");
 	}
 
 	private void button4_Click_1(object sender, EventArgs e)
@@ -405,6 +798,8 @@ public partial class Offices : Form
 		cbof.Enabled = true;
 		bar2.Value = 0;
 		lbestado.Text = "n/a";
+       rutaArchivoSeleccionado = "";
+		lbro.Text = "n/a";
 	}
 
 	private void button2_Click(object sender, EventArgs e)
@@ -458,6 +853,7 @@ public partial class Offices : Form
 		this.button5 = new System.Windows.Forms.Button();
 		this.button6 = new System.Windows.Forms.Button();
 		this.button4 = new System.Windows.Forms.Button();
+        this.button7 = new System.Windows.Forms.Button();
 		this.panel1.SuspendLayout();
 		this.panel3.SuspendLayout();
 		this.panel5.SuspendLayout();
@@ -475,6 +871,7 @@ public partial class Offices : Form
 		this.panel1.Controls.Add(this.label3);
 		this.panel1.Controls.Add(this.label2);
 		this.panel1.Controls.Add(this.button2);
+      this.panel1.Controls.Add(this.button7);
 		this.panel1.Controls.Add(this.panel2);
 		this.panel1.Location = new System.Drawing.Point(12, 61);
 		this.panel1.Name = "panel1";
@@ -617,6 +1014,13 @@ public partial class Offices : Form
 		this.button2.Text = "Ruta Destino";
 		this.button2.UseVisualStyleBackColor = true;
 		this.button2.Click += new System.EventHandler(button2_Click);
+       this.button7.Location = new System.Drawing.Point(16, 266);
+		this.button7.Name = "button7";
+		this.button7.Size = new System.Drawing.Size(126, 23);
+		this.button7.TabIndex = 12;
+		this.button7.Text = "Iniciar conversion";
+		this.button7.UseVisualStyleBackColor = true;
+		this.button7.Click += new System.EventHandler(button7_Click);
 		this.panel2.AllowDrop = true;
 		this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
 		this.panel2.Controls.Add(this.label1);
