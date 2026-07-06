@@ -483,6 +483,7 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\waves_stars.gif" />
     <Content Include="Icons-runtime\bell.png" />
     <Content Include="Icons-runtime\bulb.png" />
     <Content Include="Icons-runtime\clock.png" />

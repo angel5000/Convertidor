@@ -1706,7 +1706,7 @@ public class redimension : Form
     
     private void ToggleEmptyState(bool show)
     {
-        if (lbaviso != null) { if (show) ToggleEmptyState(true); else ToggleEmptyState(false); }
+        if (lbaviso != null) { lbaviso.Visible = show; }
         if (pnlEmptyState != null) { pnlEmptyState.Visible = show; }
     }
 
