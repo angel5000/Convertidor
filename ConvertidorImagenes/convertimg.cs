@@ -1,5 +1,5 @@
 // ConvertidorImagenes, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-// ConvertidorImagenes.Form1
+// ConvertidorImagenes.convertimg
 using System;
 using System.ComponentModel;
 using System.Drawing;
@@ -13,7 +13,7 @@ using ConvertidorImagenes.Services;
 
 namespace ConvertidorImagenes
 {
-public partial class Form1 : Form
+public partial class convertimg : Form
 {
 	private readonly ImageConverterController imageController = new ImageConverterController(new ImageConversionService());
 
@@ -105,7 +105,7 @@ public partial class Form1 : Form
 
 	private CheckBox chkbtcv;
 
-	public Form1()
+	public convertimg()
 	{
 		InitializeComponent();
 		this.DoubleBuffered = true;
@@ -712,7 +712,7 @@ public partial class Form1 : Form
 
 	private void InitializeComponent()
 	{
-		System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ConvertidorImagenes.Form1));
+		System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ConvertidorImagenes.convertimg));
 		this.label1 = new System.Windows.Forms.Label();
 		this.btruta = new System.Windows.Forms.Button();
 		this.panel1 = new ConvertidorImagenes.RoundedPanel();
@@ -1038,7 +1038,7 @@ public partial class Form1 : Form
 		base.Controls.Add(this.label2);
 		base.Controls.Add(this.panel1);
 		base.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-		base.Name = "Form1";
+		base.Name = "convertimg";
 		this.Text = "Convertidor de Imagenes";
 		base.FormClosing += new System.Windows.Forms.FormClosingEventHandler(Form1_FormClosing);
 		base.Load += new System.EventHandler(Form1_Load);

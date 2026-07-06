@@ -149,7 +149,7 @@ namespace ConvertidorImagenes
             var datos = new (string titulo, string subtitulo, string icono, Color color, EventHandler accion)[]
             {
                 ("Convertidor de\nImágenes", "Hace 5 min", "logo", Color.FromArgb(79, 124, 255),
-                    (s, e) => navigationController.Show<Form1>(this)),
+                    (s, e) => navigationController.Show<convertimg>(this)),
                 ("Office a PDF /\nPDF a Office", "Hace 30 min", "office", Color.FromArgb(139, 92, 246),
                     (s, e) => navigationController.Show<Offices>(this)),
                 ("Reconocimiento Óptico\nde Caracteres (OCR)", "Hace 1 hora", "ocr", Color.FromArgb(20, 184, 166),
@@ -190,7 +190,7 @@ namespace ConvertidorImagenes
             var datos = new (string titulo, string icono, Color color, bool favorito, EventHandler accion)[]
             {
                 ("Convertidor de\nImágenes", "logo", Color.FromArgb(79, 124, 255), true,
-                    (s, e) => navigationController.Show<Form1>(this)),
+                    (s, e) => navigationController.Show<convertimg>(this)),
                 ("Office a PDF / PDF\na Office (Experimental)", "office", Color.FromArgb(139, 92, 246), true,
                     (s, e) => navigationController.Show<Offices>(this)),
                 ("Reconocimiento Óptico\nde Caracteres (OCR)", "ocr", Color.FromArgb(20, 184, 166), true,
@@ -305,7 +305,7 @@ namespace ConvertidorImagenes
         private void navConvertidor_Click(object sender, EventArgs e)
         {
             SeleccionarNav(navConvertidor);
-            navigationController.Show<Form1>(this);
+            navigationController.Show<convertimg>(this);
         }
 
         private void navOffice_Click(object sender, EventArgs e)

@@ -1477,11 +1477,11 @@ namespace ConvertidorImagenes
 
             if (tipo?.ToLower().Contains("imagen") == true)
             {
-                txtValor.Size = new Size(95, 25);
-                Button btnBrowse = new Button { Text = "📁", Location = new Point(260, 4), Size = new Size(28, 28), FlatStyle = FlatStyle.Flat, ForeColor = Color.DodgerBlue, BackColor = Color.White, Cursor = Cursors.Hand };
+                txtValor.Size = new Size(50, 25);
+                Button btnBrowse = new Button { Text = "📁", Location = new Point(212, 4), Size = new Size(26, 26), FlatStyle = FlatStyle.Flat, ForeColor = Color.DodgerBlue, BackColor = Color.White, Cursor = Cursors.Hand };
                 btnBrowse.FlatAppearance.BorderSize = 0;
                 btnBrowse.Click += (s, ev) => {
-                    using (OpenFileDialog ofd = new OpenFileDialog { Filter = "Imágenes|*.jpg;*.jpeg;*.png" })
+                    using (OpenFileDialog ofd = new OpenFileDialog { Filter = "Imágenes|*.jpg;*.jpeg;*.png;*.webp" })
                     {
                         if (ofd.ShowDialog() == DialogResult.OK)
                         {
@@ -1489,7 +1489,24 @@ namespace ConvertidorImagenes
                         }
                     }
                 };
+
+                Button btnConvert = new Button { Text = "🔄", Location = new Point(240, 4), Size = new Size(26, 26), FlatStyle = FlatStyle.Flat, ForeColor = Color.Orange, BackColor = Color.White, Cursor = Cursors.Hand };
+                btnConvert.FlatAppearance.BorderSize = 0;
+                btnConvert.Click += (s, ev) => {
+                    convertimg form = new convertimg();
+                    form.Show();
+                };
+
+                Button btnResize = new Button { Text = "✂️", Location = new Point(268, 4), Size = new Size(26, 26), FlatStyle = FlatStyle.Flat, ForeColor = Color.Purple, BackColor = Color.White, Cursor = Cursors.Hand };
+                btnResize.FlatAppearance.BorderSize = 0;
+                btnResize.Click += (s, ev) => {
+                    redimension form = new redimension();
+                    form.Show();
+                };
+
                 row.Controls.Add(btnBrowse);
+                row.Controls.Add(btnConvert);
+                row.Controls.Add(btnResize);
             }
 
             Button btnDel = new Button { Text = "🗑️", Location = new Point(295, 4), Size = new Size(28, 28), FlatStyle = FlatStyle.Flat, ForeColor = Color.Red, BackColor = Color.White, Cursor = Cursors.Hand };
