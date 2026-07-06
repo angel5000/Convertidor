@@ -1475,6 +1475,23 @@ namespace ConvertidorImagenes
             txtValor.TextChanged += (s, e) => RenderDocPreview();
             row.Controls.Add(txtValor);
 
+            if (tipo?.ToLower().Contains("imagen") == true)
+            {
+                txtValor.Size = new Size(95, 25);
+                Button btnBrowse = new Button { Text = "📁", Location = new Point(260, 4), Size = new Size(28, 28), FlatStyle = FlatStyle.Flat, ForeColor = Color.DodgerBlue, BackColor = Color.White, Cursor = Cursors.Hand };
+                btnBrowse.FlatAppearance.BorderSize = 0;
+                btnBrowse.Click += (s, ev) => {
+                    using (OpenFileDialog ofd = new OpenFileDialog { Filter = "Imágenes|*.jpg;*.jpeg;*.png" })
+                    {
+                        if (ofd.ShowDialog() == DialogResult.OK)
+                        {
+                            txtValor.Text = ofd.FileName;
+                        }
+                    }
+                };
+                row.Controls.Add(btnBrowse);
+            }
+
             Button btnDel = new Button { Text = "🗑️", Location = new Point(295, 4), Size = new Size(28, 28), FlatStyle = FlatStyle.Flat, ForeColor = Color.Red, BackColor = Color.White, Cursor = Cursors.Hand };
             btnDel.FlatAppearance.BorderSize = 0;
             btnDel.Click += (s, ev) => { flpDocInputs.Controls.Remove(row); RenderDocPreview(); };

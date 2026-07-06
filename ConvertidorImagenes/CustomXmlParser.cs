@@ -83,9 +83,21 @@ namespace ConvertidorImagenes
 
                         case "imagen":
                             sb.Append("<div style='text-align: center; margin: 20px 0; padding: 10px; border: 1px solid #CCC; color: #7F8C8D;'>");
-                            sb.Append("<em>[ ESPACIO PARA IMAGEN: ");
-                            ParseNode(child, sb);
-                            sb.Append(" ]</em></div>");
+                            string imgContent = child.Value.Trim();
+                            if (imgContent.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || 
+                                imgContent.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || 
+                                imgContent.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
+                                imgContent.EndsWith(".bmp", StringComparison.OrdinalIgnoreCase))
+                            {
+                                sb.Append($"<img src='file:///{imgContent.Replace("\\", "/")}' style='max-width:100%; height:auto;' />");
+                            }
+                            else
+                            {
+                                sb.Append("<em>[ ESPACIO PARA IMAGEN: ");
+                                ParseNode(child, sb);
+                                sb.Append(" ]</em>");
+                            }
+                            sb.Append("</div>");
                             break;
 
                         case "separador":
