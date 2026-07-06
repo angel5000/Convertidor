@@ -1,15 +1,15 @@
-ï»¿
+
 namespace ConvertidorImagenes
 {
     partial class Form1
     {
         /// <summary>
-        /// Variable del diseÃ±ador necesaria.
+        /// Variable del diseñador necesaria.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
         /// <summary>
-        /// Limpiar los recursos que se estÃ©n usando.
+        /// Limpiar los recursos que se estén usando.
         /// </summary>
         /// <param name="disposing">true si los recursos administrados se deben desechar; false en caso contrario.</param>
         protected override void Dispose(bool disposing)
@@ -21,11 +21,11 @@ namespace ConvertidorImagenes
             base.Dispose(disposing);
         }
 
-        #region CÃ³digo generado por el DiseÃ±ador de Windows Forms
+        #region Código generado por el Diseñador de Windows Forms
 
         /// <summary>
-        /// MÃ©todo necesario para admitir el DiseÃ±ador. No se puede modificar
-        /// el contenido de este mÃ©todo con el editor de cÃ³digo.
+        /// Método necesario para admitir el Diseñador. No se puede modificar
+        /// el contenido de este método con el editor de código.
         /// </summary>
         private void InitializeComponent()
         {
@@ -143,7 +143,7 @@ namespace ConvertidorImagenes
             this.lbformat.Name = "lbformat";
             this.lbformat.Size = new System.Drawing.Size(24, 13);
             this.lbformat.TabIndex = 16;
-            this.lbformat.Text = "n/a";
+            this.lbformat.Text = "";
             // 
             // label9
             // 
@@ -185,7 +185,7 @@ namespace ConvertidorImagenes
             this.lbprogre.Name = "lbprogre";
             this.lbprogre.Size = new System.Drawing.Size(24, 13);
             this.lbprogre.TabIndex = 12;
-            this.lbprogre.Text = "n/a";
+            this.lbprogre.Text = "";
             this.lbprogre.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // label8
@@ -213,7 +213,7 @@ namespace ConvertidorImagenes
             this.lbft.Name = "lbft";
             this.lbft.Size = new System.Drawing.Size(24, 13);
             this.lbft.TabIndex = 9;
-            this.lbft.Text = "n/a";
+            this.lbft.Text = "";
             // 
             // label6
             // 
@@ -253,7 +253,7 @@ namespace ConvertidorImagenes
             this.lbrutadest.Name = "lbrutadest";
             this.lbrutadest.Size = new System.Drawing.Size(24, 13);
             this.lbrutadest.TabIndex = 5;
-            this.lbrutadest.Text = "n/a";
+            this.lbrutadest.Text = "";
             // 
             // lbruta
             // 
@@ -263,7 +263,7 @@ namespace ConvertidorImagenes
             this.lbruta.Name = "lbruta";
             this.lbruta.Size = new System.Drawing.Size(24, 13);
             this.lbruta.TabIndex = 4;
-            this.lbruta.Text = "n/a";
+            this.lbruta.Text = "";
             // 
             // label4
             // 
@@ -350,7 +350,7 @@ namespace ConvertidorImagenes
             this.AccessibleRole = System.Windows.Forms.AccessibleRole.None;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 524);
+            this.ClientSize = new System.Drawing.Size(960, 630);
             this.ControlBox = false;
             this.Controls.Add(this.button1);
             this.Controls.Add(this.panel2);
@@ -399,4 +399,5 @@ namespace ConvertidorImagenes
         private System.Windows.Forms.Button button1;
     }
 }
+
 

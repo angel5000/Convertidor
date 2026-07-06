@@ -1,0 +1,507 @@
+				else if (currentTool == ToolMode.Circle) {
+					if (colorRelleno.BackColor != Color.Transparent) g.FillEllipse(brush, startX, startY, w, h);
+					g.DrawEllipse(pen, startX, startY, w, h);
+				}
+			}
+			Image oldImage = pictureBox1.Image;
+			pictureBox1.Image = temp;
+			if (oldImage != null && oldImage != currentDrawingBitmap && oldImage != originalImage) oldImage.Dispose();
+			return;
+		}
+
+		if (isSelecting)
+		{
+			selectionEnd = new Point(Math.Max(Math.Min(e.Location.X, pictureBox1.Width - 1), 0), Math.Max(Math.Min(e.Location.Y, pictureBox1.Height - 1), 0));
+			pictureBox1.Invalidate();
+			return;
+		}
+
+		UpdatePictureCursor();
+	}
+
+	private void pictureBox1_MouseEnter(object sender, EventArgs e)
+	{
+		pictureBox1.Focus();
+	}
+
+	private void pictureBox1_MouseWheel(object sender, MouseEventArgs e)
+	{
+		if ((ModifierKeys & Keys.Control) != Keys.Control)
+		{
+			return;
+		}
+
+		MarkMouseWheelHandled(e);
+		int step = e.Delta > 0 ? 10 : -10;
+		SetCropZoom(cropZoom + step);
+	}
+
+	private void zoomSurface_MouseWheel(object sender, MouseEventArgs e)
+	{
+		if ((ModifierKeys & Keys.Control) != Keys.Control)
+		{
+			return;
+		}
+
+		MarkMouseWheelHandled(e);
+		int step = e.Delta > 0 ? 10 : -10;
+		SetCropZoom(cropZoom + step);
+	}
+
+	private void MarkMouseWheelHandled(MouseEventArgs e)
+	{
+		HandledMouseEventArgs handledArgs = e as HandledMouseEventArgs;
+		if (handledArgs != null)
+		{
+			handledArgs.Handled = true;
+		}
+	}
+
+	private void trzoom_Scroll(object sender, EventArgs e)
+	{
+		SetCropZoom(trzoom.Value);
+	}
+
+	private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
+	{
+		pictureBox1.Focus();
+		if (e.Button == MouseButtons.Right && !cargado)
+		{
+			OpenFileDialog openFileDialog = new OpenFileDialog();
+			openFileDialog.Filter = "Imágenes PNG (*.png)|*.png|Imágenes JPEG (*.jpg;*.jpeg)|*.jpg;*.jpeg|Imágenes BITMAP (*.bmp)|*.bmp|Imágenes GIF (*.gif)|*.gif|Imágenes ICO (*.ico)|*.ico";
+			openFileDialog.Title = "Selecciona una imagen...";
+			DialogResult dialogResult = openFileDialog.ShowDialog();
+			nombrearch = openFileDialog.SafeFileName;
+			if (dialogResult == DialogResult.OK)
+			{
+				lbaviso.Hide();
+				string fileName = openFileDialog.FileName;
+				string[] array = new string[1] { fileName };
+				if (fileName.Length > 0)
+				{
+					string[] array2 = array;
+					foreach (string text in array2)
+					{
+						if (IsImageFile(fileName))
+						{
+							pictureBox1.Image = Image.FromFile(fileName);
+							lbruta.Text = fileName;
+							CargarImagen(fileName);
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		if (e.Button == MouseButtons.Left && currentTool == ToolMode.Text && cargado)
+		{
+			if (floatingTextBox == null)
+			{
+				floatingTextBox = new TextBox();
+				floatingTextBox.Multiline = true;
+				floatingTextBox.BorderStyle = BorderStyle.FixedSingle;
+				floatingTextBox.KeyDown += (s, ev) => { if (ev.KeyCode == Keys.Enter && !ev.Shift) { ev.SuppressKeyPress = true; CommitText(); } };
+				floatingTextBox.LostFocus += (s, ev) => CommitText();
+				pictureBox1.Controls.Add(floatingTextBox);
+			}
+			floatingTextBox.Font = new Font(cbFuenteTexto.SelectedItem.ToString(), trGrosorPincel.Value * 5);
+			floatingTextBox.ForeColor = colorForma.BackColor;
+			if (colorRelleno.BackColor == Color.Transparent) floatingTextBox.BackColor = Color.White;
+			else floatingTextBox.BackColor = colorRelleno.BackColor;
+			floatingTextBox.Location = e.Location;
+			floatingTextBox.Size = new Size(200, (int)floatingTextBox.Font.Height + 10);
+			floatingTextBox.Visible = true;
+			floatingTextBox.Focus();
+			return;
+		}
+
+		if (e.Button == MouseButtons.Left && currentTool != ToolMode.Select && cargado)
+		{
+			if (pictureBox1.Image != null)
+			{
+				SaveState();
+				isDrawing = true;
+				drawingStartPoint = e.Location;
+				currentDrawingBitmap = (Bitmap)pictureBox1.Image.Clone();
+			}
+			return;
+		}
+
+		if (e.Button == MouseButtons.Left && ShouldPanWithLeftButton())
+		{
+			StartImagePan(e);
+			return;
+		}
+		if (recor && !redimen && cargado && mover && e.Button == MouseButtons.Left)
+		{
+			selectionStart = e.Location;
+			selectionEnd = e.Location;
+			isSelecting = true;
+		}
+	}
+
+	private bool IsImageFile(string fileName)
+	{
+		return fileName.EndsWith(".jpg") || fileName.EndsWith(".jpeg") || fileName.EndsWith(".png") || fileName.EndsWith(".gif") || fileName.EndsWith(".bmp") || fileName.EndsWith(".ico") || fileName.EndsWith(".PNG") || fileName.EndsWith(".JPG");
+	}
+
+	private void button2_Click(object sender, EventArgs e)
+	{
+		visualizador visualizador2 = new visualizador(vistapre.Image);
+		visualizador2.ShowDialog();
+	}
+
+	public void redimensionar(Image imagen)
+	{
+		btguardar.Enabled = true;
+		btvisua.Enabled = true;
+		btzomin.Enabled = true;
+		btzomout.Enabled = true;
+		int num = int.Parse(txtancho.Text);
+		int num2 = int.Parse(txtaltura.Text);
+		if (num < pictureBox1.Image.Width && num2 < pictureBox1.Image.Height)
+		{
+			vistapre.SizeMode = PictureBoxSizeMode.Zoom;
+			float num3 = (float)imagen.Height / (float)imagen.Width;
+			num2 = (int)((float)num * num3);
+			Image thumbnailImage = imagen.GetThumbnailImage(num, num2, null, IntPtr.Zero);
+			vistapre.Image = thumbnailImage;
+		}
+		else
+		{
+			vistapre.SizeMode = PictureBoxSizeMode.Zoom;
+			float num8 = (float)imagen.Height / (float)imagen.Width;
+			num2 = (int)((float)num * num8);
+			Image thumbnailImage2 = imagen.GetThumbnailImage(num, num2, null, IntPtr.Zero);
+			vistapre.Image = thumbnailImage2;
+		}
+		if (num > pictureBox1.Image.Width && num2 > pictureBox1.Image.Height)
+		{
+			vistapre.SizeMode = PictureBoxSizeMode.Zoom;
+			float num13 = (float)imagen.Height / (float)imagen.Width;
+			num2 = (int)((float)num * num13);
+			Image thumbnailImage3 = imagen.GetThumbnailImage(num, num2, null, IntPtr.Zero);
+			vistapre.Image = thumbnailImage3;
+		}
+		lbpxrc.Text = vistapre.Image.Width + "x" + vistapre.Image.Height;
+		txtaltura.Text = vistapre.Image.Height.ToString();
+		if (trZoomPreview != null) { trZoomPreview.Value = 100; UpdatePreviewZoom(null, null); }
+	}
+
+	private void btcancel_Click(object sender, EventArgs e)
+	{
+		pictureBox1.AllowDrop = true;
+		pictureBox1.Image = null;
+		pictureBox1.Enabled = true;
+		vistapre.Image = null;
+		cargado = false;
+		apli = false;
+		txtaltura.Text = "";
+		txtancho.Text = "";
+		pictureBox1.Cursor = Cursors.Default;
+		imageCanvas.Size = new Size(Math.Max(1, panel1.ClientSize.Width - 2), Math.Max(1, panel1.ClientSize.Height - p2 - 2));
+		imageCanvas.Location = new Point(0, p2);
+		pictureBox1.Size = new Size(xori, yori);
+		pictureBox1.Location = new Point(p1, p2);
+		isSelecting = false;
+		isPanningImage = false;
+		panel1.AutoScrollPosition = new Point(0, 0);
+		cropZoom = DefaultCropZoom;
+		cropBaseSize = Size.Empty;
+		trzoom.Value = DefaultCropZoom;
+		lbzoom.Text = DefaultCropZoom + "%";
+		lbaviso.Show();
+		button3.Enabled = false;
+		btguardar.Enabled = false;
+		btvisua.Enabled = false;
+		btzomin.Enabled = false;
+		btzomout.Enabled = false;
+		lbpx.Text = "n/a";
+		lbpix2.Text = "n/a";
+		lbpxrc.Text = "n/a";
+		lbruta.Text = "n/a";
+	}
+
+	private void button3_Click_1(object sender, EventArgs e)
+	{
+		txtaltura.Text = "";
+		txtancho.Text = "";
+	}
+
+	private void button4_Click_1(object sender, EventArgs e)
+	{
+		Dispose();
+		Principal principal = new Principal();
+		principal.Show();
+	}
+
+	private void redimension_FormClosing(object sender, FormClosingEventArgs e)
+	{
+		Environment.Exit(0);
+	}
+
+	private void button6_Click(object sender, EventArgs e)
+	{
+		Environment.Exit(0);
+	}
+
+	private void button5_Click(object sender, EventArgs e)
+	{
+		base.WindowState = FormWindowState.Minimized;
+	}
+
+	private void btapli_Click(object sender, EventArgs e)
+	{
+		if (txtaltura.Text.Equals("") || txtancho.Text.Equals(""))
+		{
+			MessageBox.Show("INGRESE LOS DATOS CORRESPONDIENTES");
+			return;
+		}
+		redimensionar(pictureBox1.Image);
+		lbpx.Text = pictureBox1.Image.Width + "x" + pictureBox1.Image.Height;
+		apli = true;
+	}
+
+	private void txtaltura_KeyPress(object sender, KeyPressEventArgs e)
+	{
+		if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
+		{
+			e.Handled = true;
+		}
+		btcancel.Enabled = true;
+		if (txtancho.Text.Equals("") && txtaltura.Text.Equals(""))
+		{
+			btcancel.Enabled = false;
+		}
+		else
+		{
+			btcancel.Enabled = true;
+		}
+		if (!txtancho.Text.Equals("") && !txtaltura.Text.Equals(""))
+		{
+			btapli.Enabled = true;
+			button3.Enabled = true;
+		}
+		else
+		{
+			btapli.Enabled = false;
+			button3.Enabled = false;
+		}
+		txtaltura.MaxLength = 4;
+	}
+
+	private void txtancho_KeyPress(object sender, KeyPressEventArgs e)
+	{
+		if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
+		{
+			e.Handled = true;
+		}
+		txtancho.MaxLength = 4;
+		btcancel.Enabled = true;
+		if (txtancho.Text.Equals("") && txtaltura.Text.Equals(""))
+		{
+			btcancel.Enabled = false;
+		}
+		else
+		{
+			btcancel.Enabled = true;
+		}
+		if (!txtancho.Text.Equals("") && !txtaltura.Text.Equals(""))
+		{
+			btapli.Enabled = true;
+			button3.Enabled = true;
+		}
+		else
+		{
+			btapli.Enabled = false;
+			button3.Enabled = false;
+		}
+	}
+
+	private void btguardar_Click(object sender, EventArgs e)
+	{
+		SaveFileDialog saveFileDialog = new SaveFileDialog();
+		string text = ruta.Substring(ruta.LastIndexOf(".") + 1);
+		saveFileDialog.Title = "Guardar imagen";
+		saveFileDialog.DefaultExt = "." + text;
+		saveFileDialog.Filter = "Imágenes PNG (*.png)|*.png|Imágenes JPEG (*.jpg;*.jpeg)|*.jpg;*.jpeg|Imágenes BITMAP (*.bmp)|*.bmp|Imágenes GIF (*.gif)|*.gif|Imágenes ICO (*.ico)|*.ico";
+		saveFileDialog.FileName = nombrearch + " -recortado";
+		if (saveFileDialog.ShowDialog() == DialogResult.OK)
+		{
+			string fileName = saveFileDialog.FileName;
+			ImageFormat imageFormat = null;
+            switch (saveFileDialog.FilterIndex)
+            {
+                case 1:
+                    imageFormat = ImageFormat.Png;
+                    break;
+                case 2:
+                    imageFormat = ImageFormat.Jpeg;
+                    break;
+                case 3:
+                    imageFormat = ImageFormat.Bmp;
+                    break;
+                case 4:
+                    imageFormat = ImageFormat.Gif;
+                    break;
+                case 5:
+                    imageFormat = ImageFormat.Icon;
+                    break;
+                default:
+                    imageFormat = ImageFormat.Jpeg;
+                    break;
+            }
+            vistapre.Image.Save(fileName, imageFormat);
+		}
+	}
+
+	private void pictureBox1_Paint(object sender, PaintEventArgs e)
+	{
+		if (cropRectangle != Rectangle.Empty)
+		{
+			using (Brush brush = new SolidBrush(Color.FromArgb(128, Color.White)))
+			{
+				Region region = new Region(pictureBox1.ClientRectangle);
+				region.Exclude(cropRectangle);
+				e.Graphics.FillRegion(brush, region);
+				return;
+			}
+		}
+		if (isSelecting)
+		{
+			Rectangle rectangle = MakeRectangle(selectionStart, selectionEnd);
+			using (Brush brush2 = new SolidBrush(Color.FromArgb(128, Color.White)))
+			{
+				rectangle = MakeRectangle(selectionStart, selectionEnd);
+				e.Graphics.FillRectangle(brush2, rectangle);
+			}
+		}
+	}
+	private Rectangle MakeRectangle(Point start, Point end)
+	{
+		int num = Math.Max(Math.Min(start.X, end.X), 0);
+		int num2 = Math.Max(Math.Min(start.Y, end.Y), 0);
+		int num3 = Math.Min(Math.Abs(start.X - end.X), pictureBox1.Width - num);
+		int num4 = Math.Min(Math.Abs(start.Y - end.Y), pictureBox1.Height - num2);
+		return new Rectangle(num, num2, num3, num4);
+	}
+
+	private Point ConvertDisplayPointToImagePoint(Point displayPoint)
+	{
+		if (originalImage == null || pictureBox1.ClientSize.Width == 0 || pictureBox1.ClientSize.Height == 0) return displayPoint;
+		double scaleX = (double)originalImage.Width / pictureBox1.ClientSize.Width;
+		double scaleY = (double)originalImage.Height / pictureBox1.ClientSize.Height;
+		return new Point(Math.Max(0, (int)Math.Round(displayPoint.X * scaleX)), Math.Max(0, (int)Math.Round(displayPoint.Y * scaleY)));
+	}
+
+	private Rectangle ConvertDisplayRectangleToImageRectangle(Rectangle displayRectangle)
+	{
+		if (originalImage == null || pictureBox1.ClientSize.Width == 0 || pictureBox1.ClientSize.Height == 0)
+		{
+			return Rectangle.Empty;
+		}
+
+		double scaleX = (double)originalImage.Width / pictureBox1.ClientSize.Width;
+		double scaleY = (double)originalImage.Height / pictureBox1.ClientSize.Height;
+
+		int x = Math.Max(0, (int)Math.Round(displayRectangle.X * scaleX));
+		int y = Math.Max(0, (int)Math.Round(displayRectangle.Y * scaleY));
+		int width = Math.Max(1, (int)Math.Round(displayRectangle.Width * scaleX));
+		int height = Math.Max(1, (int)Math.Round(displayRectangle.Height * scaleY));
+
+		if (x + width > originalImage.Width)
+		{
+			width = originalImage.Width - x;
+		}
+
+		if (y + height > originalImage.Height)
+		{
+			height = originalImage.Height - y;
+		}
+
+		if (width <= 0 || height <= 0)
+		{
+			return Rectangle.Empty;
+		}
+
+		return new Rectangle(x, y, width, height);
+	}
+
+	private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
+	{
+		if (isPanningImage)
+		{
+			StopImagePan();
+			return;
+		}
+
+		if (e.Button == MouseButtons.Left && isDrawing)
+		{
+			isDrawing = false;
+			if (currentDrawingBitmap != null)
+			{
+				currentDrawingBitmap.Dispose();
+				currentDrawingBitmap = null;
+			}
+			return;
+		}
+
+		if (e.Button == MouseButtons.Left)
+		{
+			if (!isSelecting)
+			{
+				return;
+			}
+
+			isSelecting = false;
+			cropRectangle = MakeRectangle(selectionStart, selectionEnd);
+			if (cropRectangle.Width > 0 && cropRectangle.Height > 0)
+			{
+				lbpx.Text = pictureBox1.Image.Width + "x" + pictureBox1.Image.Height;
+				Rectangle imageRectangle = ConvertDisplayRectangleToImageRectangle(cropRectangle);
+				if (imageRectangle == Rectangle.Empty)
+				{
+					return;
+				}
+				vistapre.SizeMode = PictureBoxSizeMode.Zoom;
+				vistapre.Image = originalImage.Clone(imageRectangle, originalImage.PixelFormat);
+				lbpxrc.Text = vistapre.Image.Width + "x" + vistapre.Image.Height;
+				if (trZoomPreview != null) { trZoomPreview.Value = 100; UpdatePreviewZoom(null, null); }
+				btzomin.Enabled = true;
+				btguardar.Enabled = true;
+				btvisua.Enabled = true;
+				btzomin.Enabled = true;
+				btzomout.Enabled = true;
+			}
+		}
+		cropRectangle = Rectangle.Empty;
+		pictureBox1.Invalidate();
+	}
+
+	private void CommitText()
+	{
+		if (floatingTextBox != null && floatingTextBox.Visible)
+		{
+			if (!string.IsNullOrWhiteSpace(floatingTextBox.Text) && pictureBox1.Image != null)
+			{
+				SaveState();
+				Bitmap temp = (Bitmap)pictureBox1.Image.Clone();
+				using (Graphics g = Graphics.FromImage(temp))
+				{
+					g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
+					Point imgPt = ConvertDisplayPointToImagePoint(floatingTextBox.Location);
+					using (Brush b = new SolidBrush(floatingTextBox.ForeColor))
+					{
+						g.DrawString(floatingTextBox.Text, floatingTextBox.Font, b, imgPt);
+					}
+				}
+				Image old = pictureBox1.Image;
+				pictureBox1.Image = temp;
+				if (old != null && old != originalImage && old != currentDrawingBitmap) old.Dispose();
+			}
+			floatingTextBox.Visible = false;
+			pictureBox1.Controls.Remove(floatingTextBox);
+			floatingTextBox.Dispose();
+			floatingTextBox = null;
+		}

@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using System.Runtime.InteropServices;
 using ConvertidorImagenes;
 using ConvertidorImagenes.Controllers;
 using ConvertidorImagenes.Properties;
@@ -44,7 +45,7 @@ public partial class Form1 : Form
 
 	private Button btruta;
 
-	private Panel panel1;
+	private RoundedPanel panel1;
 
 	private Label label2;
 
@@ -78,7 +79,7 @@ public partial class Form1 : Form
 
 	private Label lbformat;
 
-	private Panel panel2;
+	private RoundedPanel panel2;
 
 	private TextBox txtnombre;
 
@@ -86,7 +87,7 @@ public partial class Form1 : Form
 
 	private Button button1;
 
-	private Panel panel3;
+	private RoundedPanel panel3;
 
 	private Label label7;
 
@@ -107,9 +108,12 @@ public partial class Form1 : Form
 	public Form1()
 	{
 		InitializeComponent();
-		btconvertir.Hide();
+		this.DoubleBuffered = true;
+		this.BackColor = Color.FromArgb(238, 240, 245);
+		ApplyModernStyles();
 		btnomb.Enabled = false;
 		txtnombre.Enabled = false;
+		btremove.Text = "Otra conversion";
 		btremove.Enabled = false;
 		rtdestino = imageController.DefaultDestination;
 		string[] array = imageController.SupportedFormats;
@@ -169,6 +173,8 @@ public partial class Form1 : Form
 			{
 				btconvertir.Enabled = true;
 				lbprogre.Text = "Esperando aceptacion...";
+				btremove.Text = "Cancelar";
+				btremove.Enabled = true;
 				Ruta = fileName;
 				format = formato;
 				pictureBox1.Image = Image.FromFile(Ruta);
@@ -185,6 +191,8 @@ public partial class Form1 : Form
 			if (noproces && !chkbt)
 			{
 				lbprogre.Text = "Esperando aceptacion...";
+				btremove.Text = "Cancelar";
+				btremove.Enabled = true;
 				progreso.Value = 60;
 				btconvertir.Enabled = true;
 				Ruta = fileName;
@@ -260,6 +268,8 @@ public partial class Form1 : Form
 				{
 					btconvertir.Enabled = true;
 					lbprogre.Text = "Esperando aceptacion...";
+				btremove.Text = "Cancelar";
+				btremove.Enabled = true;
 					Ruta = array[0];
 					format = formato;
 					pictureBox1.Image = Image.FromFile(Ruta);
@@ -275,6 +285,8 @@ public partial class Form1 : Form
 				if (noproces && !chkbt)
 				{
 					lbprogre.Text = "Esperando aceptacion...";
+				btremove.Text = "Cancelar";
+				btremove.Enabled = true;
 					progreso.Value = 60;
 					btconvertir.Enabled = true;
 					Ruta = array[0];
@@ -300,11 +312,13 @@ public partial class Form1 : Form
 			progreso.Value = 100;
 			lbprogre.Text = "Finalizado!";
 			btnomb.Enabled = true;
+			btremove.Text = "Otra conversion";
 			btremove.Enabled = true;
 			return;
 		}
 		catch (Exception ex)
 		{
+			btremove.Text = "Otra conversion";
 			btremove.Enabled = true;
 			lbprogre.Text = "Fallo!";
 			if (formato == "ICO")
@@ -349,7 +363,8 @@ public partial class Form1 : Form
 				progreso.Value = 100;
 				lbprogre.Text = "Finalizado!";
 				btnomb.Enabled = true;
-				btremove.Enabled = true;
+				btremove.Text = "Otra conversion";
+			btremove.Enabled = true;
 				break;
 			}
 			catch (Exception ex2)
@@ -384,6 +399,7 @@ public partial class Form1 : Form
 			progreso.Value = 100;
 			lbprogre.Text = "Finalizado!";
 			btnomb.Enabled = true;
+			btremove.Text = "Otra conversion";
 			btremove.Enabled = true;
 			break;
 		}
@@ -414,6 +430,7 @@ public partial class Form1 : Form
 			progreso.Value = 100;
 			lbprogre.Text = "Finalizado!";
 			btnomb.Enabled = true;
+			btremove.Text = "Otra conversion";
 			btremove.Enabled = true;
 			break;
 		}
@@ -444,6 +461,7 @@ public partial class Form1 : Form
 			progreso.Value = 100;
 			lbprogre.Text = "Finalizado!";
 			btnomb.Enabled = true;
+			btremove.Text = "Otra conversion";
 			btremove.Enabled = true;
 			break;
 		}
@@ -474,6 +492,7 @@ public partial class Form1 : Form
 			progreso.Value = 100;
 			lbprogre.Text = "Finalizado!";
 			btnomb.Enabled = true;
+			btremove.Text = "Otra conversion";
 			btremove.Enabled = true;
 			break;
 		}
@@ -505,12 +524,14 @@ public partial class Form1 : Form
 				progreso.Value = 100;
 				lbprogre.Text = "Finalizado!";
 				btnomb.Enabled = true;
-				btremove.Enabled = true;
+				btremove.Text = "Otra conversion";
+			btremove.Enabled = true;
 				break;
 			}
 			catch (Exception)
 			{
-				btremove.Enabled = true;
+				btremove.Text = "Otra conversion";
+			btremove.Enabled = true;
 				lbprogre.Text = "Fallo!";
 				MessageBox.Show("Resolucion muy grande o imagen no apta: Resolucion de formato ico(16x16, 32x32, 64x64 y 128x128 pÃ­xeles)");
 				break;
@@ -551,13 +572,15 @@ public partial class Form1 : Form
 
 	private void btremove_Click(object sender, EventArgs e)
 	{
-		lbprogre.Text = "n/a";
-		lbruta.Text = "n/a";
-		lbft.Text = "n/a";
+		lbprogre.Text = "";
+		lbruta.Text = "";
+		lbft.Text = "";
 		pictureBox1.Image = null;
 		pictureBox1.Enabled = true;
+		btremove.Text = "Otra conversion";
 		btremove.Enabled = false;
 		cbformatos.Enabled = true;
+		btconvertir.Enabled = false;
 		progreso.Value = 0;
 		btruta.Enabled = true;
 		panel2.Enabled = true;
@@ -692,7 +715,7 @@ public partial class Form1 : Form
 		System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ConvertidorImagenes.Form1));
 		this.label1 = new System.Windows.Forms.Label();
 		this.btruta = new System.Windows.Forms.Button();
-		this.panel1 = new System.Windows.Forms.Panel();
+		this.panel1 = new ConvertidorImagenes.RoundedPanel();
 		this.btremove = new System.Windows.Forms.Button();
 		this.lbformat = new System.Windows.Forms.Label();
 		this.label9 = new System.Windows.Forms.Label();
@@ -710,12 +733,12 @@ public partial class Form1 : Form
 		this.label3 = new System.Windows.Forms.Label();
 		this.label2 = new System.Windows.Forms.Label();
 		this.btnomb = new System.Windows.Forms.Button();
-		this.panel2 = new System.Windows.Forms.Panel();
+		this.panel2 = new ConvertidorImagenes.RoundedPanel();
 		this.lbnombarch = new System.Windows.Forms.Label();
 		this.label10 = new System.Windows.Forms.Label();
 		this.checkBox1 = new System.Windows.Forms.CheckBox();
 		this.txtnombre = new System.Windows.Forms.TextBox();
-		this.panel3 = new System.Windows.Forms.Panel();
+		this.panel3 = new ConvertidorImagenes.RoundedPanel();
 		this.label7 = new System.Windows.Forms.Label();
 		this.chkgd = new System.Windows.Forms.CheckBox();
 		this.button4 = new System.Windows.Forms.Button();
@@ -781,7 +804,7 @@ public partial class Form1 : Form
 		this.lbformat.Name = "lbformat";
 		this.lbformat.Size = new System.Drawing.Size(24, 13);
 		this.lbformat.TabIndex = 16;
-		this.lbformat.Text = "n/a";
+		this.lbformat.Text = "";
 		this.label9.AutoSize = true;
 		this.label9.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
 		this.label9.Location = new System.Drawing.Point(510, 133);
@@ -797,7 +820,7 @@ public partial class Form1 : Form
 		this.lbprogre.Name = "lbprogre";
 		this.lbprogre.Size = new System.Drawing.Size(24, 13);
 		this.lbprogre.TabIndex = 12;
-		this.lbprogre.Text = "n/a";
+		this.lbprogre.Text = "";
 		this.lbprogre.TextAlign = System.Drawing.ContentAlignment.TopCenter;
 		this.label8.AutoSize = true;
 		this.label8.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
@@ -831,7 +854,7 @@ public partial class Form1 : Form
 		this.lbft.Name = "lbft";
 		this.lbft.Size = new System.Drawing.Size(24, 13);
 		this.lbft.TabIndex = 9;
-		this.lbft.Text = "n/a";
+		this.lbft.Text = "";
 		this.label6.AutoSize = true;
 		this.label6.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
 		this.label6.Location = new System.Drawing.Point(510, 41);
@@ -859,14 +882,14 @@ public partial class Form1 : Form
 		this.lbrutadest.Name = "lbrutadest";
 		this.lbrutadest.Size = new System.Drawing.Size(24, 13);
 		this.lbrutadest.TabIndex = 5;
-		this.lbrutadest.Text = "n/a";
+		this.lbrutadest.Text = "";
 		this.lbruta.AutoSize = true;
 		this.lbruta.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
 		this.lbruta.Location = new System.Drawing.Point(198, 306);
 		this.lbruta.Name = "lbruta";
 		this.lbruta.Size = new System.Drawing.Size(24, 13);
 		this.lbruta.TabIndex = 4;
-		this.lbruta.Text = "n/a";
+		this.lbruta.Text = "";
 		this.label4.AutoSize = true;
 		this.label4.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
 		this.label4.Location = new System.Drawing.Point(125, 332);
@@ -912,7 +935,7 @@ public partial class Form1 : Form
 		this.lbnombarch.Name = "lbnombarch";
 		this.lbnombarch.Size = new System.Drawing.Size(24, 13);
 		this.lbnombarch.TabIndex = 18;
-		this.lbnombarch.Text = "n/a";
+		this.lbnombarch.Text = "";
 		this.label10.AutoSize = true;
 		this.label10.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
 		this.label10.Location = new System.Drawing.Point(3, 42);
@@ -1029,5 +1052,176 @@ public partial class Form1 : Form
 		base.ResumeLayout(false);
 		base.PerformLayout();
 	}
+    [DllImport("user32.DLL", EntryPoint = "ReleaseCapture")]
+    private extern static void ReleaseCapture();
+    [DllImport("user32.DLL", EntryPoint = "SendMessage")]
+    private extern static void SendMessage(System.IntPtr hWnd, int wMsg, int wParam, int lParam);
+
+    private void DragForm_MouseDown(object sender, MouseEventArgs e)
+    {
+        ReleaseCapture();
+        SendMessage(this.Handle, 0x112, 0xf012, 0);
+    }
+
+    private void ApplyModernStyles()
+    {
+        this.MouseDown += new MouseEventHandler(DragForm_MouseDown);
+        if (panel1 != null) panel1.MouseDown += new MouseEventHandler(DragForm_MouseDown);
+        if (panel2 != null) panel2.MouseDown += new MouseEventHandler(DragForm_MouseDown);
+        if (panel3 != null) panel3.MouseDown += new MouseEventHandler(DragForm_MouseDown);
+        
+        // Fuentes
+        Font titleFont = new Font("Segoe UI", 16f, FontStyle.Bold);
+        Font subtitleFont = new Font("Segoe UI", 10.5f, FontStyle.Bold);
+        Font regularFont = new Font("Segoe UI", 9.5f, FontStyle.Regular);
+
+        Color darkText = Color.FromArgb(30, 32, 40);
+        Color lightText = Color.FromArgb(120, 124, 135);
+        Color primaryBlue = Color.FromArgb(109, 91, 208);
+        Color borderSutil = Color.FromArgb(235, 236, 242);
+        Color whiteBg = Color.White;
+
+        // Estilos para RoundedPanels
+        var panels = new RoundedPanel[] { panel1, panel2, panel3 };
+        foreach (var p in panels)
+        {
+            if (p != null)
+            {
+                p.BackColor = whiteBg;
+                p.CornerRadius = 14;
+                p.BorderColor = borderSutil;
+                p.BorderThickness = 1;
+                p.BorderStyle = BorderStyle.None; 
+            }
+        }
+
+        // Estilo de los Labels
+        
+
+        Label[] subtitulos = { label1, label7 };
+        foreach (var l in subtitulos) { if (l != null) { l.Font = subtitleFont; l.ForeColor = darkText; } }
+
+        Label[] textos = { label2, label3, label4, label5, label6, label8, label9, lbft, lbformat, lbprogre, lbruta, lbrutadest, lbnombarch };
+        foreach (var l in textos) { if (l != null) { l.Font = regularFont; l.ForeColor = darkText; } }
+
+        // Estilo de los CheckBoxes
+        CheckBox[] checks = { checkBox1, chkgd, chkbtcv };
+        foreach (var c in checks) { if (c != null) { c.Font = regularFont; c.ForeColor = darkText; } }
+
+        // Estilo de los Botones
+        Button[] primaryButtons = { btruta, btnomb, btconvertir, button1 };
+        foreach (var b in primaryButtons)
+        {
+            if (b != null)
+            {
+                b.FlatStyle = FlatStyle.Flat;
+                b.FlatAppearance.BorderSize = 0;
+                b.BackColor = primaryBlue;
+                b.ForeColor = Color.White;
+                b.Font = new Font("Segoe UI", 9.5f, FontStyle.Bold);
+                b.Cursor = Cursors.Hand;
+            }
+        }
+
+        Button[] secondaryButtons = { btremove, button4, button6 };
+        foreach (var b in secondaryButtons)
+        {
+            if (b != null)
+            {
+                b.FlatStyle = FlatStyle.Flat;
+                b.FlatAppearance.BorderSize = 1;
+                b.FlatAppearance.BorderColor = borderSutil;
+                b.BackColor = whiteBg;
+                b.ForeColor = darkText;
+                b.Font = regularFont;
+                b.Cursor = Cursors.Hand;
+            }
+        }
+
+                        // Layout and Positions
+        this.ClientSize = new Size(1020, 700);
+
+        if (panel1 != null) { 
+            panel1.Size = new Size(920, 440); 
+            panel1.Location = new Point(40, 60);
+        }
+        if (panel2 != null) {
+            panel2.Size = new Size(500, 80);
+            panel2.Location = new Point(40, 520);
+        }
+        if (panel3 != null) {
+            panel3.Size = new Size(420, 80);
+            panel3.Location = new Point(560, 520);
+            
+            if (label7 != null) { label7.Location = new Point(15, 10); label7.AutoSize = true; }
+            if (chkgd != null) { chkgd.Location = new Point(15, 45); chkgd.AutoSize = true; }
+            if (chkbtcv != null) { chkbtcv.Checked = false; chkbtcv.Location = new Point(225, 45); chkbtcv.AutoSize = true; }
+        }
+        
+        // Panel 2 layout
+        if (checkBox1 != null) { checkBox1.Location = new Point(15, 15); checkBox1.AutoSize = true; }
+        if (label10 != null) { label10.Location = new Point(15, 50); label10.AutoSize = true; label10.Font = regularFont; }
+        if (txtnombre != null) { txtnombre.Location = new Point(180, 48); txtnombre.Size = new Size(180, 25); }
+        if (btnomb != null) { btnomb.Location = new Point(380, 44); btnomb.Size = new Size(100, 32); }
+
+        if (button4 != null) { button4.Location = new Point(760, 620); }
+        if (button6 != null) { button6.Location = new Point(870, 620); }
+        
+        if (label2 != null) { label2.Location = new Point(20, 20); label2.Font = new Font("Segoe UI", 12f, FontStyle.Bold); }
+        if (button1 != null) { button1.Location = new Point(850, 15); button1.Size = new Size(110, 35); }
+
+        if (btruta != null) { btruta.Location = new Point(20, 380); btruta.Size = new Size(120, 35); }
+
+        // Alineación derecha de textos
+        if (lbruta != null) { lbruta.AutoSize = true; lbruta.Location = new Point(160, 380); }
+        if (lbrutadest != null) { lbrutadest.AutoSize = true; lbrutadest.Location = new Point(160, 400); }
+        
+                        // AutoSize fix para textos cortados
+        if (label9 != null) { label9.AutoSize = true; }
+        if (label6 != null) { label6.AutoSize = true; }
+        if (label5 != null) { label5.AutoSize = true; }
+        if (label8 != null) { label8.AutoSize = true; label8.Location = new Point(510, 215); }
+
+        if (lbformat != null) { lbformat.Location = new Point(680, 133); }
+        if (lbft != null) { lbft.Location = new Point(680, 41); }
+        
+        if (lbprogre != null) { lbprogre.AutoSize = true; lbprogre.Location = new Point(580, 215); lbprogre.BackColor = Color.Transparent; }
+        
+        if (progreso != null) { progreso.Location = new Point(510, 240); progreso.Size = new Size(300, 25); }
+        
+        if (btconvertir != null) { btconvertir.Location = new Point(510, 290); btconvertir.Size = new Size(130, 35); }
+        if (btremove != null) { btremove.Location = new Point(660, 290); btremove.Size = new Size(130, 35); }
+
+        // Alineación derecha de textos de Rutas
+        if (label3 != null) { label3.AutoSize = true; label3.Location = new Point(160, 350); }
+        if (lbruta != null) { lbruta.AutoSize = true; lbruta.Location = new Point(250, 350); }
+        
+        if (label4 != null) { label4.AutoSize = true; label4.Location = new Point(160, 388); }
+        if (lbrutadest != null) { lbrutadest.AutoSize = true; lbrutadest.Location = new Point(250, 388); }
+
+        // Otros controles
+        if (txtnombre != null) { txtnombre.Font = regularFont; txtnombre.BorderStyle = BorderStyle.FixedSingle; }
+        if (label5 != null) { label5.AutoSize = true; }
+        if (label6 != null) { label6.AutoSize = true; }
+        if (label3 != null) { label3.AutoSize = true; }
+        if (label4 != null) { label4.AutoSize = true; }
+        if (label8 != null) { label8.AutoSize = true; }
+        if (lbft != null) { lbft.AutoSize = true; }
+        if (lbformat != null) { lbformat.AutoSize = true; }
+        if (lbprogre != null) { lbprogre.AutoSize = true; lbprogre.Location = new Point(620, 196); }
+        if (cbformatos != null) { cbformatos.Font = regularFont; cbformatos.FlatStyle = FlatStyle.Flat; }
+        if (pictureBox1 != null) { pictureBox1.BackColor = whiteBg; }
+    }
 }
 }
+
+
+
+
+
+
+
+
+
+
+

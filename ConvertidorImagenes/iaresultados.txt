@@ -1,0 +1,540 @@
+debo decir que cuando se le pone una plantilla ya hecha o se le pones los campos con [] aveces no da resultados o se buguea en el nivel 1 hice y dio un resultado pobre lo volvi a intentar solo con el promtp y dio mejor restulado
+nivel 1
+Estimado/a [JEFE],
+
+Me dirijo a usted en virtud de lo establecido en nuestra política de remuneraciones y beneficios, para solicitar un aumento de sueldo. Mi cargo actual es [CARGO] y he estado trabajando en [EMPRESA] desde [FECHA_INGRESO].
+
+Considero que mi contribución a la empresa y mi desempeño en el cargo merecen un incremento en mi salario. Estimo que un aumento del [PORCENTAJE_AUMENTO]% en mi sueldo actual sería razonable y justificable.
+
+Agradezco su consideración de esta solicitud y estoy dispuesto a discutir los detalles con usted. Por favor, no dude en hacérmelo saber.
+
+Atentamente,
+[NOMBRE]nivel 2 
+Cotización Comercial
+
+[CLIENTE_NOMBRE] 
+[CLIENTE_DIRECCION]
+[CLIENTE_CIUDAD] [CLIENTE_POSTAL]
+
+Fecha de cotización: [FECHA_COTIZACION]
+
+Empresa: [EMPRESA_NOMBRE]
+
+**Productos y Servicios**
+
+| Código | Descripción | Precio Unitario | Cantidad | Subtotal |
+| --- | --- | --- | --- | --- |
+| [PRODUCTO_CODIGO_1] | [PRODUCTO_DESCRIPCION_1] | [PRODUCTO_PRECIO_UNITARIO_1] | [PRODUCTO_CANTIDAD_1] | [PRODUCTO_SUBTOTAL_1] |
+| [PRODUCTO_CODIGO_2] | [PRODUCTO_DESCRIPCION_2] | [PRODUCTO_PRECIO_UNITARIO_2] | [PRODUCTO_CANTIDAD_2] | [PRODUCTO_SUBTOTAL_2] |
+| ... | ... | ... | ... | ... | 
+
+**Totales**
+
+Subtotal: [SUBTOTAL]
+IVA (16%): [IVA]
+Descuento: [DESCUENTO]
+Total: [TOTAL]
+
+**Observaciones**
+
+[OBSERVACIONES]
+nivel 3 
+CONTRATO DE PRESTACIÓN DE SERVICIOS
+
+Entre [EMPRESA_CLIENTE] con domicilio en [DIRECCIÓN_CLIENTE] y [NOMBRE_EMPRESA] con domicilio en [DIRECCIÓN_EMPRESA], ambas partes acuerdan lo siguiente:
+
+ARTÍCULO 1: OBJETO DEL CONTRATO
+El [NOMBRE_EMPRESA] se compromete a prestar los servicios de [DESCRIPCIÓN_SERVICIO] a [EMPRESA_CLIENTE] durante un período de [DURACIÓN_CONTRATO] meses.
+
+ARTÍCULO 2: PRECIO Y FORMA DE PAGO
+El precio total por los servicios prestados será de $[MONTO_CONTRATO]. El pago será realizado en [FORMA_PAGO] a través de transferencia electrónica.
+
+ARTÍCULO 3: OBLIGACIONES
+- [NOMBRE_EMPRESA] se compromete a prestar los servicios de manera oportuna y eficiente.
+- [EMPRESA_CLIENTE] se compromete a pagar el monto establecido en el artículo 2.
+
+ARTÍCULO 4: CLÁUSULAS DE CONFIDENCIALIDAD
+Ambas partes se comprometen a mantener la confidencialidad de la información compartida durante la prestación de servicios.
+
+ARTÍCULO 5: TERMINACIÓN ANTICIPADA
+- En caso de incumplimiento de alguno de los acuerdos establecidos en este contrato, cualquiera de las partes podrá rescindir el contrato con un aviso de [PLAZO_RESOLUCIÓN] días hábiles.
+- En caso de insolvencia o quiebra de [EMPRESA_CLIENTE], el contrato podrá ser rescindido por [NOMBRE_EMPRESA] con un aviso de [PLAZO_RESOLUCIÓN] días hábiles.
+
+ARTÍCULO 6: FIRMAS
+- [EMPRESA_CLIENTE] firma este contrato en la fecha indicada en el artículo 7.
+- [NOMBRE_EMPRESA] firma este contrato en la fecha indicada en el artículo 7.
+
+FECHA DE FIRMA: [FECHA_FIRMA]
+
+[EMPRESA_CLIENTE] (Firma de [NOMBRE_REPRESENTANTE_CLIENTE])
+[NOMBRE_EMPRESA] (Firma de [NOMBRE_REPRESENTANTE_EMPRESA]) 
+nivel 4 
+INFORME DE MANTENIMIENTO PREVENTIVO DE EQUIPOS INFORMÁTICOS
+
+Fecha: [FECHA]
+
+Cliente: [CLIENTE]
+
+Equipo: [EQUIPO]
+Serie: [SERIE]
+
+Técnico: [TÉCNICO]
+
+Actividades Realizadas:
+- [ACTIVIDADES]
+
+Observaciones:
+- [OBSERVACIONES]
+
+Repuestos Utilizados:
+- [REPUESTOS]
+
+Recomendaciones:
+- [RECOMENDACIONES]
+
+Firma del Cliente: ______________________________
+nivel 5 
+ACTA DE REUNIÓN
+
+Fecha: [FECHA_REUNION]
+
+Asistentes: [NOMBRE_ASISTENTE_1], [NOMBRE_ASISTENTE_2], [NOMBRE_ASISTENTE_3]
+
+Objetivos: [DESCRIPCION_OBJETIVO]
+
+Acuerdos:
+- [ACUERDO_1]
+- [ACUERDO_2]
+- [ACUERDO_3]
+
+Tareas Asignadas:
+- [TAREA_1] para [RESPONSABLE_TAREA_1] con fecha límite [FECHA_LIMITE_1]
+- [TAREA_2] para [RESPONSABLE_TAREA_2] con fecha límite [FECHA_LIMITE_2]
+- [TAREA_3] para [RESPONSABLE_TAREA_3] con fecha límite [FECHA_LIMITE_3]
+
+Firma del Presidente: ______________________________________
+Firma del Secretario: ______________________________________ 
+nivel 6
+CONTRATO DE ALQUILER DE VIVIENDA
+
+Entre [NOMBRE_PROPIETARIO] con domicilio en [DIRECCION_PROPIETARIO], quien actúa en su calidad de [CARGO_PROPIETARIO] de [NOMBRE_EMPRESA], y [NOMBRE_ARRENDATARIO] con domicilio en [DIRECCION_ARRENDATARIO], que actúa en su propio nombre y derecho (en adelante, las partes), se acuerda lo siguiente:
+
+**ARTÍCULO 1. DATOS DE LOS CONTRATANTES**
+	- [NOMBRE_PROPIETARIO] con DNI [DNI_PROPIETARIO] y dirección [DIRECCION_PROPIETARIO].
+	- [NOMBRE_ARRENDATARIO] con DNI [DNI_ARRENDATARIO] y dirección [DIRECCION_ARRENDATARIO].
+
+**ARTÍCULO 2. DIRECCIÓN DEL INMUEBLE**
+	- El inmueble se encuentra ubicado en [DIRECCION_INMUEBLE], en el municipio de [MUNICIPIO] y provincia de [PROVINCIA].
+
+**ARTÍCULO 3. VALOR MENSUAL Y DEPÓSITO**
+	- El valor mensual de la renta es [VALOR_MENSUAL] euros.
+	- El depósito a pagar es [DEPOSITO] euros.
+
+**ARTÍCULO 4. DURACIÓN DEL CONTRATO**
+	- La duración del contrato es de [DURACION] meses.
+
+**ARTÍCULO 5. FECHA DE INICIO Y FIN**
+	- La fecha de inicio del contrato es [FECHA_INICIO] y la fecha de finalización es [FECHA_FIN].
+
+**ARTÍCULO 6. INVENTARIO INICIAL**
+	- El inventario inicial del inmueble es el siguiente:
+		- [INVENTARIO_INICIAL]
+
+**ARTÍCULO 7. SERVICIOS INCLUIDOS**
+	- Los servicios incluidos en la renta son los siguientes:
+		- [SERVICIOS_INCLUIDOS]
+
+**ARTÍCULO 8. SERVICIOS EXCLUIDOS**
+	- Los servicios excluidos de la renta son los siguientes:
+		- [SERVICIOS_EXCLUIDOS]
+
+**ARTÍCULO 9. RESPONSABILIDADES DEL PROPIETARIO**
+	- El propietario se compromete a:
+		- [RESPONSABILIDADES_PROPIETARIO]
+
+**ARTÍCULO 10. RESPONSABILIDADES DEL ARRENDATARIO**
+	- El arrendatario se compromete a:
+		- [RESPONSABILIDADES_ARRENDATARIO]
+
+**ARTÍCULO 11. PENALIZACIONES**
+	- Las penalizaciones por incumplimiento de las obligaciones pactadas en el presente contrato serán las siguientes:
+		- [PENALIZACIONES]
+
+**ARTÍCULO 12. CAUSALES DE TERMINACIÓN**
+	- El contrato se extinguirá por alguna de las siguientes causales:
+		- [CAUSALES_TERMINACION]
+
+**ARTÍCULO 13. CLÁUSULA DE PROTECCIÓN DE DATOS**
+	- [CLÁUSULA_PROTECCIÓN_DATOS]
+
+**ARTÍCULO 14. CLÁUSULA DE RESOLUCIÓN DE CONFLICTOS**
+	- [CLÁUSULA_RESOLUCIÓN_CONFLICTOS]
+
+**ARTÍCULO 15. LUGAR DE FIRMA**
+	- El presente contrato se firmará en dos ejemplares originales, uno para cada parte.
+	- El lugar de firma será [LUGAR_FIRMA].
+
+**ARTÍCULO 16. FECHA**
+	- La fecha de firma del presente contrato es [FECHA].
+
+**FIRMAS**
+
+Firma del propietario: ______________________________
+
+Firma del arrendatario: ______________________________
+nivel 7
+CONTRATO DE CONTRATACION ENTRE [NOMBRE_EMPRESA] Y [NOMBRE_EMPLEADO]
+
+Por la presente, [NOMBRE_EMPRESA] con domicilio en [DIRECCION_EMPRESA] y [NOMBRE_EMPLEADO] con domicilio en [DIRECCION_EMPLEADO], acuerdan celebrar el presente contrato de trabajo con las siguientes condiciones:
+
+1. OBJETO DEL CONTRATO: [NOMBRE_EMPLEADO] se compromete a desempeñar el cargo de [CARGO_EMPLEADO] en [NOMBRE_EMPRESA] con las condiciones y responsabilidades que se detallan en el presente contrato.
+
+2. DURACION DEL CONTRATO: El presente contrato se celebrará por un período de [TIEMPO_CONTRATO] meses/
+
+3. REMUNERACION: [NOMBRE_EMPLEADO] recibirá una remuneración mensual de [REMUNERACION] pesos.
+
+4. JORNADA LABORAL: La jornada laboral de [NOMBRE_EMPLEADO] será de [JORADA_LABORAL] horas diarias.
+
+5. RÉGIMEN DE PAGO: Las remuneraciones se pagarán en un solo pago al final de cada mes.
+
+6. INTEGRACIÓN: [NOMBRE_EMPLEADO] se compromete a cumplir con las políticas, reglamentos y normas establecidas por [NOMBRE_EMPRESA].
+
+7. MODIFICACIONES: Cualquier modificación en el presente contrato deberá ser pactada por escrito entre las partes.
+
+8. RESOLUCIÓN DEL CONTRATO: El presente contrato podrá ser rescindido por cualquiera de las partes con [TIEMPO_RESOLUCION] días de anticipación.
+
+9. LEGISLACIÓN APLICABLE: El presente contrato se regirá y se interpretará de acuerdo a las leyes y normas de la [PAIS].
+
+10. ACUERDO DE LAS PARTES: Las partes acuerdan que el presente contrato es el único y definitivo acuerdo entre ellas.
+
+En fe de lo cual, las partes firman el presente contrato en [FECHA] de [MES] de [AÑO].
+
+[NOMBRE_EMPLEADO]
+[NOMBRE_EMPRESA]
+
+Primero, quiero decirte que me sorprendió el resultado. Esperaba algo bastante peor, sobre todo si estás usando un modelo pequeño o uno optimizado para velocidad. En general, las respuestas son bastante buenas y ya muestran algo importante: el modelo entendió que debía generar una plantilla y no un documento con datos reales.
+
+Sin embargo, también se ven varios patrones que conviene corregir.
+
+Lo primero que noto: el prompt aún no está "domando" al modelo
+
+Por ejemplo, en el nivel 2 te respondió en Markdown:
+
+| Código | Descripción | ...
+
+Si tu editor no soporta Markdown, eso es un problema.
+
+Eso se soluciona desde el prompt.
+
+En lugar de decir:
+
+Genera una plantilla...
+
+Yo diría algo como:
+
+Eres un generador de plantillas para un editor de documentos.
+
+REGLAS OBLIGATORIAS:
+
+1. Nunca uses Markdown.
+2. Nunca uses HTML.
+3. No uses tablas Markdown.
+4. El texto debe ser plano.
+5. Las variables deben ir entre [].
+6. No expliques nada.
+7. Devuelve únicamente el contenido de la plantilla.
+8. Si una sección es repetitiva utiliza un marcador como [DETALLE_PRODUCTOS].
+
+Con solo eso mejorarás bastante.
+
+Segundo problema
+
+El modelo está inventando estructuras.
+
+Mira el nivel 2.
+
+En vez de hacer esto:
+
+Producto 1
+
+Producto 2
+
+Producto 3
+
+Yo preferiría muchísimo algo así:
+
+Productos
+
+[DETALLE_PRODUCTOS]
+
+Porque tu programa podría reemplazar después ese marcador por una tabla dinámica.
+
+Eso hace la plantilla mucho más reutilizable.
+
+Tercer problema
+
+En el nivel 5 hizo esto:
+
+Asistentes:
+
+[NOMBRE_ASISTENTE_1]
+
+[NOMBRE_ASISTENTE_2]
+
+[NOMBRE_ASISTENTE_3]
+
+Eso limita la plantilla a tres asistentes.
+
+Yo preferiría:
+
+Asistentes
+
+[LISTA_ASISTENTES]
+
+Mucho más flexible.
+
+Cuarto problema
+
+El modelo no entiende todavía el concepto de "campo repetible".
+
+Por ejemplo.
+
+En una factura.
+
+Hace:
+
+Producto 1
+
+Producto 2
+
+Producto 3
+
+Cuando realmente debería generar:
+
+[PRODUCTOS]
+
+Lo mismo para:
+
+inventarios
+asistentes
+tareas
+artículos
+observaciones
+anexos
+Aquí es donde creo que puedes hacer algo MUY interesante
+
+Yo dejaría de pensar en:
+
+Variables
+
+Y empezaría a pensar en:
+
+Tipos de variables
+
+Por ejemplo.
+
+[NOMBRE]
+
+Tipo
+
+Texto
+
+[FECHA]
+
+Tipo
+
+Fecha
+
+[DETALLE_PRODUCTOS]
+
+Tipo
+
+Tabla
+
+[FIRMA]
+
+Tipo
+
+Imagen
+
+[LOGO]
+
+Tipo
+
+Imagen
+
+[LISTA_ASISTENTES]
+
+Tipo
+
+Lista
+
+[CHECK_OBSERVACIONES]
+
+Tipo
+
+Booleano
+
+La IA podría devolver eso.
+
+No solamente el documento.
+
+Otra cosa que veo
+
+A veces usa:
+
+[NOMBRE_EMPRESA]
+
+Luego
+
+[EMPRESA]
+
+Después
+
+[EMPRESA_CLIENTE]
+
+Eso hace difícil reutilizar variables.
+
+Yo impondría una convención.
+
+Ejemplo.
+
+Siempre:
+
+EMPRESA
+
+CLIENTE
+
+EMPLEADO
+
+JEFE
+
+FECHA
+
+TOTAL
+
+IVA
+
+DIRECCION
+
+Sin inventar sinónimos.
+
+Aquí es donde yo usaría un prompt MUCHO más largo
+
+No uno de dos líneas.
+
+Algo así.
+
+Eres un arquitecto documental.
+
+No eres un escritor.
+
+Tu trabajo es construir plantillas reutilizables.
+
+Cada plantilla será utilizada cientos de veces.
+
+No repitas bloques.
+
+Usa marcadores para listas.
+
+Usa variables entre [].
+
+Nunca inventes nombres distintos para una misma variable.
+
+Utiliza siempre estas convenciones:
+
+EMPRESA
+
+CLIENTE
+
+JEFE
+
+EMPLEADO
+
+FECHA
+
+TOTAL
+
+OBSERVACIONES
+
+FIRMA
+
+LOGO
+
+Si una sección puede repetirse utiliza un único marcador.
+
+Ejemplo:
+
+[LISTA_PRODUCTOS]
+
+No escribas Markdown.
+
+No escribas tablas Markdown.
+
+Devuelve únicamente la plantilla.
+
+Eso cambia muchísimo la calidad.
+
+Pero creo que puedes ir todavía más lejos
+
+Y aquí viene una idea que no he visto en herramientas similares.
+
+No le pidas el documento.
+
+Pídele DOS cosas.
+
+Ejemplo.
+
+{
+    "plantilla":"....",
+
+    "variables":
+    [
+        {
+            "id":"CLIENTE",
+            "tipo":"texto",
+            "descripcion":"Nombre del cliente"
+        },
+        {
+            "id":"FECHA",
+            "tipo":"fecha"
+        },
+        {
+            "id":"PRODUCTOS",
+            "tipo":"tabla"
+        }
+    ]
+}
+
+Entonces tu programa:
+
+genera automáticamente el formulario
+sabe qué controles crear
+sabe si mostrar un DatePicker, un TextBox, un DataGrid, un selector de imagen, etc.
+
+Eso elimina muchas suposiciones de tu lado.
+
+La idea que más me gustó al leer tus pruebas
+
+Creo que estás intentando que la IA "escriba documentos". Yo cambiaría ligeramente el enfoque.
+
+Haz que la IA sea un compilador de plantillas.
+
+Es decir:
+
+Entrada: una descripción en lenguaje natural.
+Salida: una estructura formal (JSON + plantilla) que tu programa pueda interpretar.
+
+En ese momento dejas de depender de la creatividad del modelo y empiezas a depender de un formato que tú controlas. Esa es una arquitectura mucho más robusta.
+
+Una última recomendación
+
+Si vas a seguir evolucionando esta función, empieza a medir resultados, no solo a observarlos. Crea una carpeta con 50 o 100 solicitudes de prueba (contratos, cartas, cotizaciones, informes, etc.) y cada vez que cambies el prompt ejecútalas todas. Anota si:
+
+respetó las variables [],
+usó Markdown cuando no debía,
+inventó nombres inconsistentes,
+omitió secciones importantes,
+generó una estructura reutilizable.
+
+Con ese pequeño "banco de pruebas" podrás mejorar el prompt de forma objetiva y sabrás cuándo realmente una modificación lo hace mejor o peor. Esa es una práctica muy utilizada cuando se desarrollan aplicaciones que dependen de modelos de lenguaje.

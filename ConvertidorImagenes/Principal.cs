@@ -1,173 +1,411 @@
-// ConvertidorImagenes, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-// ConvertidorImagenes.Principal
 using System;
-using System.ComponentModel;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
+using System.Reflection;
 using System.Windows.Forms;
-using ConvertidorImagenes;
 using ConvertidorImagenes.Controllers;
-using ConvertidorImagenes.Properties;
 
 namespace ConvertidorImagenes
 {
-public class Principal : Form
-{
-	private readonly NavigationController navigationController = new NavigationController();
+    public partial class Principal : Form
+    {
+        private readonly NavigationController navigationController = new NavigationController();
 
-	private IContainer components = null;
+        // Guardamos referencia a los nav buttons para el resaltado y el filtro de búsqueda.
+        private List<NavButton> navButtons;
+        private List<ToolCard> recentCards;
+        private List<ToolCard> favoriteCards;
+        private bool modoGestion = false;
 
-	private Button button1;
+        // Bandera para evitar re-layout durante el arrastre de redimensionamiento.
+        private bool isResizing = false;
 
-	private Button button2;
+        public Principal()
+        {
+            // Habilitar double-buffering antes de crear controles.
+            // NO incluir UserPaint: ese flag indica que el Form pinta
+            // todo manualmente, lo cual interfiere con los controles hijos.
+            this.DoubleBuffered = true;
+            this.SetStyle(ControlStyles.OptimizedDoubleBuffer
+                          | ControlStyles.AllPaintingInWmPaint, true);
+            this.UpdateStyles();
 
-	private Button button3;
+            InitializeComponent();
+        }
 
-	private Button button4;
+        private void Principal_Load(object sender, EventArgs e)
+        {
+            // Suspender el layout durante la construcción masiva de controles.
+            this.SuspendLayout();
+            panelContent.SuspendLayout();
+            panelSidebar.SuspendLayout();
 
-	private Button button5;
+            CargarIconos();
+            ConstruirNavegacion();
+            ConstruirTarjetasRecientes();
+            ConstruirTarjetasFavoritas();
+            ConfigurarPlaceholderBuscar();
 
-	private Label label1;
+            panelSidebar.ResumeLayout(true);
+            panelContent.ResumeLayout(true);
+            this.ResumeLayout(true);
 
-	public Principal()
-	{
-		InitializeComponent();
-	}
+            // Habilitar double-buffering recursivo en todos los hijos.
+            EnableDoubleBuffering(this);
 
-	private void button1_Click(object sender, EventArgs e)
-	{
-		navigationController.Show<Form1>(this);
-	}
+            // Forzar repintado completo para que el sidebar se dibuje
+            // sin necesidad de redimensionar la ventana.
+            this.Refresh();
 
-	private void Principal_FormClosed(object sender, FormClosedEventArgs e)
-	{
-		navigationController.CloseApplication();
-	}
+            // Suscribirse a ResizeEnd para reconstruir tarjetas
+            // solo al terminar de arrastrar el borde.
+            this.ResizeEnd += Principal_ResizeEnd;
+        }
 
-	private void button2_Click(object sender, EventArgs e)
-	{
-		navigationController.Show<Offices>(this);
-	}
+        /// <summary>
+        /// Habilita DoubleBuffered en un control y todos sus hijos recursivamente.
+        /// Usa reflexión porque Panel.DoubleBuffered es protected.
+        /// </summary>
+        private static void EnableDoubleBuffering(Control control)
+        {
+            var prop = typeof(Control).GetProperty(
+                "DoubleBuffered",
+                BindingFlags.NonPublic | BindingFlags.Instance);
 
-	private void button3_Click(object sender, EventArgs e)
-	{
-		navigationController.Show<OCR>(this);
-	}
+            if (prop != null)
+                prop.SetValue(control, true, null);
 
-	private void button5_Click(object sender, EventArgs e)
-	{
-		navigationController.Show<redimension>(this);
-	}
+            foreach (Control child in control.Controls)
+                EnableDoubleBuffering(child);
+        }
 
-	private void Principal_Load(object sender, EventArgs e)
-	{
-		base.StartPosition = FormStartPosition.Manual;
-		base.Location = new Point((Screen.PrimaryScreen.Bounds.Width - base.Width) / 2, (Screen.PrimaryScreen.Bounds.Height - base.Height) / 2);
-	}
+        private void CargarIconos()
+        {
+            pictureLogo.Image = IconLoader.Load("logo");
+            pictureHome.Image = IconLoader.Load("home");
+            pictureSearch.Image = IconLoader.Load("search");
+            pictureBell.Image = IconLoader.Load("bell");
+            pictureClock.Image = IconLoader.Load("clock");
+            pictureBulb.Image = IconLoader.Load("bulb");
+            btnCerrarTip.Image = IconLoader.Load("close");
+        }
 
-	private void label1_Click(object sender, EventArgs e)
-	{
-     MessageBox.Show("Convertidor de Imágenes\nVersión Alpha.");
-	}
+        private const string PlaceholderBuscar = "Buscar herramienta...";
 
-	private void button4_Click(object sender, EventArgs e)
-	{
-		MessageBox.Show("Pronto 7u7.");
-	}
+        private void ConfigurarPlaceholderBuscar()
+        {
+            // TextBox.PlaceholderText no existe en WinForms de .NET Framework
+            // (solo en .NET 5+), así que lo simulamos con texto gris + Enter/Leave.
+            txtBuscar.Text = PlaceholderBuscar;
+            txtBuscar.ForeColor = Color.FromArgb(160, 163, 172);
+        }
 
-	protected override void Dispose(bool disposing)
-	{
-		if (disposing && components != null)
-		{
-			components.Dispose();
-		}
-		base.Dispose(disposing);
-	}
+        private void txtBuscar_Enter(object sender, EventArgs e)
+        {
+            if (txtBuscar.Text == PlaceholderBuscar)
+            {
+                txtBuscar.Text = "";
+                txtBuscar.ForeColor = Color.FromArgb(60, 62, 70);
+            }
+        }
 
-	private void InitializeComponent()
-	{
-		System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ConvertidorImagenes.Principal));
-		this.button2 = new System.Windows.Forms.Button();
-		this.button4 = new System.Windows.Forms.Button();
-		this.button5 = new System.Windows.Forms.Button();
-		this.button3 = new System.Windows.Forms.Button();
-		this.button1 = new System.Windows.Forms.Button();
-		this.label1 = new System.Windows.Forms.Label();
-		base.SuspendLayout();
-		this.button2.Location = new System.Drawing.Point(266, 36);
-		this.button2.Name = "button2";
-		this.button2.Size = new System.Drawing.Size(157, 116);
-		this.button2.TabIndex = 1;
-		this.button2.Text = "Office a PDF/PDF a Office- (Experimental)";
-		this.button2.UseVisualStyleBackColor = true;
-		this.button2.Click += new System.EventHandler(button2_Click);
-		this.button4.BackColor = System.Drawing.SystemColors.ActiveCaption;
-		this.button4.Location = new System.Drawing.Point(266, 177);
-		this.button4.Name = "button4";
-		this.button4.Size = new System.Drawing.Size(160, 127);
-		this.button4.TabIndex = 3;
-		this.button4.Text = "Ayuda";
-		this.button4.UseVisualStyleBackColor = false;
-		this.button4.Click += new System.EventHandler(button4_Click);
-		this.button5.Font = new System.Drawing.Font("Times New Roman", 12f, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0);
-		this.button5.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-       this.button5.Image = null;
-		this.button5.Location = new System.Drawing.Point(45, 177);
-		this.button5.Name = "button5";
-		this.button5.Size = new System.Drawing.Size(160, 116);
-		this.button5.TabIndex = 4;
-		this.button5.Text = "Redimenziona y corta Imagenes";
-		this.button5.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-		this.button5.UseVisualStyleBackColor = true;
-		this.button5.Click += new System.EventHandler(button5_Click);
-		this.button3.Font = new System.Drawing.Font("Times New Roman", 11.25f, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
-		this.button3.ForeColor = System.Drawing.SystemColors.Control;
-		this.button3.Image = (System.Drawing.Image)resources.GetObject("button3.Image");
-		this.button3.Location = new System.Drawing.Point(469, 36);
-		this.button3.Name = "button3";
-		this.button3.Size = new System.Drawing.Size(160, 116);
-		this.button3.TabIndex = 2;
-		this.button3.Text = "Reconocimiento Optico de Caracteres ";
-		this.button3.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-		this.button3.UseVisualStyleBackColor = true;
-		this.button3.Click += new System.EventHandler(button3_Click);
-		this.button1.BackColor = System.Drawing.Color.Transparent;
-		this.button1.Font = new System.Drawing.Font("Times New Roman", 14.25f, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
-		this.button1.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
-		this.button1.Image = (System.Drawing.Image)resources.GetObject("button1.Image");
-		this.button1.Location = new System.Drawing.Point(45, 36);
-		this.button1.Name = "button1";
-		this.button1.Size = new System.Drawing.Size(160, 116);
-		this.button1.TabIndex = 0;
-		this.button1.Text = "Convertidor de Imagenes";
-		this.button1.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-		this.button1.UseVisualStyleBackColor = false;
-		this.button1.Click += new System.EventHandler(button1_Click);
-		this.label1.AutoSize = true;
-		this.label1.ForeColor = System.Drawing.SystemColors.Desktop;
-		this.label1.Location = new System.Drawing.Point(554, 294);
-		this.label1.Name = "label1";
-		this.label1.Size = new System.Drawing.Size(75, 13);
-		this.label1.TabIndex = 5;
-		this.label1.Text = "Version: Alpha";
-		this.label1.Click += new System.EventHandler(label1_Click);
-		base.AutoScaleDimensions = new System.Drawing.SizeF(6f, 13f);
-		base.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-		base.ClientSize = new System.Drawing.Size(641, 316);
-		base.Controls.Add(this.label1);
-		base.Controls.Add(this.button5);
-		base.Controls.Add(this.button4);
-		base.Controls.Add(this.button3);
-		base.Controls.Add(this.button2);
-		base.Controls.Add(this.button1);
-		this.ForeColor = System.Drawing.SystemColors.Highlight;
-		base.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-		base.MaximizeBox = false;
-		base.Name = "Principal";
-		this.Text = "Principal";
-		base.FormClosed += new System.Windows.Forms.FormClosedEventHandler(Principal_FormClosed);
-		base.Load += new System.EventHandler(Principal_Load);
-		base.ResumeLayout(false);
-		base.PerformLayout();
-	}
+        private void txtBuscar_Leave(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtBuscar.Text))
+            {
+                txtBuscar.Text = PlaceholderBuscar;
+                txtBuscar.ForeColor = Color.FromArgb(160, 163, 172);
+            }
+        }
+
+        private void ConstruirNavegacion()
+        {
+            navButtons = new List<NavButton> { navConvertidor, navOffice, navOcr, navResize, navPlantillas, navAyuda };
+
+            navConvertidor.Image = IconLoader.Load("logo");
+            navOffice.Image = IconLoader.Load("office");
+            navOcr.Image = IconLoader.Load("ocr");
+            navResize.Image = IconLoader.Load("resize");
+            navPlantillas.Image = IconLoader.Load("bulb"); // Usamos el bombillo para "Smart Templates"
+            navAyuda.Image = IconLoader.Load("help");
+
+            foreach (var nav in navButtons)
+            {
+                if (nav.Image != null)
+                {
+                    nav.ImageList = null;
+                    nav.Image = new Bitmap(nav.Image, new Size(20, 20));
+                }
+            }
+        }
+
+        private void ConstruirTarjetasRecientes()
+        {
+            panelRecentCards.SuspendLayout();
+            panelRecentCards.Controls.Clear();
+            recentCards = new List<ToolCard>();
+
+            var datos = new (string titulo, string subtitulo, string icono, Color color, EventHandler accion)[]
+            {
+                ("Convertidor de\nImágenes", "Hace 5 min", "logo", Color.FromArgb(79, 124, 255),
+                    (s, e) => navigationController.Show<Form1>(this)),
+                ("Office a PDF /\nPDF a Office", "Hace 30 min", "office", Color.FromArgb(139, 92, 246),
+                    (s, e) => navigationController.Show<Offices>(this)),
+                ("Reconocimiento Óptico\nde Caracteres (OCR)", "Hace 1 hora", "ocr", Color.FromArgb(20, 184, 166),
+                    (s, e) => navigationController.Show<OCR>(this)),
+                ("Redimensiona y\ncorta Imágenes", "Hace 2 horas", "resize", Color.FromArgb(245, 158, 11),
+                    (s, e) => navigationController.Show<redimension>(this)),
+            };
+
+            int count = datos.Length;
+            int gap = 20;
+            int cardWidth = (panelRecentCards.Width - gap * (count - 1)) / count;
+
+            for (int i = 0; i < count; i++)
+            {
+                var d = datos[i];
+                var card = new ToolCard(d.titulo, d.subtitulo, IconLoader.Load(d.icono), d.color,
+                                         favoriteMode: false, isFav: false, starFilledImg: null, starOutlineImg: null)
+                {
+                    Location = new Point(i * (cardWidth + gap), 0),
+                    Size = new Size(cardWidth, panelRecentCards.Height)
+                };
+                card.CardClick += d.accion;
+                panelRecentCards.Controls.Add(card);
+                recentCards.Add(card);
+            }
+            panelRecentCards.ResumeLayout(true);
+        }
+
+        private void ConstruirTarjetasFavoritas()
+        {
+            panelFavCards.SuspendLayout();
+            panelFavCards.Controls.Clear();
+            favoriteCards = new List<ToolCard>();
+
+            Image starFilled = IconLoader.Load("star_filled");
+            Image starOutline = IconLoader.Load("star_outline");
+
+            var datos = new (string titulo, string icono, Color color, bool favorito, EventHandler accion)[]
+            {
+                ("Convertidor de\nImágenes", "logo", Color.FromArgb(79, 124, 255), true,
+                    (s, e) => navigationController.Show<Form1>(this)),
+                ("Office a PDF / PDF\na Office (Experimental)", "office", Color.FromArgb(139, 92, 246), true,
+                    (s, e) => navigationController.Show<Offices>(this)),
+                ("Reconocimiento Óptico\nde Caracteres (OCR)", "ocr", Color.FromArgb(20, 184, 166), true,
+                    (s, e) => navigationController.Show<OCR>(this)),
+                ("Redimensiona y\ncorta Imágenes", "resize", Color.FromArgb(245, 158, 11), true,
+                    (s, e) => navigationController.Show<redimension>(this)),
+                ("Ayuda", "help", Color.FromArgb(59, 130, 246), false,
+                    (s, e) => MessageBox.Show("Pronto 7u7.")),
+            };
+
+            int count = datos.Length;
+            int gap = 20;
+            int cardWidth = (panelFavCards.Width - gap * (count - 1)) / count;
+
+            for (int i = 0; i < count; i++)
+            {
+                var d = datos[i];
+                var card = new ToolCard(d.titulo, "", IconLoader.Load(d.icono), d.color,
+                                         favoriteMode: true, isFav: d.favorito,
+                                         starFilledImg: starFilled, starOutlineImg: starOutline)
+                {
+                    Location = new Point(i * (cardWidth + gap), 0),
+                    Size = new Size(cardWidth, panelFavCards.Height)
+                };
+                card.CardClick += d.accion;
+                card.StarClick += (s, e) => QuitarDeFavoritos((ToolCard)s);
+                card.StarVisible = modoGestion;
+                panelFavCards.Controls.Add(card);
+                favoriteCards.Add(card);
+            }
+            panelFavCards.ResumeLayout(true);
+        }
+
+        /// <summary>
+        /// Quita una tarjeta de la sección "Herramientas favoritas" y
+        /// reacomoda (reflow) las tarjetas restantes para llenar el espacio.
+        /// </summary>
+        private void QuitarDeFavoritos(ToolCard card)
+        {
+            favoriteCards.Remove(card);
+            panelFavCards.Controls.Remove(card);
+            card.Dispose();
+            ReflowFavoritas();
+        }
+
+        private void ReflowFavoritas()
+        {
+            int count = favoriteCards.Count;
+            if (count == 0) return;
+
+            int gap = 20;
+            int cardWidth = (panelFavCards.Width - gap * (count - 1)) / count;
+
+            for (int i = 0; i < count; i++)
+            {
+                favoriteCards[i].Location = new Point(i * (cardWidth + gap), 0);
+                favoriteCards[i].Size = new Size(cardWidth, panelFavCards.Height);
+            }
+        }
+
+        private void ReflowRecientes()
+        {
+            if (recentCards == null) return;
+            int count = recentCards.Count;
+            if (count == 0) return;
+
+            int gap = 20;
+            int cardWidth = (panelRecentCards.Width - gap * (count - 1)) / count;
+
+            for (int i = 0; i < count; i++)
+            {
+                recentCards[i].Location = new Point(i * (cardWidth + gap), 0);
+                recentCards[i].Size = new Size(cardWidth, panelRecentCards.Height);
+            }
+        }
+
+        // ---- Optimización de redimensionamiento ----
+
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+
+            // Marcar que estamos en proceso de resize.
+            // El re-layout costoso se hace al soltar (ResizeEnd).
+            if (!isResizing && WindowState == FormWindowState.Normal)
+            {
+                isResizing = true;
+            }
+        }
+
+        private void Principal_ResizeEnd(object sender, EventArgs e)
+        {
+            isResizing = false;
+            // Recalcular posición/tamaño de las tarjetas tras el resize.
+            panelRecentCards.SuspendLayout();
+            panelFavCards.SuspendLayout();
+
+            ReflowRecientes();
+            ReflowFavoritas();
+
+            panelFavCards.ResumeLayout(true);
+            panelRecentCards.ResumeLayout(true);
+        }
+
+        // ---------------- Navegación lateral ----------------
+
+        private void btnInicio_Click(object sender, EventArgs e)
+        {
+            SeleccionarNav(null);
+        }
+
+        private void navConvertidor_Click(object sender, EventArgs e)
+        {
+            SeleccionarNav(navConvertidor);
+            navigationController.Show<Form1>(this);
+        }
+
+        private void navOffice_Click(object sender, EventArgs e)
+        {
+            SeleccionarNav(navOffice);
+            navigationController.Show<Offices>(this);
+        }
+
+        private void navOcr_Click(object sender, EventArgs e)
+        {
+            SeleccionarNav(navOcr);
+            navigationController.Show<OCR>(this);
+        }
+
+        private void navResize_Click(object sender, EventArgs e)
+        {
+            SeleccionarNav(navResize);
+            navigationController.Show<redimension>(this);
+        }
+
+        private void navPlantillas_Click(object sender, EventArgs e)
+        {
+            SeleccionarNav(navPlantillas);
+            navigationController.Show<Plantillas>(this);
+        }
+
+        private void navAyuda_Click(object sender, EventArgs e)
+        {
+            SeleccionarNav(navAyuda);
+            MessageBox.Show("Pronto 7u7.");
+        }
+
+        private void SeleccionarNav(NavButton activo)
+        {
+            if (navButtons == null) return;
+            foreach (var nav in navButtons)
+            {
+                nav.Selected = (nav == activo);
+            }
+        }
+
+        // ---------------- Cabecera ----------------
+
+        private void btnBell_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("No tienes notificaciones nuevas.");
+        }
+
+        private void btnGestionar_Click(object sender, EventArgs e)
+        {
+            modoGestion = !modoGestion;
+
+            if (favoriteCards != null)
+            {
+                foreach (var card in favoriteCards)
+                {
+                    card.StarVisible = modoGestion;
+                }
+            }
+
+            labelGestionar.Text = modoGestion ? "✓  Listo" : "✎  Gestionar";
+            btnGestionar.BackColor = modoGestion
+                ? Color.FromArgb(109, 91, 208)
+                : Color.FromArgb(238, 233, 253);
+            labelGestionar.ForeColor = modoGestion
+                ? Color.White
+                : Color.FromArgb(109, 91, 208);
+        }
+
+        private void btnCerrarTip_Click(object sender, EventArgs e)
+        {
+            panelTip.Visible = false;
+        }
+
+        private void txtBuscar_TextChanged(object sender, EventArgs e)
+        {
+            string textoActual = txtBuscar.Text == PlaceholderBuscar ? "" : txtBuscar.Text;
+            string texto = textoActual.Trim().ToLower();
+
+            if (navButtons != null)
+            {
+                foreach (var nav in navButtons)
+                {
+                    nav.Visible = string.IsNullOrEmpty(texto) ||
+                                  nav.Text.ToLower().Contains(texto);
+                }
+            }
+        }
+
+        // ---------------- Varios ----------------
+
+        private void Principal_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            navigationController.CloseApplication();
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Convertidor de Imágenes\nVersión Alpha.");
+        }
+    }
 }
-}
+

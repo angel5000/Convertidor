@@ -331,6 +331,7 @@
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="IconLoader.cs" />
     <Compile Include="Lector.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -342,15 +343,38 @@
     <Compile Include="Offices.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="PlantillaModel.cs" />
+    <Compile Include="MarkdownParser.cs" />
+    <Compile Include="GroqService.cs" />
+    <Compile Include="GroqDocService.cs" />
+    <Compile Include="CustomXmlParser.cs" />
+    <Compile Include="CreadorPlantillas.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Plantillas.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Plantillas.Designer.cs">
+      <DependentUpon>Plantillas.cs</DependentUpon>
+    </Compile>
     <Compile Include="Principal.cs">
       <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Principal.Designer.cs">
+      <DependentUpon>Principal.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="redimension.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="RoundedPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Services\ImageConversionService.cs" />
+    <Compile Include="ToolCard.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="visualizador.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -458,6 +482,32 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Icons-runtime\bell.png" />
+    <Content Include="Icons-runtime\bulb.png" />
+    <Content Include="Icons-runtime\clock.png" />
+    <Content Include="Icons-runtime\close.png" />
+    <Content Include="Icons-runtime\help.png" />
+    <Content Include="Icons-runtime\home.png" />
+    <Content Include="Icons-runtime\logo.png" />
+    <Content Include="Icons-runtime\ocr.png" />
+    <Content Include="Icons-runtime\office.png" />
+    <Content Include="Icons-runtime\resize.png" />
+    <Content Include="Icons-runtime\search.png" />
+    <Content Include="Icons-runtime\star_filled.png" />
+    <Content Include="Icons-runtime\star_outline.png" />
+    <Content Include="Icons-src\bell.svg" />
+    <Content Include="Icons-src\bulb.svg" />
+    <Content Include="Icons-src\clock.svg" />
+    <Content Include="Icons-src\close.svg" />
+    <Content Include="Icons-src\help.svg" />
+    <Content Include="Icons-src\home.svg" />
+    <Content Include="Icons-src\logo.svg" />
+    <Content Include="Icons-src\ocr.svg" />
+    <Content Include="Icons-src\office.svg" />
+    <Content Include="Icons-src\resize.svg" />
+    <Content Include="Icons-src\search.svg" />
+    <Content Include="Icons-src\star_filled.svg" />
+    <Content Include="Icons-src\star_outline.svg" />
     <Content Include="icudt.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -472,7 +522,7 @@
   <Import Project="..\packages\Magick.NET-Q16-AnyCPU.13.0.1\build\netstandard20\Magick.NET-Q16-AnyCPU.targets" Condition="Exists('..\packages\Magick.NET-Q16-AnyCPU.13.0.1\build\netstandard20\Magick.NET-Q16-AnyCPU.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
-      <ErrorText>Este proyecto hace referencia a los paquetes NuGet que faltan en este equipo. Use la restauración de paquetes NuGet para descargarlos. Para obtener más información, consulte http://go.microsoft.com/fwlink/?LinkID=322105. El archivo que falta es {0}.</ErrorText>
+      <ErrorText>Este proyecto hace referencia a los paquetes NuGet que faltan en este equipo. Use la restauraciï¿½n de paquetes NuGet para descargarlos. Para obtener mï¿½s informaciï¿½n, consulte http://go.microsoft.com/fwlink/?LinkID=322105. El archivo que falta es {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Magick.NET-Q16-AnyCPU.13.0.1\build\netstandard20\Magick.NET-Q16-AnyCPU.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Magick.NET-Q16-AnyCPU.13.0.1\build\netstandard20\Magick.NET-Q16-AnyCPU.targets'))" />
     <Error Condition="!Exists('..\packages\Tesseract.Net.SDK.4.5.411\build\Tesseract.Net.SDK.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Tesseract.Net.SDK.4.5.411\build\Tesseract.Net.SDK.targets'))" />

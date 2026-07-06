@@ -1,0 +1,872 @@
+Ese es precisamente uno de los problemas que debes resolver si quieres integrar IA de forma profesional. La buena noticia es que no necesitas entrenar una IA propia. Lo que necesitas es convertir un modelo generalista en un asistente especializado.
+
+Lo primero: no necesitas una IA "que sepa hacer documentos"
+
+Puedes usar modelos muy buenos como:
+
+Qwen
+Llama
+Gemma
+
+Lo importante es cómo los utilizas.
+
+La arquitectura que yo haría
+
+No permitiría un chat libre.
+
+En lugar de esto:
+
+Usuario:
+
+Hola
+
+↓
+
+IA responde
+
+Haría esto:
+
+Usuario
+
+↓
+
+Describe el documento que necesita
+
+↓
+
+Tu programa crea un prompt interno
+
+↓
+
+La IA responde únicamente con JSON
+
+↓
+
+Tu programa interpreta el JSON
+
+↓
+
+Muestra la plantilla
+
+El usuario nunca ve la conversación con la IA.
+
+Ejemplo
+
+El usuario escribe:
+
+Necesito una carta para solicitar vacaciones.
+
+Tu aplicación realmente envía algo como esto:
+
+Eres un generador de plantillas.
+
+No eres un chatbot.
+
+No debes responder preguntas.
+
+No debes conversar.
+
+Tu única función es generar plantillas.
+
+Debes responder exclusivamente en JSON.
+
+Las variables deben ir entre [].
+
+Formato:
+
+{
+ "titulo":"",
+ "contenido":"",
+ "campos":[]
+}
+
+No agregues explicaciones.
+
+No uses markdown.
+
+El usuario nunca ve ese prompt.
+
+La IA devuelve:
+
+{
+  "titulo":"Solicitud de vacaciones",
+  "contenido":"Estimado [NOMBRE_JEFE]...\n...",
+  "campos":[
+      {
+          "id":"NOMBRE_JEFE",
+          "tipo":"texto",
+          "etiqueta":"Nombre del jefe"
+      },
+      {
+          "id":"FECHA_INICIO",
+          "tipo":"fecha",
+          "etiqueta":"Fecha inicio"
+      }
+  ]
+}
+
+Tu programa solamente hace:
+
+var plantilla = JsonSerializer.Deserialize<Plantilla>(respuesta);
+
+Y listo.
+
+¿Qué pasa si el usuario escribe?
+Cuéntame un chiste.
+
+La IA debería responder:
+
+{
+   "error":"Solicitud fuera del alcance."
+}
+
+No un chiste.
+
+Eso se controla desde el prompt
+
+Por ejemplo:
+
+Si el usuario solicita algo distinto de generar una plantilla documental, responde exactamente:
+
+{
+ "error":"Solicitud fuera del alcance."
+}
+
+No escribas ninguna otra palabra.
+
+Así conviertes un modelo generalista en un servicio muy específico.
+
+Incluso puedes filtrar antes de llamar a la IA
+
+Yo haría una doble validación.
+
+Usuario escribe
+
+↓
+
+¿Parece una solicitud documental?
+
+↓
+
+Sí
+
+↓
+
+Enviar a IA
+
+↓
+
+No
+
+↓
+
+Mostrar mensaje:
+"Solo se pueden generar plantillas."
+
+Así ni siquiera gastas tokens innecesarios.
+
+Lo mejor aún: categorías
+
+En vez de dejar un cuadro libre enorme.
+
+Primero preguntaría:
+
+¿Qué desea crear?
+
+○ Carta
+
+○ Contrato
+
+○ Memorándum
+
+○ Solicitud
+
+○ Certificado
+
+○ Informe
+
+○ Acta
+
+Después:
+
+Describa el documento.
+
+Eso reduce muchísimo las respuestas inesperadas.
+
+Incluso puedes enviar contexto
+
+Si el usuario seleccionó:
+
+Categoría:
+
+Recursos Humanos
+
+Tu prompt cambia automáticamente.
+
+Solo puedes generar documentos relacionados con Recursos Humanos.
+
+No generes documentos legales.
+
+No generes código.
+
+No respondas preguntas generales.
+
+Ahora la IA está mucho más "encerrada".
+
+¿Qué modelo usaría?
+
+Para este proyecto buscaría algo rápido y económico.
+
+🥇 Qwen 3 (8B o 14B)
+
+Para generación de documentos es excelente.
+
+Muy bueno en español.
+
+Muy estructurado.
+
+Produce JSON bastante limpio.
+
+🥈 Llama 3.1 / 3.3
+
+Muy buena redacción.
+
+Excelente para cartas.
+
+Muy estable.
+
+🥉 Gemma
+
+Muy rápida.
+
+Consumo pequeño.
+
+Buena para documentos sencillos.
+
+¿Groq?
+
+Aquí es donde creo que Groq encaja perfectamente.
+
+Porque necesitas respuestas como:
+
+Usuario:
+
+Necesito una carta para justificar una ausencia.
+
+↓
+
+2 segundos después
+
+↓
+
+JSON generado
+
+No necesitas un modelo enorme.
+
+Necesitas rapidez.
+
+Incluso iría un paso más allá
+
+En realidad usaría dos "personalidades" del mismo modelo.
+
+Modo 1
+
+Generador de plantillas
+
+Solo devuelve JSON.
+
+Nunca conversa.
+
+Nunca responde preguntas.
+
+Modo 2
+
+Mejorador de plantilla
+
+El usuario abre una plantilla.
+
+Pulsa:
+
+✨ Mejorar redacción.
+
+La IA recibe:
+
+Mejora este texto.
+
+No agregues variables nuevas.
+
+Respeta las variables existentes.
+
+Devuelve únicamente el contenido.
+
+Eso es otra función distinta.
+
+Una idea que me parece muy potente
+
+Yo ni siquiera mostraría el logo de la IA en la interfaz.
+
+En vez de:
+
+Generar con IA
+
+Pondría algo como:
+
+✨ Crear plantilla automáticamente
+
+o
+
+✨ Asistente de plantillas
+
+¿Por qué? Porque el usuario no compra "IA". Compra que el trabajo esté hecho en segundos. La IA es el motor, pero no el producto.
+
+Mi recomendación
+
+Para tu aplicación usaría un modelo como Qwen ejecutado mediante Groq (por velocidad y coste) o mediante Ollama (si el usuario quiere trabajar sin conexión). Diseñaría el sistema para que la IA nunca actúe como un chatbot, sino como un servicio interno que recibe una descripción y devuelve un JSON con la plantilla. Esa arquitectura hace que el comportamiento sea mucho más predecible, facilita el procesamiento en tu aplicación y transmite al usuario que está usando una herramienta profesional, no una conversación abierta con una IA.
+
+dame un  guia escrita como se usa la api de groq?
+
+Claro. La API de Groq está diseñada para ser muy similar a la de OpenAI, por lo que si ya has consumido APIs REST desde C#, te resultará bastante familiar. A continuación te dejo una guía enfocada a tu proyecto.
+
+1. Crear una cuenta
+
+Entra en:
+
+GroqCloud
+
+Regístrate.
+
+2. Crear una API Key
+
+Una vez dentro:
+
+Settings → API Keys → Create API Key
+
+Obtendrás algo como:
+
+gsk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+Guárdala.
+
+3. Endpoint
+
+Todas las peticiones van normalmente a:
+
+https://api.groq.com/openai/v1/chat/completions
+
+Observa que incluso usa la ruta /openai/ porque implementa una API compatible.
+
+4. Headers
+
+Necesitas dos:
+
+Authorization: Bearer TU_API_KEY
+
+Content-Type: application/json
+5. Body de la petición
+
+Envías un JSON.
+
+Ejemplo sencillo:
+
+{
+    "model": "llama-3.3-70b-versatile",
+    "messages":
+    [
+        {
+            "role":"system",
+            "content":"Eres un generador de plantillas."
+        },
+        {
+            "role":"user",
+            "content":"Genera una carta de vacaciones."
+        }
+    ]
+}
+
+No hay mucho más.
+
+6. Respuesta
+
+Devuelve algo parecido a:
+
+{
+    "choices":
+    [
+        {
+            "message":
+            {
+                "role":"assistant",
+                "content":"Estimado..."
+            }
+        }
+    ]
+}
+
+Lo que realmente necesitas es:
+
+choices[0].message.content
+7. En C#
+
+Con HttpClient.
+
+var client = new HttpClient();
+
+client.DefaultRequestHeaders.Authorization =
+    new AuthenticationHeaderValue("Bearer", apiKey);
+
+Luego:
+
+var json = JsonSerializer.Serialize(request);
+
+var response = await client.PostAsync(
+    url,
+    new StringContent(json, Encoding.UTF8, "application/json"));
+
+Después:
+
+var text = await response.Content.ReadAsStringAsync();
+
+Deserializas el JSON y listo.
+
+8. Lo importante para tu programa
+
+Yo NO dejaría que el usuario escriba directamente a la IA.
+
+Haría una clase.
+
+PlantillaAIService
+
+Con un método:
+
+GenerarPlantilla(string descripcion)
+
+Internamente hace todo.
+
+El resto del programa jamás sabe que existe Groq.
+
+9. Prompt del sistema
+
+Aquí está el 80% del éxito.
+
+Ejemplo:
+
+Eres un generador profesional de plantillas.
+
+Nunca converses.
+
+Nunca respondas preguntas.
+
+Nunca expliques.
+
+Tu única función es crear plantillas documentales.
+
+Las variables deben ir entre [].
+
+Debes responder únicamente en JSON.
+
+No escribas Markdown.
+
+No uses ```.
+
+No agregues texto antes ni después del JSON.
+
+Ese prompt nunca lo verá el usuario.
+
+10. Prompt del usuario
+
+El usuario escribe:
+
+Necesito una carta para solicitar vacaciones.
+
+Tú realmente envías:
+
+Genera una plantilla documental.
+
+Debe contener variables entre [].
+
+Devuelve el siguiente JSON:
+
+{
+ "titulo":"",
+ "contenido":"",
+ "campos":[]
+}
+
+Solicitud:
+
+Necesito una carta para solicitar vacaciones.
+11. Resultado esperado
+{
+  "titulo":"Solicitud Vacaciones",
+
+  "contenido":"Estimado [NOMBRE_JEFE]:\n\nPor medio...",
+
+  "campos":
+  [
+      {
+         "id":"NOMBRE_JEFE",
+         "etiqueta":"Nombre del jefe",
+         "tipo":"texto"
+      },
+
+      {
+         "id":"FECHA_INICIO",
+         "etiqueta":"Fecha inicio",
+         "tipo":"fecha"
+      }
+  ]
+}
+
+Tu programa simplemente hace:
+
+JsonSerializer.Deserialize<Plantilla>()
+
+Y ya tienes la plantilla.
+
+12. Modelos
+
+Groq tiene varios.
+
+No siempre estarán los mismos.
+
+Para tu caso buscaría uno pequeño o mediano.
+
+Por ejemplo:
+
+llama-3.1-8b
+
+llama-3.3-70b
+
+qwen3
+
+gemma
+
+Todos sirven para documentos.
+
+No necesitas el más grande.
+
+13. Controlar que no responda cualquier cosa
+
+Aquí viene una parte importante.
+
+Si el usuario escribe:
+
+Cuéntame un chiste.
+
+No quieres gastar tokens.
+
+Antes de llamar a Groq puedes validar.
+
+if(!EsSolicitudDocumento(texto))
+{
+    return "Solo se pueden generar plantillas.";
+}
+
+Incluso una validación sencilla basada en palabras clave ("carta", "contrato", "certificado", "memorándum", "solicitud", etc.) puede reducir llamadas innecesarias. Si más adelante quieres algo más robusto, puedes usar una segunda llamada a un modelo pequeño que solo clasifique la intención.
+
+14. Un flujo que creo que mejoraría mucho tu aplicación
+
+En lugar de un único cuadro de texto, podrías guiar al usuario:
+
+──────────────────────────
+
+¿Qué desea crear?
+
+( ) Carta
+
+( ) Contrato
+
+( ) Memorándum
+
+( ) Certificado
+
+( ) Solicitud
+
+( ) Otro
+
+──────────────────────────
+
+Describa lo que necesita:
+
+______________________________________
+
+Ejemplo:
+
+Necesito una carta para solicitar vacaciones
+del 5 al 10 de agosto dirigida a mi jefe.
+
+──────────────────────────
+
+      [✨ Crear plantilla]
+
+──────────────────────────
+
+Con esa información, tu aplicación construye el prompt automáticamente y envía una petición a Groq. La IA devuelve el JSON, tu programa lo convierte en una plantilla reutilizable y el usuario solo tiene que revisarla y guardarla.
+
+Mi consejo de arquitectura
+
+Yo no crearía una clase llamada GroqService. Crearía una interfaz, por ejemplo:
+
+public interface IAiProvider
+{
+    Task<Plantilla> GenerarPlantillaAsync(string descripcion);
+}
+
+Y luego implementaciones concretas:
+
+GroqProvider
+OpenAIProvider
+OllamaProvider
+
+Así, el resto de tu aplicación solo conoce IAiProvider. Si mañana decides cambiar de Groq a Ollama para trabajar sin conexión, o añadir soporte para otro proveedor, no tendrás que modificar la lógica de generación de plantillas; solo cambiarás la implementación del proveedor. Es una arquitectura sencilla que te dará mucha flexibilidad a futuro.
+
+ahora tengo una cuestion, mi kit de herramientas siempre le he tenido el objetivo que este funcione siempre sin internet, pero con el modelo de ia seria el unico motivo por el cual lo obtendria, pero hoy en dia estar sin internet es poco probable, pero si tuviera que añadirle un modelo de ia local que no funcione con ia, cuando me costaria crear ese modelo simple y que tambien no abuse de los recursos del pc
+
+Esta pregunta es, en mi opinión, la más importante de todo el proyecto. Y creo que aquí hay una oportunidad para diferenciarte de la competencia.
+
+Mi respuesta corta es:
+
+No crearía un modelo propio. Crearía un motor propio que use un modelo existente.
+
+La diferencia parece sutil, pero económicamente es enorme.
+
+Opción 1: Entrenar tu propio modelo (NO recomendable)
+
+Si por "crear un modelo" te refieres a entrenar una IA desde cero para redactar documentos:
+
+No lo haría.
+
+¿Por qué?
+
+Porque necesitarías:
+
+millones de documentos
+GPUs muy potentes
+semanas o meses de entrenamiento
+conocimientos de Machine Learning
+
+El coste fácilmente puede ir desde miles hasta cientos de miles de dólares dependiendo del objetivo.
+
+Y al final probablemente obtendrías un modelo peor que uno gratuito como Qwen.
+
+Opción 2: Afinar un modelo (Fine-Tuning)
+
+Tampoco creo que sea necesario.
+
+Aunque es mucho más barato.
+
+Necesitarías:
+
+unos cientos o miles de ejemplos
+un dataset bien preparado
+
+El coste puede ir desde unos pocos dólares hasta algunos cientos, dependiendo del proveedor y del tamaño del modelo.
+
+Pero para tu caso tampoco veo que aporte mucho.
+
+Opción 3: Usar un modelo local (la que más me gusta)
+
+Aquí sí.
+
+Por ejemplo:
+
+Ollama
+llama.cpp
+
+Y ejecutar modelos como:
+
+Qwen 3 4B
+Gemma 3 4B
+Llama 3.2 3B
+
+Estos modelos pesan entre 2 y 5 GB, según la cuantización (4-bit, 8-bit, etc.), y funcionan sorprendentemente bien para generar documentos.
+
+¿Consumirá muchos recursos?
+
+Depende del tamaño.
+
+Por ejemplo:
+
+Modelo 1B
+
+RAM:
+
+1-2 GB
+
+Muy rápido.
+
+Ideal para equipos modestos.
+
+Modelo 3B
+
+RAM:
+
+3-4 GB
+
+Muy recomendable.
+
+Modelo 7B
+
+RAM:
+
+6-8 GB
+
+Calidad excelente.
+
+En un PC actual con 16 GB de RAM, un modelo de 3B o 4B suele ser perfectamente utilizable para una aplicación de escritorio.
+
+Pero creo que tú puedes hacerlo todavía mejor
+
+Aquí viene una idea que se me ocurrió leyendo todo lo que me has mostrado.
+
+Tú no necesitas una IA generalista.
+
+Tú sabes exactamente qué quieres obtener.
+
+Entonces...
+
+¿Por qué no reducir muchísimo el trabajo de la IA?
+
+Ejemplo
+
+El usuario escribe:
+
+Necesito una carta para solicitar vacaciones.
+
+La IA NO escribe toda la carta.
+
+Solo devuelve algo así:
+
+{
+  "tipo":"vacaciones",
+  "tono":"formal"
+}
+
+Y tu programa tiene una plantilla base.
+
+Estimado [NOMBRE_JEFE]:
+
+Por medio de la presente...
+
+La IA solo elige la plantilla.
+
+Eso reduce muchísimo los recursos.
+
+Incluso podrías no usar IA para muchas cosas
+
+Imagina una biblioteca con:
+
+500 plantillas.
+
+El usuario escribe:
+
+Necesito justificar una ausencia.
+
+La IA simplemente busca cuál plantilla se parece más.
+
+No redacta.
+
+Solo clasifica.
+
+Eso podría hacerse incluso con algoritmos de similitud semántica.
+
+Mi arquitectura ideal
+
+Yo dividiría el sistema en tres niveles.
+
+Nivel 1
+
+Plantillas propias.
+
+Vacaciones
+
+Contrato
+
+Memorándum
+
+Certificado
+
+No hay IA.
+
+Respuesta instantánea.
+
+Nivel 2
+
+IA local.
+
+Solo cuando no existe plantilla.
+
+Nivel 3
+
+Groq.
+
+Solo cuando el usuario quiere crear algo completamente nuevo.
+
+Así el usuario puede trabajar sin Internet la mayor parte del tiempo.
+
+Otra idea que creo que te puede diferenciar
+
+En lugar de descargar un modelo de 5 GB.
+
+¿Por qué no crear un "mini conocimiento"?
+
+Por ejemplo.
+
+Tu programa trae un archivo.
+
+plantillas.db
+
+Dentro hay:
+
+1000 documentos
+categorías
+campos
+variables
+
+Cuando el usuario escribe:
+
+Necesito una carta de renuncia.
+
+Tu motor hace una búsqueda.
+
+Encuentra:
+
+Carta Renuncia 03
+
+La carga.
+
+Solo si no encuentra nada...
+
+Llama a la IA.
+
+Eso reduce muchísimo el consumo.
+
+Lo que yo haría si este fuera mi producto
+
+Sinceramente, no instalaría un modelo local por defecto.
+
+Haría algo como esto:
+
+Edición estándar (100 % offline):
+
+OCR.
+Conversión de documentos.
+Conversión de imágenes.
+Editor de plantillas.
+Biblioteca de plantillas.
+Buscador inteligente.
+
+Módulo IA (opcional):
+
+"Activar IA local" → descarga un modelo mediante Ollama.
+"Usar IA en la nube" → configurar una API como Groq.
+
+De esta forma, quien solo quiere una suite documental sigue teniendo una aplicación ligera y completamente funcional sin conexión. Quien quiera funciones avanzadas puede habilitarlas cuando las necesite.
+
+Una última idea que creo que encaja mucho con tu filosofía
+
+Después de ver las capturas de tu editor, me da la impresión de que tu producto no debería depender de la IA, sino que la IA debería depender de tu producto.
+
+Es decir, el corazón de la aplicación sigue siendo el editor de plantillas, el OCR y las conversiones. La IA es simplemente un asistente que acelera la creación de contenido. Si un día Groq deja de existir o el usuario trabaja sin Internet, tu programa sigue haciendo el 95 % de su trabajo.
+
+Esa independencia, en un mercado donde muchas herramientas dejan de funcionar sin conexión o requieren una suscripción permanente, puede convertirse en uno de tus principales argumentos de venta.

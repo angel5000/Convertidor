@@ -1,13 +1,11 @@
 // ConvertidorImagenes, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
 // ConvertidorImagenes.redimension
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Windows.Forms;
-using System.Runtime.InteropServices;
 using ConvertidorImagenes;
 using ConvertidorImagenes.Properties;
 
@@ -75,13 +73,13 @@ public class redimension : Form
 
 	private PictureBox pictureBox1;
 
-	private RoundedPanel panel1;
+	private Panel panel1;
 
 	private Panel imageCanvas;
 
 	private Label label1;
 
-	private RoundedPanel panel2;
+	private Panel panel2;
 
 	private RadioButton rbrecorte;
 
@@ -95,7 +93,7 @@ public class redimension : Form
 
 	private Label label3;
 
-	private RoundedPanel panel3;
+	private Panel panel3;
 
 	private Button btguardar;
 
@@ -115,7 +113,7 @@ public class redimension : Form
 
 	private Button btzomin;
 
-	private RoundedPanel panel4;
+	private Panel panel4;
 
 	private Button btzomout;
 
@@ -135,31 +133,6 @@ public class redimension : Form
 
 	private Label lbzoom;
 
-	private TrackBar trZoomPreview;
-	private Label lbZoomPreview;
-
-	private void UpdatePreviewZoom(object sender, EventArgs e)
-	{
-		if (vistapre.Image == null) return;
-		float zoom = trZoomPreview.Value / 100f;
-		lbZoomPreview.Text = trZoomPreview.Value + "%";
-		vistapre.Size = new Size((int)(vistapre.Image.Width * zoom), (int)(vistapre.Image.Height * zoom));
-		CenterPreviewImage();
-	}
-
-	private void CenterPreviewImage()
-	{
-		if (vistapre.Image == null || panel4 == null) return;
-		int x = 0;
-		int y = 0;
-		if (vistapre.Width < panel4.ClientSize.Width)
-			x = (panel4.ClientSize.Width - vistapre.Width) / 2;
-		if (vistapre.Height < panel4.ClientSize.Height)
-			y = (panel4.ClientSize.Height - vistapre.Height) / 2;
-		
-		vistapre.Location = new Point(x + panel4.AutoScrollPosition.X, y + panel4.AutoScrollPosition.Y);
-	}
-
 	private Button button3;
 
 	private Button button4;
@@ -171,9 +144,6 @@ public class redimension : Form
 	public redimension()
 	{
 		InitializeComponent();
-		this.DoubleBuffered = true;
-		ApplyModernStyles();
-		SetupDrawingToolsEvents();
 		KeyPreview = true;
 		btzomout.Enabled = false;
 		btzomin.Enabled = false;
@@ -378,50 +348,6 @@ public class redimension : Form
 			return;
 		}
 
-		if (isDrawing && e.Button == MouseButtons.Left && currentDrawingBitmap != null)
-		{
-			Bitmap temp = (Bitmap)currentDrawingBitmap.Clone();
-			using (Graphics g = Graphics.FromImage(temp))
-			{
-				g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-				Pen pen = new Pen(colorForma.BackColor, trGrosorPincel.Value);
-				Brush brush = new SolidBrush(colorRelleno.BackColor);
-				
-				Point imgStart = ConvertDisplayPointToImagePoint(drawingStartPoint);
-				Point imgEnd = ConvertDisplayPointToImagePoint(e.Location);
-				
-				int w = Math.Abs(imgEnd.X - imgStart.X);
-				int h = Math.Abs(imgEnd.Y - imgStart.Y);
-				int startX = Math.Min(imgStart.X, imgEnd.X);
-				int startY = Math.Min(imgStart.Y, imgEnd.Y);
-				
-				if (currentTool == ToolMode.Pencil) {
-					using (Graphics gBase = Graphics.FromImage(currentDrawingBitmap)) {
-						gBase.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-						gBase.DrawLine(pen, imgStart, imgEnd);
-					}
-					drawingStartPoint = e.Location;
-					temp.Dispose();
-					temp = (Bitmap)currentDrawingBitmap.Clone();
-				}
-				else if (currentTool == ToolMode.Line) {
-					g.DrawLine(pen, imgStart, imgEnd);
-				}
-				else if (currentTool == ToolMode.Rectangle) {
-					if (colorRelleno.BackColor != Color.Transparent) g.FillRectangle(brush, startX, startY, w, h);
-					g.DrawRectangle(pen, startX, startY, w, h);
-				}
-				else if (currentTool == ToolMode.Circle) {
-					if (colorRelleno.BackColor != Color.Transparent) g.FillEllipse(brush, startX, startY, w, h);
-					g.DrawEllipse(pen, startX, startY, w, h);
-				}
-			}
-			Image oldImage = pictureBox1.Image;
-			pictureBox1.Image = temp;
-			if (oldImage != null && oldImage != currentDrawingBitmap && oldImage != originalImage) oldImage.Dispose();
-			return;
-		}
-
 		if (isSelecting)
 		{
 			selectionEnd = new Point(Math.Max(Math.Min(e.Location.X, pictureBox1.Width - 1), 0), Math.Max(Math.Min(e.Location.Y, pictureBox1.Height - 1), 0));
@@ -482,7 +408,7 @@ public class redimension : Form
 		{
 			OpenFileDialog openFileDialog = new OpenFileDialog();
 			openFileDialog.Filter = "Imágenes PNG (*.png)|*.png|Imágenes JPEG (*.jpg;*.jpeg)|*.jpg;*.jpeg|Imágenes BITMAP (*.bmp)|*.bmp|Imágenes GIF (*.gif)|*.gif|Imágenes ICO (*.ico)|*.ico";
-			openFileDialog.Title = "Selecciona una imagen...";
+			openFileDialog.Title = "Selecciona una iamgen a convertir...";
 			DialogResult dialogResult = openFileDialog.ShowDialog();
 			nombrearch = openFileDialog.SafeFileName;
 			if (dialogResult == DialogResult.OK)
@@ -506,41 +432,6 @@ public class redimension : Form
 				}
 			}
 		}
-
-		if (e.Button == MouseButtons.Left && currentTool == ToolMode.Text && cargado)
-		{
-			if (floatingTextBox == null)
-			{
-				floatingTextBox = new TextBox();
-				floatingTextBox.Multiline = true;
-				floatingTextBox.BorderStyle = BorderStyle.FixedSingle;
-				floatingTextBox.KeyDown += (s, ev) => { if (ev.KeyCode == Keys.Enter && !ev.Shift) { ev.SuppressKeyPress = true; CommitText(); } };
-				floatingTextBox.LostFocus += (s, ev) => CommitText();
-				pictureBox1.Controls.Add(floatingTextBox);
-			}
-			floatingTextBox.Font = new Font(cbFuenteTexto.SelectedItem.ToString(), trGrosorPincel.Value * 5);
-			floatingTextBox.ForeColor = colorForma.BackColor;
-			if (colorRelleno.BackColor == Color.Transparent) floatingTextBox.BackColor = Color.White;
-			else floatingTextBox.BackColor = colorRelleno.BackColor;
-			floatingTextBox.Location = e.Location;
-			floatingTextBox.Size = new Size(200, (int)floatingTextBox.Font.Height + 10);
-			floatingTextBox.Visible = true;
-			floatingTextBox.Focus();
-			return;
-		}
-
-		if (e.Button == MouseButtons.Left && currentTool != ToolMode.Select && cargado)
-		{
-			if (pictureBox1.Image != null)
-			{
-				SaveState();
-				isDrawing = true;
-				drawingStartPoint = e.Location;
-				currentDrawingBitmap = (Bitmap)pictureBox1.Image.Clone();
-			}
-			return;
-		}
-
 		if (e.Button == MouseButtons.Left && ShouldPanWithLeftButton())
 		{
 			StartImagePan(e);
@@ -571,6 +462,8 @@ public class redimension : Form
 		btvisua.Enabled = true;
 		btzomin.Enabled = true;
 		btzomout.Enabled = true;
+		vistapre.Size = new Size(xori2, yori2);
+		vistapre.Location = new Point(pp1, pp2);
 		int num = int.Parse(txtancho.Text);
 		int num2 = int.Parse(txtaltura.Text);
 		if (num < pictureBox1.Image.Width && num2 < pictureBox1.Image.Height)
@@ -580,6 +473,13 @@ public class redimension : Form
 			num2 = (int)((float)num * num3);
 			Image thumbnailImage = imagen.GetThumbnailImage(num, num2, null, IntPtr.Zero);
 			vistapre.Image = thumbnailImage;
+			int num4 = thumbnailImage.Width;
+			int num5 = thumbnailImage.Height;
+			vistapre.ClientSize = new Size(num4, num5);
+			vistapre.ClientSize = new Size(num4, num5);
+			int num6 = (panel4.Width - vistapre.Width) / 2;
+			int num7 = (panel4.Height - vistapre.Height) / 2;
+			vistapre.Location = new Point(num6, num7);
 		}
 		else
 		{
@@ -588,6 +488,12 @@ public class redimension : Form
 			num2 = (int)((float)num * num8);
 			Image thumbnailImage2 = imagen.GetThumbnailImage(num, num2, null, IntPtr.Zero);
 			vistapre.Image = thumbnailImage2;
+			int num9 = thumbnailImage2.Width;
+			int num10 = thumbnailImage2.Height;
+			vistapre.ClientSize = new Size(num9, num10);
+			int num11 = (panel4.Width - vistapre.Width) / 2;
+			int num12 = (panel4.Height - vistapre.Height) / 2;
+			vistapre.Location = new Point(num11, num12);
 		}
 		if (num > pictureBox1.Image.Width && num2 > pictureBox1.Image.Height)
 		{
@@ -596,10 +502,15 @@ public class redimension : Form
 			num2 = (int)((float)num * num13);
 			Image thumbnailImage3 = imagen.GetThumbnailImage(num, num2, null, IntPtr.Zero);
 			vistapre.Image = thumbnailImage3;
+			int num14 = thumbnailImage3.Width;
+			int num15 = thumbnailImage3.Height;
+			vistapre.ClientSize = new Size(num14, num15);
 		}
+		int num16 = (panel4.Width - vistapre.Width) / 2;
+		int num17 = (panel4.Height - vistapre.Height) / 2;
+		vistapre.Location = new Point(num16, num17);
 		lbpxrc.Text = vistapre.Image.Width + "x" + vistapre.Image.Height;
 		txtaltura.Text = vistapre.Image.Height.ToString();
-		if (trZoomPreview != null) { trZoomPreview.Value = 100; UpdatePreviewZoom(null, null); }
 	}
 
 	private void btcancel_Click(object sender, EventArgs e)
@@ -624,6 +535,8 @@ public class redimension : Form
 		cropBaseSize = Size.Empty;
 		trzoom.Value = DefaultCropZoom;
 		lbzoom.Text = DefaultCropZoom + "%";
+		vistapre.Size = new Size(xori2, yori2);
+		vistapre.Location = new Point(pp1, pp2);
 		lbaviso.Show();
 		button3.Enabled = false;
 		btguardar.Enabled = false;
@@ -734,15 +647,12 @@ public class redimension : Form
 
 	private void btguardar_Click(object sender, EventArgs e)
 	{
-		Image imgToSave = vistapre.Image ?? pictureBox1.Image;
-		if (imgToSave == null) return;
-
 		SaveFileDialog saveFileDialog = new SaveFileDialog();
 		string text = ruta.Substring(ruta.LastIndexOf(".") + 1);
 		saveFileDialog.Title = "Guardar imagen";
 		saveFileDialog.DefaultExt = "." + text;
 		saveFileDialog.Filter = "Imágenes PNG (*.png)|*.png|Imágenes JPEG (*.jpg;*.jpeg)|*.jpg;*.jpeg|Imágenes BITMAP (*.bmp)|*.bmp|Imágenes GIF (*.gif)|*.gif|Imágenes ICO (*.ico)|*.ico";
-		saveFileDialog.FileName = nombrearch + " -editado";
+		saveFileDialog.FileName = nombrearch + " -recortado";
 		if (saveFileDialog.ShowDialog() == DialogResult.OK)
 		{
 			string fileName = saveFileDialog.FileName;
@@ -768,7 +678,7 @@ public class redimension : Form
                     imageFormat = ImageFormat.Jpeg;
                     break;
             }
-            imgToSave.Save(fileName, imageFormat);
+            vistapre.Image.Save(fileName, imageFormat);
 		}
 	}
 
@@ -801,14 +711,6 @@ public class redimension : Form
 		int num3 = Math.Min(Math.Abs(start.X - end.X), pictureBox1.Width - num);
 		int num4 = Math.Min(Math.Abs(start.Y - end.Y), pictureBox1.Height - num2);
 		return new Rectangle(num, num2, num3, num4);
-	}
-
-	private Point ConvertDisplayPointToImagePoint(Point displayPoint)
-	{
-		if (originalImage == null || pictureBox1.ClientSize.Width == 0 || pictureBox1.ClientSize.Height == 0) return displayPoint;
-		double scaleX = (double)originalImage.Width / pictureBox1.ClientSize.Width;
-		double scaleY = (double)originalImage.Height / pictureBox1.ClientSize.Height;
-		return new Point(Math.Max(0, (int)Math.Round(displayPoint.X * scaleX)), Math.Max(0, (int)Math.Round(displayPoint.Y * scaleY)));
 	}
 
 	private Rectangle ConvertDisplayRectangleToImageRectangle(Rectangle displayRectangle)
@@ -852,17 +754,6 @@ public class redimension : Form
 			return;
 		}
 
-		if (e.Button == MouseButtons.Left && isDrawing)
-		{
-			isDrawing = false;
-			if (currentDrawingBitmap != null)
-			{
-				currentDrawingBitmap.Dispose();
-				currentDrawingBitmap = null;
-			}
-			return;
-		}
-
 		if (e.Button == MouseButtons.Left)
 		{
 			if (!isSelecting)
@@ -875,19 +766,25 @@ public class redimension : Form
 			if (cropRectangle.Width > 0 && cropRectangle.Height > 0)
 			{
 				lbpx.Text = pictureBox1.Image.Width + "x" + pictureBox1.Image.Height;
+				vistapre.Size = new Size(xori2, yori2);
+				vistapre.Location = new Point(pp1, pp2);
 				Rectangle imageRectangle = ConvertDisplayRectangleToImageRectangle(cropRectangle);
 				if (imageRectangle == Rectangle.Empty)
 				{
 					return;
 				}
 				vistapre.SizeMode = PictureBoxSizeMode.Zoom;
-				Bitmap currentImg = pictureBox1.Image as Bitmap;
-				if (currentImg != null)
-				{
-					vistapre.Image = currentImg.Clone(imageRectangle, currentImg.PixelFormat);
-				}
+				vistapre.Image = originalImage.Clone(imageRectangle, originalImage.PixelFormat);
 				lbpxrc.Text = vistapre.Image.Width + "x" + vistapre.Image.Height;
-				if (trZoomPreview != null) { trZoomPreview.Value = 100; UpdatePreviewZoom(null, null); }
+				int num = vistapre.Image.Width;
+				int num2 = vistapre.Image.Height;
+				float num3 = Math.Min((float)vistapre.Width / (float)num, (float)vistapre.Height / (float)num2);
+				num = (int)((float)num * num3);
+				num2 = (int)((float)num2 * num3);
+				vistapre.ClientSize = new Size(num, num2);
+				int num4 = (panel4.Width - vistapre.Width) / 2;
+				int num5 = (panel4.Height - vistapre.Height) / 2;
+				vistapre.Location = new Point(num4, num5);
 				btzomin.Enabled = true;
 				btguardar.Enabled = true;
 				btvisua.Enabled = true;
@@ -897,116 +794,6 @@ public class redimension : Form
 		}
 		cropRectangle = Rectangle.Empty;
 		pictureBox1.Invalidate();
-	}
-
-	private void CommitText()
-	{
-		TextBox tb = floatingTextBox;
-		if (tb != null && tb.Visible)
-		{
-			floatingTextBox = null;
-			if (!string.IsNullOrWhiteSpace(tb.Text) && pictureBox1.Image != null)
-			{
-				SaveState();
-				Bitmap temp = (Bitmap)pictureBox1.Image.Clone();
-				using (Graphics g = Graphics.FromImage(temp))
-				{
-					g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
-					Point imgPt = ConvertDisplayPointToImagePoint(tb.Location);
-					using (Brush b = new SolidBrush(tb.ForeColor))
-					{
-						g.DrawString(tb.Text, tb.Font, b, imgPt);
-					}
-				}
-				Image old = pictureBox1.Image;
-				pictureBox1.Image = temp;
-				if (old != null && old != originalImage && old != currentDrawingBitmap) old.Dispose();
-			}
-			tb.Visible = false;
-			pictureBox1.Controls.Remove(tb);
-			tb.Dispose();
-		}
-	}
-
-	private Button CrearBotonFiltro(string texto, EventHandler onClick)
-	{
-		Button b = new Button { Text = texto, Size = new Size(100, 35), FlatStyle = FlatStyle.Flat, BackColor = Color.White, Cursor = Cursors.Hand };
-		b.Click += onClick;
-		return b;
-	}
-
-	private void AplicarFiltroColor(System.Drawing.Imaging.ColorMatrix matrix)
-	{
-		if (pictureBox1.Image == null) return;
-		SaveState();
-		
-		Bitmap bmp = new Bitmap(pictureBox1.Image.Width, pictureBox1.Image.Height);
-		using (Graphics g = Graphics.FromImage(bmp))
-		using (System.Drawing.Imaging.ImageAttributes attrs = new System.Drawing.Imaging.ImageAttributes())
-		{
-			attrs.SetColorMatrix(matrix);
-			g.DrawImage(pictureBox1.Image, new Rectangle(0, 0, bmp.Width, bmp.Height),
-				0, 0, pictureBox1.Image.Width, pictureBox1.Image.Height, GraphicsUnit.Pixel, attrs);
-		}
-		Image old = pictureBox1.Image;
-		pictureBox1.Image = bmp;
-		if (old != null && old != originalImage && old != currentDrawingBitmap) old.Dispose();
-	}
-
-	private System.Drawing.Imaging.ColorMatrix CreateGrayscaleMatrix()
-	{
-		return new System.Drawing.Imaging.ColorMatrix(new float[][] {
-			new float[] { .3f, .3f, .3f, 0, 0 },
-			new float[] { .59f, .59f, .59f, 0, 0 },
-			new float[] { .11f, .11f, .11f, 0, 0 },
-			new float[] { 0, 0, 0, 1, 0 },
-			new float[] { 0, 0, 0, 0, 1 }
-		});
-	}
-
-	private System.Drawing.Imaging.ColorMatrix CreateSepiaMatrix()
-	{
-		return new System.Drawing.Imaging.ColorMatrix(new float[][] {
-			new float[] { .393f, .349f, .272f, 0, 0 },
-			new float[] { .769f, .686f, .534f, 0, 0 },
-			new float[] { .189f, .168f, .131f, 0, 0 },
-			new float[] { 0, 0, 0, 1, 0 },
-			new float[] { 0, 0, 0, 0, 1 }
-		});
-	}
-
-	private System.Drawing.Imaging.ColorMatrix CreateInvertMatrix()
-	{
-		return new System.Drawing.Imaging.ColorMatrix(new float[][] {
-			new float[] { -1, 0, 0, 0, 0 },
-			new float[] { 0, -1, 0, 0, 0 },
-			new float[] { 0, 0, -1, 0, 0 },
-			new float[] { 0, 0, 0, 1, 0 },
-			new float[] { 1, 1, 1, 0, 1 }
-		});
-	}
-
-	private System.Drawing.Imaging.ColorMatrix CreateBrightnessMatrix(float b)
-	{
-		return new System.Drawing.Imaging.ColorMatrix(new float[][] {
-			new float[] { 1, 0, 0, 0, 0 },
-			new float[] { 0, 1, 0, 0, 0 },
-			new float[] { 0, 0, 1, 0, 0 },
-			new float[] { 0, 0, 0, 1, 0 },
-			new float[] { b, b, b, 0, 1 }
-		});
-	}
-
-	private System.Drawing.Imaging.ColorMatrix CreateContrastMatrix(float c)
-	{
-		float t = (1.0f - c) / 2.0f;
-		return new System.Drawing.Imaging.ColorMatrix(new float[][] {
-			new float[] { c, 0, 0, 0, 0 },
-			new float[] { 0, c, 0, 0, 0 },
-			new float[] { 0, 0, c, 0, 0 },
-			new float[] { 0, 0, 0, 1, 0 },
-			new float[] { t, t, t, 0, 1 }
-		});
 	}
 
 	private void rbredi_CheckedChanged(object sender, EventArgs e)
@@ -1059,6 +846,8 @@ public class redimension : Form
 		cropBaseSize = Size.Empty;
 		trzoom.Value = DefaultCropZoom;
 		lbzoom.Text = DefaultCropZoom + "%";
+		vistapre.Size = new Size(xori2, yori2);
+		vistapre.Location = new Point(pp1, pp2);
 		txtaltura.Text = "";
 		txtancho.Text = "";
 		btguardar.Enabled = false;
@@ -1191,14 +980,14 @@ public class redimension : Form
 	private void InitializeComponent()
 	{
 		//System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ConvertidorImagenes.redimension));
-		this.panel1 = new RoundedPanel();
+		this.panel1 = new System.Windows.Forms.Panel();
 		this.imageCanvas = new System.Windows.Forms.Panel();
 		this.lbaviso = new System.Windows.Forms.Label();
 		this.label9 = new System.Windows.Forms.Label();
 		this.lbpix2 = new System.Windows.Forms.Label();
 		this.pictureBox1 = new System.Windows.Forms.PictureBox();
 		this.label1 = new System.Windows.Forms.Label();
-		this.panel2 = new RoundedPanel();
+		this.panel2 = new System.Windows.Forms.Panel();
 		this.button3 = new System.Windows.Forms.Button();
 		this.label7 = new System.Windows.Forms.Label();
 		this.label6 = new System.Windows.Forms.Label();
@@ -1211,9 +1000,9 @@ public class redimension : Form
 		this.rbredi = new System.Windows.Forms.RadioButton();
 		this.lbruta = new System.Windows.Forms.Label();
 		this.label3 = new System.Windows.Forms.Label();
-		this.panel3 = new RoundedPanel();
+		this.panel3 = new System.Windows.Forms.Panel();
 		this.btzomout = new System.Windows.Forms.Button();
-		this.panel4 = new RoundedPanel();
+		this.panel4 = new System.Windows.Forms.Panel();
 		this.lbpxrc = new System.Windows.Forms.Label();
 		this.lbpx = new System.Windows.Forms.Label();
 		this.vistapre = new System.Windows.Forms.PictureBox();
@@ -1562,334 +1351,4 @@ public class redimension : Form
 		base.ResumeLayout(false);
 		base.PerformLayout();
 	}
-
-    [DllImport("user32.DLL", EntryPoint = "ReleaseCapture")]
-    private extern static void ReleaseCapture();
-    [DllImport("user32.DLL", EntryPoint = "SendMessage")]
-    private extern static void SendMessage(System.IntPtr hWnd, int wMsg, int wParam, int lParam);
-
-    private void DragForm_MouseDown(object sender, MouseEventArgs e)
-    {
-        ReleaseCapture();
-        SendMessage(this.Handle, 0x112, 0xf012, 0);
-    }
-
-    private RoundedPanel panelHerramientas;
-    private RoundedPanel panelFiltros;
-    public enum ToolMode { Select, Pencil, Line, Rectangle, Circle, Text }
-    private ToolMode currentTool = ToolMode.Select;
-    private Stack<Bitmap> undoStack = new Stack<Bitmap>();
-    private Stack<Bitmap> redoStack = new Stack<Bitmap>();
-    private Bitmap currentDrawingBitmap = null;
-    private Point drawingStartPoint;
-    private bool isDrawing = false;
-    private TextBox floatingTextBox;
-
-    private Button btnSeleccion, btnTexto, btnPincel, btnRectangulo, btnCirculo, btnLinea, btnFlecha, btnDeshacer, btnRehacer, btnRestaurar;
-    private ComboBox cbFuenteTexto;
-    private Panel colorTexto, colorForma, colorRelleno;
-    private TrackBar trGrosorPincel, trFiltroIntensidad;
-    private Button[] btnFiltros = new Button[8];
-
-    #region History and Drawing Tools
-
-    private void SaveState()
-    {
-        if (pictureBox1.Image == null) return;
-        undoStack.Push((Bitmap)pictureBox1.Image.Clone());
-        if (undoStack.Count > 15)
-        {
-            var arr = undoStack.ToArray();
-            undoStack.Clear();
-            for (int i = 13; i >= 0; i--) undoStack.Push(arr[i]);
-        }
-        redoStack.Clear();
-        UpdateHistoryButtons();
-    }
-
-    private void Undo()
-    {
-        if (undoStack.Count > 0)
-        {
-            if (pictureBox1.Image != null) redoStack.Push((Bitmap)pictureBox1.Image.Clone());
-            pictureBox1.Image = undoStack.Pop();
-            UpdateHistoryButtons();
-        }
-    }
-
-    private void Redo()
-    {
-        if (redoStack.Count > 0)
-        {
-            if (pictureBox1.Image != null) undoStack.Push((Bitmap)pictureBox1.Image.Clone());
-            pictureBox1.Image = redoStack.Pop();
-            UpdateHistoryButtons();
-        }
-    }
-
-    private void RestoreOriginal()
-    {
-        if (originalImage != null)
-        {
-            SaveState();
-            pictureBox1.Image = (Image)originalImage.Clone();
-            UpdateHistoryButtons();
-        }
-    }
-
-    private void UpdateHistoryButtons()
-    {
-        if (btnDeshacer != null) btnDeshacer.Enabled = undoStack.Count > 0;
-        if (btnRehacer != null) btnRehacer.Enabled = redoStack.Count > 0;
-    }
-    
-    private void UpdateToolSelectionUI()
-    {
-        Button[] btns = { btnSeleccion, btnPincel, btnLinea, btnRectangulo, btnCirculo, btnTexto };
-        foreach (var b in btns) {
-            if (b != null) {
-                b.BackColor = Color.White;
-                b.ForeColor = Color.Black;
-            }
-        }
-        
-        Button activeBtn = null;
-        switch (currentTool) {
-            case ToolMode.Select: activeBtn = btnSeleccion; break;
-            case ToolMode.Pencil: activeBtn = btnPincel; break;
-            case ToolMode.Line: activeBtn = btnLinea; break;
-            case ToolMode.Rectangle: activeBtn = btnRectangulo; break;
-            case ToolMode.Circle: activeBtn = btnCirculo; break;
-            case ToolMode.Text: activeBtn = btnTexto; break;
-        }
-        
-        if (activeBtn != null) {
-            activeBtn.BackColor = Color.FromArgb(108, 99, 255);
-            activeBtn.ForeColor = Color.White;
-        }
-        
-        if (currentTool != ToolMode.Select) {
-            isPanningImage = false;
-        }
-    }
-
-    private void SetupDrawingToolsEvents()
-    {
-        btnSeleccion.Click += (s, e) => { currentTool = ToolMode.Select; UpdateToolSelectionUI(); };
-        btnPincel.Click += (s, e) => { currentTool = ToolMode.Pencil; UpdateToolSelectionUI(); };
-        btnLinea.Click += (s, e) => { currentTool = ToolMode.Line; UpdateToolSelectionUI(); };
-        btnRectangulo.Click += (s, e) => { currentTool = ToolMode.Rectangle; UpdateToolSelectionUI(); };
-        btnCirculo.Click += (s, e) => { currentTool = ToolMode.Circle; UpdateToolSelectionUI(); };
-        btnTexto.Click += (s, e) => { currentTool = ToolMode.Text; UpdateToolSelectionUI(); };
-
-        btnDeshacer.Click += (s, e) => Undo();
-        btnRehacer.Click += (s, e) => Redo();
-        btnRestaurar.Click += (s, e) => RestoreOriginal();
-
-        colorForma.Click += (s, e) => { using (ColorDialog cd = new ColorDialog { Color = colorForma.BackColor }) { if (cd.ShowDialog() == DialogResult.OK) colorForma.BackColor = cd.Color; } };
-        colorRelleno.Click += (s, e) => { using (ColorDialog cd = new ColorDialog { Color = colorRelleno.BackColor }) { if (cd.ShowDialog() == DialogResult.OK) colorRelleno.BackColor = cd.Color; } };
-        
-        UpdateToolSelectionUI();
-        UpdateHistoryButtons();
-    }
-
-    protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
-    {
-        if (keyData == (Keys.Control | Keys.Z)) { Undo(); return true; }
-        if (keyData == (Keys.Control | Keys.Y)) { Redo(); return true; }
-        return base.ProcessCmdKey(ref msg, keyData);
-    }
-    
-    #endregion
-
-    private void ApplyModernStyles()
-    {
-        this.MouseDown += new MouseEventHandler(DragForm_MouseDown);
-        
-        Font titleFont = new Font("Segoe UI", 18, FontStyle.Bold);
-        Font subtitleFont = new Font("Segoe UI", 12, FontStyle.Bold);
-        Font regularFont = new Font("Segoe UI", 9.5f, FontStyle.Regular);
-        Font smallFont = new Font("Segoe UI", 8.5f, FontStyle.Regular);
-
-        Color primaryColor = Color.FromArgb(103, 80, 164);
-        Color secondaryColor = Color.White;
-        Color formBg = Color.FromArgb(245, 246, 248);
-        Color textColor = Color.FromArgb(40, 40, 40);
-        Color borderLight = Color.FromArgb(222, 226, 230);
-
-        this.BackColor = formBg;
-        this.ClientSize = new Size(1300, 850);
-        this.MinimumSize = new Size(1200, 750);
-
-        // Titles and Bottom buttons
-        if (label1 != null) { label1.Visible = false; }
-        Label titleLabel = new Label { Text = "Edición de Imágenes", Font = titleFont, ForeColor = textColor, AutoSize = true, Location = new Point(40, 15) };
-        this.Controls.Add(titleLabel);
-        
-        Label subTitleLabel = new Label { Text = "Redimensiona, recorta, agrega texto, aplica filtros y personaliza tu imagen.", Font = regularFont, ForeColor = Color.Gray, AutoSize = true, Location = new Point(40, 45) };
-        this.Controls.Add(subTitleLabel);
-
-        if (button6 != null) { button6.BackColor = primaryColor; button6.ForeColor = secondaryColor; button6.Location = new Point(this.ClientSize.Width - 150, 20); button6.Size = new Size(120, 35); button6.FlatAppearance.BorderSize = 0; button6.Text = "Volver al inicio"; button6.Anchor = AnchorStyles.Top | AnchorStyles.Right; }
-        
-        if (button5 != null) { button5.Location = new Point(this.ClientSize.Width - 130, this.ClientSize.Height - 50); button5.Size = new Size(100, 35); button5.Anchor = AnchorStyles.Bottom | AnchorStyles.Right; }
-        if (button4 != null) { button4.Location = new Point(this.ClientSize.Width - 240, this.ClientSize.Height - 50); button4.Size = new Size(100, 35); button4.Anchor = AnchorStyles.Bottom | AnchorStyles.Right; }
-
-        Panel pnlRuta = new Panel { Size = new Size(540, 40), Location = new Point(40, this.ClientSize.Height - 50), BackColor = formBg, Anchor = AnchorStyles.Bottom | AnchorStyles.Left };
-        this.Controls.Add(pnlRuta);
-        if (label3 != null) { label3.Location = new Point(0, 10); label3.Parent = pnlRuta; label3.Font = new Font("Segoe UI", 9f, FontStyle.Bold); } 
-        if (lbruta != null) { lbruta.AutoSize = false; lbruta.Size = new Size(420, 20); lbruta.AutoEllipsis = true; lbruta.Location = new Point(90, 10); lbruta.Parent = pnlRuta; } 
-        if (lbaviso != null) { lbaviso.Location = new Point(40, this.ClientSize.Height - 20); lbaviso.AutoSize = true; lbaviso.Anchor = AnchorStyles.Bottom | AnchorStyles.Left; }
-
-        // Grid Layout
-        TableLayoutPanel tlpMain = new TableLayoutPanel { Location = new Point(40, 80), Size = new Size(this.ClientSize.Width - 80, this.ClientSize.Height - 140), Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right, ColumnCount = 2, RowCount = 1 };
-        tlpMain.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 63f));
-        tlpMain.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 37f));
-        
-        TableLayoutPanel tlpLeft = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 2, Margin = new Padding(0) };
-        tlpLeft.RowStyles.Add(new RowStyle(SizeType.Percent, 75f));
-        tlpLeft.RowStyles.Add(new RowStyle(SizeType.Percent, 25f));
-        tlpMain.Controls.Add(tlpLeft, 0, 0);
-
-        TableLayoutPanel tlpRight = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3, Margin = new Padding(15, 0, 0, 0) };
-        tlpRight.RowStyles.Add(new RowStyle(SizeType.Percent, 25f));
-        tlpRight.RowStyles.Add(new RowStyle(SizeType.Percent, 25f));
-        tlpRight.RowStyles.Add(new RowStyle(SizeType.Percent, 50f));
-        tlpMain.Controls.Add(tlpRight, 1, 0);
-
-        tlpMain.SuspendLayout();
-        this.Controls.Add(tlpMain);
-
-        // LEFT 1: Canvas
-        if (panel1 != null) { 
-            panel1.Size = new Size(1000, 1000); panel1.BackColor = secondaryColor; panel1.Dock = DockStyle.Fill; panel1.Margin = new Padding(0, 0, 0, 15); panel1.BorderStyle = BorderStyle.None; panel1.BorderColor = borderLight; panel1.BorderThickness = 1; 
-            tlpLeft.Controls.Add(panel1, 0, 0);
-            
-            Panel bottomBar = new Panel { Dock = DockStyle.Bottom, Height = 40, BackColor = secondaryColor };
-            panel1.Controls.Add(bottomBar);
-
-            if (imageCanvas != null) { imageCanvas.Dock = DockStyle.Fill; imageCanvas.BackColor = Color.LightGray; imageCanvas.Location = new Point(0, 0); imageCanvas.BringToFront(); }
-            
-            if (trzoom != null) { trzoom.Parent = bottomBar; trzoom.Dock = DockStyle.Fill; trzoom.TickStyle = TickStyle.None; trzoom.Minimum = 10; trzoom.Maximum = 500; }
-            if (lbzoom != null) { lbzoom.Parent = bottomBar; lbzoom.Dock = DockStyle.Right; lbzoom.TextAlign = ContentAlignment.MiddleCenter; lbzoom.AutoSize = false; lbzoom.Width = 50; }
-            Button btnAjustar = new Button { Text = "Ajustar", Dock = DockStyle.Right, Width = 80, FlatStyle = FlatStyle.Flat, ForeColor = textColor, BackColor = secondaryColor, Font = regularFont };
-            btnAjustar.FlatAppearance.BorderColor = borderLight;
-            bottomBar.Controls.Add(btnAjustar);
-            bottomBar.Controls.Add(lbzoom);
-            bottomBar.Controls.Add(trzoom);
-            btnAjustar.BringToFront();
-            lbzoom.BringToFront();
-        }
-
-        // LEFT 2: Tools
-        panelHerramientas = new RoundedPanel { Size = new Size(1000, 1000), BackColor = secondaryColor, Dock = DockStyle.Fill, Margin = new Padding(0), BorderColor = borderLight, BorderThickness = 1 };
-        tlpLeft.Controls.Add(panelHerramientas, 0, 1);
-        Label lblTools = new Label { Text = " 🛠 Herramientas de Dibujo", Font = subtitleFont, Location = new Point(20, 15), AutoSize = true, ForeColor = primaryColor };
-        panelHerramientas.Controls.Add(lblTools);
-
-        int btnY = 50;
-        btnSeleccion = new Button { Text = "↖ Selec", Location = new Point(20, btnY), Size = new Size(80, 30), FlatStyle = FlatStyle.Flat, BackColor = primaryColor, ForeColor = Color.White, Cursor = Cursors.Hand };
-        btnPincel = new Button { Text = "🖌 Pincel", Location = new Point(105, btnY), Size = new Size(80, 30), FlatStyle = FlatStyle.Flat, BackColor = Color.White, Cursor = Cursors.Hand };
-        btnLinea = new Button { Text = "📏 Línea", Location = new Point(190, btnY), Size = new Size(80, 30), FlatStyle = FlatStyle.Flat, BackColor = Color.White, Cursor = Cursors.Hand };
-        btnRectangulo = new Button { Text = "⬛ Rect", Location = new Point(275, btnY), Size = new Size(80, 30), FlatStyle = FlatStyle.Flat, BackColor = Color.White, Cursor = Cursors.Hand };
-        btnCirculo = new Button { Text = "⏺ Círc", Location = new Point(360, btnY), Size = new Size(80, 30), FlatStyle = FlatStyle.Flat, BackColor = Color.White, Cursor = Cursors.Hand };
-        btnTexto = new Button { Text = "📝 Texto", Location = new Point(445, btnY), Size = new Size(80, 30), FlatStyle = FlatStyle.Flat, BackColor = Color.White, Cursor = Cursors.Hand };
-
-        int propY = 90;
-        Label lblGrosor = new Label { Text = "Grosor:", Location = new Point(20, propY + 5), AutoSize = true, ForeColor = textColor };
-        trGrosorPincel = new TrackBar { Location = new Point(70, propY), Minimum = 1, Maximum = 20, Value = 3, Size = new Size(120, 30), TickStyle = TickStyle.None };
-        
-        Label lblColor = new Label { Text = "Borde:", Location = new Point(200, propY + 5), AutoSize = true, ForeColor = textColor };
-        colorForma = new Panel { Location = new Point(250, propY + 2), Size = new Size(25, 25), BackColor = Color.Black, BorderStyle = BorderStyle.FixedSingle, Cursor = Cursors.Hand };
-        
-        Label lblRelleno = new Label { Text = "Relleno:", Location = new Point(290, propY + 5), AutoSize = true, ForeColor = textColor };
-        colorRelleno = new Panel { Location = new Point(350, propY + 2), Size = new Size(25, 25), BackColor = Color.Transparent, BorderStyle = BorderStyle.FixedSingle, Cursor = Cursors.Hand };
-        
-        Label lblFuente = new Label { Text = "Fuente:", Location = new Point(390, propY + 5), AutoSize = true, ForeColor = textColor };
-        cbFuenteTexto = new ComboBox { Location = new Point(445, propY + 2), Size = new Size(130, 25), DropDownStyle = ComboBoxStyle.DropDownList };
-        cbFuenteTexto.Items.AddRange(new object[] { "Arial", "Times New Roman", "Consolas", "Segoe UI", "Verdana" });
-        cbFuenteTexto.SelectedIndex = 0;
-
-        btnDeshacer = new Button { Text = "↩ Deshacer", Location = new Point(20, 130), Size = new Size(100, 30), FlatStyle = FlatStyle.Flat, BackColor = Color.White, Cursor = Cursors.Hand };
-        btnRehacer = new Button { Text = "↪ Rehacer", Location = new Point(125, 130), Size = new Size(100, 30), FlatStyle = FlatStyle.Flat, BackColor = Color.White, Cursor = Cursors.Hand };
-        btnRestaurar = new Button { Text = "⏮ Original", Location = new Point(230, 130), Size = new Size(100, 30), FlatStyle = FlatStyle.Flat, BackColor = Color.White, Cursor = Cursors.Hand };
-
-        panelHerramientas.Controls.AddRange(new Control[] { btnSeleccion, btnPincel, btnLinea, btnRectangulo, btnCirculo, btnTexto, lblGrosor, trGrosorPincel, lblColor, colorForma, lblRelleno, colorRelleno, lblFuente, cbFuenteTexto, btnDeshacer, btnRehacer, btnRestaurar });
-
-        // RIGHT 1: Ajustes moved to panelHerramientas
-        int ajustX = 590; // offset right
-        Label lblAjustes = new Label { Text = "Ajustes de Imagen", Font = subtitleFont, Location = new Point(ajustX, 15), AutoSize = true, ForeColor = textColor };
-        panelHerramientas.Controls.Add(lblAjustes);
-        
-        if (rbredi != null) { panelHerramientas.Controls.Add(rbredi); rbredi.Location = new Point(ajustX, 45); rbredi.Font = new Font("Segoe UI", 9.5f, FontStyle.Bold); rbredi.ForeColor = textColor; }
-        if (label6 != null) { panelHerramientas.Controls.Add(label6); label6.Location = new Point(ajustX + 20, 70); label6.ForeColor = textColor; label6.AutoSize = true; } // Ancho
-        if (txtancho != null) { panelHerramientas.Controls.Add(txtancho); txtancho.Location = new Point(ajustX + 20, 87); txtancho.Size = new Size(50, 25); }
-        if (label7 != null) { panelHerramientas.Controls.Add(label7); label7.Location = new Point(ajustX + 80, 70); label7.ForeColor = textColor; label7.AutoSize = true; } // Altura
-        if (txtaltura != null) { panelHerramientas.Controls.Add(txtaltura); txtaltura.Location = new Point(ajustX + 80, 87); txtaltura.Size = new Size(50, 25); }
-        if (button3 != null) { panelHerramientas.Controls.Add(button3); button3.Location = new Point(ajustX + 135, 85); button3.Size = new Size(25, 27); button3.Text = "🗑"; button3.FlatStyle = FlatStyle.Flat; button3.BackColor = secondaryColor; button3.FlatAppearance.BorderColor = borderLight; }
-        
-        if (btapli != null) { panelHerramientas.Controls.Add(btapli); btapli.Location = new Point(ajustX + 20, 125); btapli.Size = new Size(70, 30); }
-        if (btcancel != null) { panelHerramientas.Controls.Add(btcancel); btcancel.Location = new Point(ajustX + 100, 125); btcancel.Size = new Size(80, 30); }
-        
-        if (rbrecorte != null) { panelHerramientas.Controls.Add(rbrecorte); rbrecorte.Location = new Point(ajustX + 210, 45); rbrecorte.Font = new Font("Segoe UI", 9.5f, FontStyle.Bold); rbrecorte.ForeColor = textColor; }
-        if (button1 != null) { panelHerramientas.Controls.Add(button1); button1.Location = new Point(ajustX + 210, 75); button1.Size = new Size(110, 30); button1.Text = "Cancelar Edicion"; }
-
-        if (panel2 != null) panel2.Visible = false;
-        tlpRight.RowStyles[0] = new RowStyle(SizeType.Absolute, 0);
-
-        // RIGHT 2: Filtros
-        panelFiltros = new RoundedPanel { Size = new Size(1000, 1000), BackColor = secondaryColor, Dock = DockStyle.Fill, Margin = new Padding(0, 0, 0, 15), BorderColor = borderLight, BorderThickness = 1 };
-        tlpRight.Controls.Add(panelFiltros, 0, 1);
-        Label lblFiltros = new Label { Text = "✨ Filtros", Font = subtitleFont, Location = new Point(15, 10), AutoSize = true, ForeColor = textColor };
-        panelFiltros.Controls.Add(lblFiltros);
-        
-        FlowLayoutPanel flpFiltros = new FlowLayoutPanel { Location = new Point(15, 45), Size = new Size(350, 150), AutoScroll = true };
-        panelFiltros.Controls.Add(flpFiltros);
-        
-        btnFiltros[0] = CrearBotonFiltro("🌫 Grises", (s, e) => AplicarFiltroColor(CreateGrayscaleMatrix()));
-        btnFiltros[1] = CrearBotonFiltro("🎞 Sepia", (s, e) => AplicarFiltroColor(CreateSepiaMatrix()));
-        btnFiltros[2] = CrearBotonFiltro("🌙 Invertir", (s, e) => AplicarFiltroColor(CreateInvertMatrix()));
-        btnFiltros[3] = CrearBotonFiltro("🔆 + Brillo", (s, e) => AplicarFiltroColor(CreateBrightnessMatrix(0.1f)));
-        btnFiltros[4] = CrearBotonFiltro("🔅 - Brillo", (s, e) => AplicarFiltroColor(CreateBrightnessMatrix(-0.1f)));
-        btnFiltros[5] = CrearBotonFiltro("➕ + Contraste", (s, e) => AplicarFiltroColor(CreateContrastMatrix(1.2f)));
-        btnFiltros[6] = CrearBotonFiltro("➖ - Contraste", (s, e) => AplicarFiltroColor(CreateContrastMatrix(0.8f)));
-        
-        foreach (var b in btnFiltros) if (b != null) flpFiltros.Controls.Add(b);
-
-        // RIGHT 3: Vista Previa
-        if (panel3 != null) { 
-            panel3.Size = new Size(1000, 1000); panel3.BackColor = secondaryColor; panel3.Dock = DockStyle.Fill; panel3.Margin = new Padding(0); panel3.BorderStyle = BorderStyle.None; panel3.BorderColor = borderLight; panel3.BorderThickness = 1; 
-            tlpRight.Controls.Add(panel3, 0, 2);
-
-            if (label2 != null) { label2.Location = new Point(15, 10); label2.Font = subtitleFont; label2.ForeColor = primaryColor; }
-            if (panel4 != null) { 
-                panel4.BackColor = Color.LightGray; panel4.Location = new Point(15, 40); panel4.Size = new Size(panel3.Width - 30, panel3.Height - 90); panel4.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right; 
-                panel4.AutoScroll = true;
-                panel4.Resize += (s, e) => CenterPreviewImage();
-                if (vistapre != null) { vistapre.Dock = DockStyle.None; vistapre.SizeMode = PictureBoxSizeMode.Zoom; vistapre.BackColor = Color.LightGray; }
-                if (lbpxrc != null) { lbpxrc.Parent = panel3; lbpxrc.Location = new Point(15, panel3.Height - 65); lbpxrc.Anchor = AnchorStyles.Bottom | AnchorStyles.Left; lbpxrc.BringToFront(); lbpxrc.BackColor = Color.Transparent; }
-                if (lbpx != null) { lbpx.Parent = panel3; lbpx.Location = new Point(15, 15); lbpx.Anchor = AnchorStyles.Top | AnchorStyles.Left; lbpx.BringToFront(); lbpx.BackColor = Color.Transparent; }
-            }
-            
-            if (btguardar != null) { btguardar.Location = new Point(15, panel3.Height - 40); btguardar.Size = new Size(90, 30); btguardar.Anchor = AnchorStyles.Bottom | AnchorStyles.Left; }
-            if (btvisua != null) { btvisua.Location = new Point(115, panel3.Height - 40); btvisua.Size = new Size(120, 30); btvisua.Anchor = AnchorStyles.Bottom | AnchorStyles.Left; }
-            
-            trZoomPreview = new TrackBar { Parent = panel3, Minimum = 10, Maximum = 500, Value = 100, TickStyle = TickStyle.None, Location = new Point(245, panel3.Height - 45), Size = new Size(100, 30), Anchor = AnchorStyles.Bottom | AnchorStyles.Left, BackColor = secondaryColor };
-            trZoomPreview.Scroll += UpdatePreviewZoom;
-            lbZoomPreview = new Label { Parent = panel3, Text = "100%", Location = new Point(350, panel3.Height - 35), AutoSize = true, Anchor = AnchorStyles.Bottom | AnchorStyles.Left, ForeColor = textColor, BackColor = secondaryColor };
-            
-            if (btzomin != null) btzomin.Visible = false;
-            if (btzomout != null) btzomout.Visible = false;
-        }
-
-        // Apply styles
-        Button[] primaryButtons = { btapli, btguardar }; 
-        foreach (var b in primaryButtons) { if (b != null) { b.FlatStyle = FlatStyle.Flat; b.FlatAppearance.BorderSize = 0; b.BackColor = primaryColor; b.ForeColor = secondaryColor; b.Font = new Font("Segoe UI", 9.5f, FontStyle.Bold); b.Cursor = Cursors.Hand; } }
-        
-        Button[] secondaryButtons = { btcancel, button1, btvisua, button4, button5 }; 
-        foreach (var b in secondaryButtons) { if (b != null) { b.FlatStyle = FlatStyle.Flat; b.FlatAppearance.BorderColor = borderLight; b.FlatAppearance.BorderSize = 1; b.BackColor = secondaryColor; b.ForeColor = textColor; b.Font = new Font("Segoe UI", 9f, FontStyle.Regular); b.Cursor = Cursors.Hand; } }
-
-        tlpMain.ResumeLayout(false);
-    }
-
 }
-

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect x="10" y="6" width="34" height="42" rx="4" fill="#3B82C4"/>
+  <text x="27" y="26" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#FFFFFF" text-anchor="middle">OCR</text>
+  <line x1="17" y1="34" x2="37" y2="34" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+  <line x1="17" y1="40" x2="30" y2="40" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="42" cy="42" r="11" fill="none" stroke="#111827" stroke-width="4"/>
+  <line x1="50" y1="50" x2="59" y2="59" stroke="#111827" stroke-width="5" stroke-linecap="round"/>
+</svg>

@@ -56,6 +56,7 @@ public class visualizador : Form
 		InitializeComponent();
 		imagen(img);
 		btzomout.Enabled = false;
+        ApplyModernStyles();
 	}
 
 	public void imagen(Image img1)
@@ -120,6 +121,37 @@ public class visualizador : Form
 		}
 		base.Dispose(disposing);
 	}
+
+    private TrackBar trZoom;
+    private Label lbZoom;
+
+    private void ApplyModernStyles()
+    {
+        this.BackColor = Color.FromArgb(245, 246, 248);
+        
+        if (btzomin != null) btzomin.Visible = false;
+        if (btzomout != null) btzomout.Visible = false;
+
+        trZoom = new TrackBar { Minimum = 10, Maximum = 500, Value = 100, TickStyle = TickStyle.None, Location = new Point(190, 510), Size = new Size(200, 45) };
+        trZoom.Scroll += (s, e) => {
+            lbZoom.Text = trZoom.Value + "%";
+            float scale = trZoom.Value / 100f;
+            if (visual.Image != null)
+            {
+                visual.Width = (int)(visual.Image.Width * scale);
+                visual.Height = (int)(visual.Image.Height * scale);
+                visual.Left = (panel1.Width - visual.Width) / 2;
+                visual.Top = (panel1.Height - visual.Height) / 2;
+            }
+        };
+
+        lbZoom = new Label { Text = "100%", Location = new Point(390, 515), AutoSize = true, Font = new Font("Segoe UI", 9f, FontStyle.Bold) };
+
+        this.Controls.Add(trZoom);
+        this.Controls.Add(lbZoom);
+
+        if (label1 != null) { label1.Font = new Font("Segoe UI", 14f, FontStyle.Bold); label1.ForeColor = Color.FromArgb(103, 80, 164); }
+    }
 
 	private void InitializeComponent()
 	{

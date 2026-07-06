@@ -1111,38 +1111,6 @@ public partial class Offices : Form
         SendMessage(this.Handle, 0x112, 0xf012, 0);
     }
 
-    private void panel2_Paint(object sender, PaintEventArgs e)
-    {
-        Control p = sender as Control;
-        if (p == null) return;
-        using (Pen pen = new Pen(Color.FromArgb(138, 107, 225), 2))
-        {
-            pen.DashStyle = System.Drawing.Drawing2D.DashStyle.Dash;
-            e.Graphics.DrawRectangle(pen, 0, 0, p.Width - 1, p.Height - 1);
-        }
-    }
-
-    private void btnSeleccionar_Click(object sender, EventArgs e)
-    {
-        OpenFileDialog openFileDialog = new OpenFileDialog();
-        openFileDialog.Filter = "Documentos Office y PDF|*.docx;*.xlsx;*.pptx;*.pdf|Todos los archivos|*.*";
-        openFileDialog.Title = "Selecciona un archivo...";
-        if (openFileDialog.ShowDialog() == DialogResult.OK)
-        {
-            this.rutaArchivoSeleccionado = openFileDialog.FileName;
-            this.nombarch = System.IO.Path.GetFileNameWithoutExtension(this.rutaArchivoSeleccionado);
-            this.lbro.Text = this.rutaArchivoSeleccionado;
-            this.contador = 40;
-            this.bar2.Value = this.contador;
-            this.lbestado.Text = "Archivo cargado. Presione Iniciar conversion";
-            this.button2.Enabled = true;
-            
-            string ext = System.IO.Path.GetExtension(this.rutaArchivoSeleccionado).ToLower();
-            if (ext == ".pdf" && this.pdfaof != null) { this.pdfaof.Checked = true; }
-            else if (this.ofapdf != null) { this.ofapdf.Checked = true; }
-        }
-    }
-
     private void ApplyModernStyles()
     {
         this.MouseDown += new MouseEventHandler(DragForm_MouseDown);
@@ -1151,45 +1119,38 @@ public partial class Offices : Form
         
         // Fuentes
         Font titleFont = new Font("Segoe UI", 18, FontStyle.Bold);
-        Font subtitleFont = new Font("Segoe UI", 10, FontStyle.Regular);
+        Font subtitleFont = new Font("Segoe UI", 12, FontStyle.Bold);
         Font regularFont = new Font("Segoe UI", 9.5f, FontStyle.Regular);
 
         // Paleta de colores
         Color primaryColor = Color.FromArgb(103, 80, 164);
         Color secondaryColor = Color.White;
         Color whiteBg = Color.White;
-        Color formBg = Color.FromArgb(245, 246, 248);
+        Color formBg = Color.FromArgb(238, 240, 245);
         Color textColor = Color.FromArgb(40, 40, 40);
-        Color grayCard = Color.FromArgb(248, 250, 252);
 
         this.BackColor = formBg;
         this.FormBorderStyle = FormBorderStyle.None;
         
         // Ventana Size
-        this.ClientSize = new Size(1100, 720);
+        this.ClientSize = new Size(960, 650);
         
         // Estilo de Paneles
-        if (panel1 != null) { panel1.BackColor = whiteBg; panel1.Size = new Size(1020, 580); panel1.Location = new Point(40, 70); }
-        if (panel2 != null) { 
-            panel2.BackColor = whiteBg; 
-            panel2.Size = new Size(480, 320); 
-            panel2.Location = new Point(40, 40); 
-            panel2.Paint -= new PaintEventHandler(panel2_Paint); // Remove to avoid duplicates
-            panel2.Paint += new PaintEventHandler(panel2_Paint); 
-        }
-        if (panel3 != null) { panel3.BackColor = whiteBg; panel3.Size = new Size(440, 500); panel3.Location = new Point(540, 40); }
-        if (panel4 != null) { panel4.BackColor = grayCard; panel4.Size = new Size(400, 180); panel4.Location = new Point(20, 60); panel4.BorderStyle = BorderStyle.FixedSingle; } // Office a PDF card
-        if (panel5 != null) { panel5.BackColor = grayCard; panel5.Size = new Size(400, 180); panel5.Location = new Point(20, 260); panel5.BorderStyle = BorderStyle.FixedSingle; } // PDF a Office card
+        if (panel1 != null) { panel1.BackColor = whiteBg; panel1.Size = new Size(880, 500); panel1.Location = new Point(40, 60); }
+        if (panel2 != null) { panel2.BackColor = Color.FromArgb(248, 250, 252); panel2.Size = new Size(500, 280); panel2.Location = new Point(30, 30); }
+        if (panel3 != null) { panel3.BackColor = whiteBg; panel3.Size = new Size(310, 400); panel3.Location = new Point(550, 30); }
+        if (panel4 != null) { panel4.BackColor = Color.FromArgb(248, 250, 252); panel4.Size = new Size(270, 150); panel4.Location = new Point(20, 60); }
+        if (panel5 != null) { panel5.BackColor = Color.FromArgb(248, 250, 252); panel5.Size = new Size(270, 150); panel5.Location = new Point(20, 230); }
 
         // Labels
-        Label[] labels = { label2, label3, label4, label6, label7, label8, lbdt, lbro, lbestado };
+        Label[] labels = { label1, label2, label3, label4, label6, label7, label8, lbdt, lbro, lbestado };
         foreach (var lbl in labels)
         {
             if (lbl != null) { lbl.Font = regularFont; lbl.ForeColor = textColor; }
         }
         
         // Estilo de botones principales
-        Button[] primaryButtons = { button7 }; 
+        Button[] primaryButtons = { button7, button2 }; 
         foreach (var b in primaryButtons)
         {
             if (b != null)
@@ -1203,14 +1164,10 @@ public partial class Offices : Form
             }
         }
         
-        // Botones "Cambiar" (antes Ruta Destino button2)
-        if (button2 != null) { button2.FlatStyle = FlatStyle.Flat; button2.FlatAppearance.BorderColor = Color.LightGray; button2.FlatAppearance.BorderSize = 1; button2.BackColor = whiteBg; button2.ForeColor = primaryColor; button2.Font = new Font("Segoe UI", 9f); button2.Cursor = Cursors.Hand; button2.Text = "Cambiar"; button2.Location = new Point(370, 5); button2.Size = new Size(80, 30); }
-        
-        // Botones de opciones avanzadas (antes button1 y button3)
-        if (button1 != null) { button1.FlatStyle = FlatStyle.Flat; button1.FlatAppearance.BorderColor = Color.LightGray; button1.FlatAppearance.BorderSize = 0; button1.BackColor = grayCard; button1.ForeColor = primaryColor; button1.Font = new Font("Segoe UI", 9f); button1.Cursor = Cursors.Hand; button1.Text = "Opciones avanzadas"; }
-        if (button3 != null) { button3.FlatStyle = FlatStyle.Flat; button3.FlatAppearance.BorderColor = Color.LightGray; button3.FlatAppearance.BorderSize = 0; button3.BackColor = grayCard; button3.ForeColor = primaryColor; button3.Font = new Font("Segoe UI", 9f); button3.Cursor = Cursors.Hand; button3.Text = "Opciones avanzadas"; }
+        if (button1 != null) { button1.FlatStyle = FlatStyle.Flat; button1.FlatAppearance.BorderColor = Color.LightGray; button1.FlatAppearance.BorderSize = 1; button1.BackColor = secondaryColor; button1.ForeColor = textColor; button1.Font = new Font("Segoe UI", 9f); button1.Cursor = Cursors.Hand; }
+        if (button3 != null) { button3.FlatStyle = FlatStyle.Flat; button3.FlatAppearance.BorderColor = Color.LightGray; button3.FlatAppearance.BorderSize = 1; button3.BackColor = secondaryColor; button3.ForeColor = textColor; button3.Font = new Font("Segoe UI", 9f); button3.Cursor = Cursors.Hand; }
 
-        // Estilo de botones secundarios (Minimizar, Salir, Principal)
+        // Estilo de botones secundarios
         Button[] secondaryButtons = { button6, button4, button5 }; 
         foreach (var b in secondaryButtons)
         {
@@ -1225,12 +1182,11 @@ public partial class Offices : Form
                 b.Cursor = Cursors.Hand;
             }
         }
-        if (button5 != null) { button5.BackColor = primaryColor; button5.ForeColor = secondaryColor; button5.Location = new Point(950, 15); button5.Size = new Size(110, 35); button5.FlatAppearance.BorderSize = 0; button5.Text = "Volver al inicio"; }
+        if (button5 != null) { button5.BackColor = primaryColor; button5.ForeColor = secondaryColor; button5.Location = new Point(810, 15); button5.Size = new Size(110, 35); button5.FlatAppearance.BorderSize = 0; }
         
-        if (button4 != null) { button4.Location = new Point(950, 665); button4.Size = new Size(110, 35); } // Salir
-        if (button6 != null) { button6.Location = new Point(830, 665); button6.Size = new Size(110, 35); } // Minimizar
+        if (button4 != null) { button4.Location = new Point(810, 580); button4.Size = new Size(110, 35); } 
+        if (button6 != null) { button6.Location = new Point(690, 580); button6.Size = new Size(110, 35); } 
         
-        // Título de la app y subtitulo
         Label titleLabel = new Label
         {
             Text = "Convertidor Office a PDF",
@@ -1241,82 +1197,39 @@ public partial class Offices : Form
         };
         this.Controls.Add(titleLabel);
         
-        Label subTitleLabel = new Label
-        {
-            Text = "Convierte tus archivos de Office a PDF o de PDF a Office de forma rápida y sencilla.",
-            Font = subtitleFont,
-            ForeColor = Color.Gray,
-            AutoSize = true,
-            Location = new Point(40, 45)
-        };
-        this.Controls.Add(subTitleLabel);
-        
-        if (label6 != null) { label6.Visible = false; } // Hide the old title
+        if (label6 != null) { label6.Visible = false; }
 
-        // Area Drag and Drop interna
-        if (label1 != null) { 
-            label1.Text = "Arrastra tu archivo aquí";
-            label1.Font = new Font("Segoe UI", 16, FontStyle.Bold);
-            label1.ForeColor = textColor;
-            label1.AutoSize = true;
-            if (panel2 != null) label1.Location = new Point((panel2.Width - 250) / 2, 120); 
-        }
+                if (button7 != null) { button7.Location = new Point(30, 340); button7.Size = new Size(160, 35); } 
+        if (bar2 != null) { bar2.Location = new Point(220, 345); bar2.Size = new Size(310, 25); } 
+        if (label4 != null) { label4.AutoSize = true; label4.Location = new Point(220, 380); } 
+        if (lbestado != null) { lbestado.AutoSize = true; lbestado.Location = new Point(280, 380); } 
         
-        Label lblO = new Label { Text = "o haz clic para seleccionar", Font = regularFont, ForeColor = Color.Gray, AutoSize = true };
-        if (panel2 != null) { panel2.Controls.Add(lblO); lblO.Location = new Point((panel2.Width - 160) / 2, 150); }
+        if (button2 != null) { button2.Location = new Point(30, 440); button2.Size = new Size(160, 35); } 
+        if (label2 != null) { label2.AutoSize = true; label2.Location = new Point(220, 440); } 
+        if (lbro != null) { lbro.AutoSize = false; lbro.Size = new Size(600, 20); lbro.AutoEllipsis = true; lbro.Location = new Point(320, 440); } 
         
-        Button btnSel = new Button { Text = "Seleccionar archivo", BackColor = primaryColor, ForeColor = secondaryColor, FlatStyle = FlatStyle.Flat, Font = new Font("Segoe UI", 9.5f, FontStyle.Bold), Cursor = Cursors.Hand, Size = new Size(160, 35) };
-        btnSel.FlatAppearance.BorderSize = 0;
-        btnSel.Click += new EventHandler(btnSeleccionar_Click);
-        if (panel2 != null) { panel2.Controls.Add(btnSel); btnSel.Location = new Point((panel2.Width - 160) / 2, 190); }
+        if (label3 != null) { label3.AutoSize = true; label3.Location = new Point(220, 465); } 
+        if (lbdt != null) { lbdt.AutoSize = false; lbdt.Size = new Size(600, 20); lbdt.AutoEllipsis = true; lbdt.Location = new Point(320, 465); } 
         
-        Label lblFormatos = new Label { Text = "Formatos soportados: .docx   .xlsx   .pptx   .pdf", Font = new Font("Segoe UI", 9f), ForeColor = Color.Gray, AutoSize = true };
-        if (panel2 != null) { panel2.Controls.Add(lblFormatos); lblFormatos.Location = new Point((panel2.Width - 280) / 2, 260); }
-
-        // Botones Iniciar, Barra progreso, Textos
-        if (button7 != null) { button7.Location = new Point(40, 390); button7.Size = new Size(160, 35); } // Iniciar
-        if (bar2 != null) { bar2.Location = new Point(220, 400); bar2.Size = new Size(300, 10); } // Progreso mas delgada
-        if (label4 != null) { label4.AutoSize = true; label4.Location = new Point(40, 440); label4.Font = new Font("Segoe UI", 9.5f, FontStyle.Bold); } // "Estado:"
-        if (lbestado != null) { lbestado.AutoSize = true; lbestado.Location = new Point(100, 440); } // "Listo para iniciar"
+        if (btay != null) { btay.Location = new Point(840, 10); btay.BackColor = Color.FromArgb(200, 200, 220); btay.ForeColor = Color.White; btay.Font = new Font("Segoe UI", 10f, FontStyle.Bold); }
         
-        // Rutas (cajas grises)
-        Panel pnlRuta1 = new Panel { Size = new Size(480, 40), Location = new Point(40, 470), BackColor = grayCard };
-        Panel pnlRuta2 = new Panel { Size = new Size(480, 40), Location = new Point(40, 520), BackColor = grayCard };
-        if (panel1 != null) { panel1.Controls.Add(pnlRuta1); panel1.Controls.Add(pnlRuta2); }
+        if (pdfaof != null) { pdfaof.Font = regularFont; pdfaof.Location = new Point(20, 20); }
+        if (ofapdf != null) { ofapdf.Font = regularFont; ofapdf.Location = new Point(150, 20); }
         
-        if (label2 != null) { label2.Location = new Point(10, 10); label2.Parent = pnlRuta1; label2.Font = new Font("Segoe UI", 9f, FontStyle.Bold); } 
-        if (lbro != null) { lbro.AutoSize = false; lbro.Size = new Size(250, 20); lbro.AutoEllipsis = true; lbro.Location = new Point(100, 10); lbro.Parent = pnlRuta1; } 
+        if (label7 != null) { label7.Location = new Point(20, 15); }
+        if (cbof != null) { cbof.Location = new Point(20, 50); cbof.Size = new Size(230, 25); cbof.Font = regularFont; cbof.FlatStyle = FlatStyle.Flat; }
+        if (button1 != null) { button1.Location = new Point(20, 95); button1.Size = new Size(140, 35); }
         
-        if (label3 != null) { label3.Location = new Point(10, 10); label3.Parent = pnlRuta2; label3.Font = new Font("Segoe UI", 9f, FontStyle.Bold); } 
-        if (lbdt != null) { lbdt.AutoSize = false; lbdt.Size = new Size(250, 20); lbdt.AutoEllipsis = true; lbdt.Location = new Point(100, 10); lbdt.Parent = pnlRuta2; } 
-        if (button2 != null) { button2.Parent = pnlRuta2; } // Cambiar Destino
+        if (label8 != null) { label8.Location = new Point(20, 15); }
+        if (cbpdf != null) { cbpdf.Location = new Point(20, 50); cbpdf.Size = new Size(230, 25); cbpdf.Font = regularFont; cbpdf.FlatStyle = FlatStyle.Flat; }
+        if (button3 != null) { button3.Location = new Point(20, 95); button3.Size = new Size(140, 35); }
         
-        Button btnCambiarOrigen = new Button { Text = "Cambiar", FlatStyle = FlatStyle.Flat, BackColor = whiteBg, ForeColor = primaryColor, Font = new Font("Segoe UI", 9f), Cursor = Cursors.Hand, Location = new Point(370, 5), Size = new Size(80, 30) };
-        btnCambiarOrigen.FlatAppearance.BorderColor = Color.LightGray; btnCambiarOrigen.FlatAppearance.BorderSize = 1;
-        btnCambiarOrigen.Click += new EventHandler(btnSeleccionar_Click);
-        pnlRuta1.Controls.Add(btnCambiarOrigen);
-
-        // Right Panel Options 
-        Label lblTipoConv = new Label { Text = "Selecciona el tipo de conversión", Font = new Font("Segoe UI", 10f, FontStyle.Bold), ForeColor = textColor, AutoSize = true, Location = new Point(20, 15) };
-        if (panel3 != null) panel3.Controls.Add(lblTipoConv);
-        
-        if (pdfaof != null) { pdfaof.Font = new Font("Segoe UI", 10f, FontStyle.Bold); pdfaof.Location = new Point(20, 40); } // It's PDF to Office
-        if (ofapdf != null) { ofapdf.Font = new Font("Segoe UI", 10f, FontStyle.Bold); ofapdf.Location = new Point(180, 40); }
-        
-        // Controles dentro de Panel 4 y 5
-        if (label7 != null) { label7.Location = new Point(20, 15); label7.Font = new Font("Segoe UI", 11f, FontStyle.Bold); label7.ForeColor = primaryColor; }
-        Label lblTipo1 = new Label { Text = "Tipo de archivo Office", Font = new Font("Segoe UI", 9f), ForeColor = Color.Gray, AutoSize = true, Location = new Point(20, 60) };
-        if (panel4 != null) panel4.Controls.Add(lblTipo1);
-        if (cbof != null) { cbof.Location = new Point(20, 85); cbof.Size = new Size(360, 25); cbof.Font = regularFont; cbof.FlatStyle = FlatStyle.Flat; }
-        if (button1 != null) { button1.Location = new Point(20, 130); button1.Size = new Size(360, 30); }
-        
-        if (label8 != null) { label8.Location = new Point(20, 15); label8.Font = new Font("Segoe UI", 11f, FontStyle.Bold); }
-        Label lblTipo2 = new Label { Text = "Tipo de archivo Office", Font = new Font("Segoe UI", 9f), ForeColor = Color.Gray, AutoSize = true, Location = new Point(20, 60) };
-        if (panel5 != null) panel5.Controls.Add(lblTipo2);
-        if (cbpdf != null) { cbpdf.Location = new Point(20, 85); cbpdf.Size = new Size(360, 25); cbpdf.Font = regularFont; cbpdf.FlatStyle = FlatStyle.Flat; }
-        if (button3 != null) { button3.Location = new Point(20, 130); button3.Size = new Size(360, 30); }
-        
-        if (btay != null) { btay.Visible = false; }
+        if (label1 != null && panel2 != null) { label1.Location = new Point((panel2.Width - label1.Width) / 2, (panel2.Height - label1.Height) / 2); }
     }
 }
 }
+
+
+
+
+
