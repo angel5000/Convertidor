@@ -1723,6 +1723,7 @@ public class redimension : Form
         pnlEmptyState.Controls.Add(pbGif);
 
         Panel pnlDashed = new Panel { Size = new Size(360, 260) };
+typeof(Panel).InvokeMember("DoubleBuffered", System.Reflection.BindingFlags.SetProperty | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic, null, pnlDashed, new object[] { true });
         pbGif.Controls.Add(pnlDashed);
         pnlDashed.BackColor = Color.Transparent;
 
