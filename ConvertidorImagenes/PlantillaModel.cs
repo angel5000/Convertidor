@@ -18,6 +18,7 @@ namespace ConvertidorImagenes
     {
         public bool Visible { get; set; }
         public bool MostrarLogo { get; set; }
+        public string LogoVariable { get; set; }
         public string Alineacion { get; set; } // Izquierda, Centro, Derecha
         public string TituloSecundario { get; set; }
     }

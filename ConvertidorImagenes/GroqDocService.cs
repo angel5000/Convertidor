@@ -54,8 +54,9 @@ El formato de respuesta es exactamente:
   ""Header"": {
     ""Visible"": true,
     ""MostrarLogo"": true,
+    ""LogoVariable"": ""[LOGO_EMPRESA]"",
     ""Alineacion"": ""Derecha"",
-    ""TituloSecundario"": ""Nombre de Empresa""
+    ""TituloSecundario"": ""Nombre de Empresa u otra variable""
   },
   ""Footer"": {
     ""Visible"": true,
@@ -76,8 +77,9 @@ El formato de respuesta es exactamente:
 
 REGLA DE PRE-LLENADO DE DATOS Y CAMPOS:
 1. Si el usuario proporciona explícitamente los datos para rellenar los campos (ej. ""usa estos datos: Nombre: Angel...""), NO LOS PONGAS DIRECTAMENTE EN EL XML (ContenidoBase). El ContenidoBase SIEMPRE DEBE MANTENER LAS VARIABLES EN CORCHETES `[NOMBRE_VARIABLE]`. En su lugar, coloca los datos reales que el usuario te dio en la propiedad `""ValorDefecto""` del arreglo `""Campos""` del JSON.
-2. Si el documento requiere una imagen (ej. logotipo, foto), debes crear una variable para ella (ej. `[LOGO]`), colocarla dentro de `<Imagen>[LOGO]</Imagen>` en el XML, e incluirla en `Campos` con `""Tipo"": ""Imagen""`.
-3. DEBES incluir en la lista `""Campos""` absolutamente todas las variables necesarias para el documento (incluyendo nombre de la empresa, logo, etc.), no omitas ninguna.
+2. LOGOTIPO Y CABECERA: Si el documento requiere una imagen o logo en la cabecera, DEBES poner `MostrarLogo: true` e indicar el ID en `LogoVariable` (ej. `[LOGO]`) dentro del objeto `Header`. Crea el campo en la lista `Campos` con `""Tipo"": ""Imagen""`. IMPORTANTE: Como esta imagen va en el Header, NO debes incluir `<Imagen>[LOGO]</Imagen>` dentro del XML (ContenidoBase), ya que causaría que aparezca duplicado en el cuerpo del documento.
+3. VARIABLES DEL HEADER Y FOOTER: Si pones texto variable en el `TituloSecundario` del Header o el `Texto` del Footer (ej. `""TituloSecundario"": ""[NOMBRE_EMPRESA]""`), asegúrate de agregar también esa variable en la lista `Campos` para que el usuario pueda llenarla.
+4. DEBES incluir en la lista `""Campos""` absolutamente todas las variables necesarias para el documento (incluyendo nombre de la empresa, logo, etc.), no omitas ninguna.
 
 Si el usuario solicita algo distinto de generar una plantilla, responde exactamente:
 {""error"":""Solicitud fuera del alcance.""}

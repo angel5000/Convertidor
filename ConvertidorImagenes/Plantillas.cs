@@ -1503,31 +1503,56 @@ namespace ConvertidorImagenes
             flpDocInputs.Controls.Add(row);
         }
 
-        private void RenderDocPreview()
+        private string ReemplazarVariables(string texto, bool paraHtml)
         {
-            if (string.IsNullOrEmpty(templateRawXml) || currentPlantillaModel == null) return;
-
-            string render = templateRawXml;
+            if (string.IsNullOrEmpty(texto)) return texto;
+            string result = texto;
 
             foreach (Control c in flpDocInputs.Controls)
             {
                 if (c is Panel row && row.Tag != null && row.Tag is TextBox[] textboxes)
                 {
-                    TextBox tTag = textboxes[0];
-                    TextBox tVal = textboxes[1];
-
-                    string clave = tTag.Text.Trim();
-                    string valor = tVal.Text.Trim();
+                    string clave = textboxes[0].Text.Trim();
+                    string valor = textboxes[1].Text.Trim();
 
                     if (!string.IsNullOrEmpty(clave))
                     {
-                        if (string.IsNullOrEmpty(valor))
-                            render = render.Replace(clave, "<span class='placeholder'>" + clave + "</span>");
+                        if (paraHtml)
+                        {
+                            if (string.IsNullOrEmpty(valor))
+                                result = result.Replace(clave, "<span class='placeholder'>" + clave + "</span>");
+                            else
+                                result = result.Replace(clave, "<span style='color:black;'>" + valor + "</span>");
+                        }
                         else
-                            render = render.Replace(clave, "<span style='color:black;'>" + valor + "</span>");
+                        {
+                            result = result.Replace(clave, valor);
+                        }
                     }
                 }
             }
+            return result;
+        }
+
+        private string ObtenerValorVariable(string claveBuscada)
+        {
+            if (string.IsNullOrEmpty(claveBuscada)) return "";
+            foreach (Control c in flpDocInputs.Controls)
+            {
+                if (c is Panel row && row.Tag != null && row.Tag is TextBox[] textboxes)
+                {
+                    if (textboxes[0].Text.Trim() == claveBuscada)
+                        return textboxes[1].Text.Trim();
+                }
+            }
+            return "";
+        }
+
+        private void RenderDocPreview()
+        {
+            if (string.IsNullOrEmpty(templateRawXml) || currentPlantillaModel == null) return;
+
+            string render = ReemplazarVariables(templateRawXml, true);
 
             // Parseamos el XML principal a HTML visual
             string xmlHtml = CustomXmlParser.ToHtml(render);
@@ -1544,10 +1569,27 @@ namespace ConvertidorImagenes
                 htmlFull.Append("<div><strong>[ ENCABEZADO ]</strong> <br/> Alineación: " + currentPlantillaModel.Header.Alineacion + " </div>");
 
                 if (currentPlantillaModel.Header.MostrarLogo)
-                    htmlFull.Append("<div style='padding: 10px; border: 1px solid #CBD5E1; background: white; border-radius: 4px;'>🖼️ Logo Empresarial</div>");
+                {
+                    string logoVar = currentPlantillaModel.Header.LogoVariable;
+                    string logoPath = "";
+                    if (!string.IsNullOrEmpty(logoVar))
+                    {
+                        logoPath = ObtenerValorVariable(logoVar);
+                    }
 
-                if (!string.IsNullOrEmpty(currentPlantillaModel.Header.TituloSecundario))
-                    htmlFull.Append("<div style='text-align: right;'>" + currentPlantillaModel.Header.TituloSecundario + "</div>");
+                    if (!string.IsNullOrEmpty(logoPath) && System.IO.File.Exists(logoPath))
+                    {
+                        htmlFull.Append($"<div style='padding: 10px; border: 1px solid #CBD5E1; background: white; border-radius: 4px;'><img src='file:///{logoPath.Replace("\\", "/")}' style='max-height:50px;'/></div>");
+                    }
+                    else
+                    {
+                        htmlFull.Append("<div style='padding: 10px; border: 1px solid #CBD5E1; background: white; border-radius: 4px;'>🖼️ Logo Empresarial</div>");
+                    }
+                }
+
+                string headerTitulo = ReemplazarVariables(currentPlantillaModel.Header.TituloSecundario, true);
+                if (!string.IsNullOrEmpty(headerTitulo))
+                    htmlFull.Append("<div style='text-align: right;'>" + headerTitulo + "</div>");
 
                 htmlFull.Append("</div>");
             }
@@ -1566,8 +1608,9 @@ namespace ConvertidorImagenes
                 if (currentPlantillaModel.Footer.MostrarFecha)
                     htmlFull.Append("<div>Fecha Impresión: " + DateTime.Now.ToString("dd/MM/yyyy") + "</div>");
 
-                if (!string.IsNullOrEmpty(currentPlantillaModel.Footer.Texto))
-                    htmlFull.Append("<div>" + currentPlantillaModel.Footer.Texto + "</div>");
+                string footerTexto = ReemplazarVariables(currentPlantillaModel.Footer.Texto, true);
+                if (!string.IsNullOrEmpty(footerTexto))
+                    htmlFull.Append("<div>" + footerTexto + "</div>");
 
                 if (!string.IsNullOrEmpty(currentPlantillaModel.Footer.FormatoNumeroPagina))
                     htmlFull.Append("<div>" + currentPlantillaModel.Footer.FormatoNumeroPagina.Replace("X", "1").Replace("Y", "1") + "</div>");
@@ -1596,19 +1639,7 @@ namespace ConvertidorImagenes
                 try
                 {
                     // 1. Obtener y reemplazar variables
-                    string render = templateRawXml;
-                    foreach (Control c in flpDocInputs.Controls)
-                    {
-                        if (c is Panel row && row.Tag != null && row.Tag is TextBox[] textboxes)
-                        {
-                            string clave = textboxes[0].Text.Trim();
-                            string valor = textboxes[1].Text.Trim();
-                            if (!string.IsNullOrEmpty(clave))
-                            {
-                                render = render.Replace(clave, valor);
-                            }
-                        }
-                    }
+                    string render = ReemplazarVariables(templateRawXml, false);
 
                     // 2. Convertir XML documental a HTML base
                     string htmlContent = CustomXmlParser.ToHtml(render);
@@ -1639,7 +1670,6 @@ namespace ConvertidorImagenes
                             }
                         }
 
-                        // 4. Configurar Header y Footer
                         if (currentPlantillaModel.Header != null && currentPlantillaModel.Header.Visible)
                         {
                             WSection firstSection = document.LastSection;
@@ -1652,9 +1682,25 @@ namespace ConvertidorImagenes
                             else
                                 headerParagraph.ParagraphFormat.HorizontalAlignment = Syncfusion.DocIO.DLS.HorizontalAlignment.Left;
                                 
-                            if (!string.IsNullOrEmpty(currentPlantillaModel.Header.TituloSecundario))
+                            if (currentPlantillaModel.Header.MostrarLogo)
                             {
-                                IWTextRange textRange = headerParagraph.AppendText(currentPlantillaModel.Header.TituloSecundario);
+                                string logoVar = currentPlantillaModel.Header.LogoVariable;
+                                string logoPath = "";
+                                if (!string.IsNullOrEmpty(logoVar)) logoPath = ObtenerValorVariable(logoVar);
+                                
+                                if (!string.IsNullOrEmpty(logoPath) && System.IO.File.Exists(logoPath))
+                                {
+                                    IWPicture picture = headerParagraph.AppendPicture(Image.FromFile(logoPath));
+                                    float ratio = picture.Height / 50f;
+                                    picture.Height = 50f;
+                                    picture.Width = picture.Width / ratio;
+                                }
+                            }
+                                
+                            string headerTitulo = ReemplazarVariables(currentPlantillaModel.Header.TituloSecundario, false);
+                            if (!string.IsNullOrEmpty(headerTitulo))
+                            {
+                                IWTextRange textRange = headerParagraph.AppendText(headerTitulo);
                                 textRange.CharacterFormat.TextColor = Color.Gray;
                                 textRange.CharacterFormat.FontSize = 10f;
                             }
@@ -1665,6 +1711,14 @@ namespace ConvertidorImagenes
                             WSection firstSection = document.LastSection;
                             WParagraph footerParagraph = firstSection.HeadersFooters.Footer.AddParagraph() as WParagraph;
                             footerParagraph.ParagraphFormat.HorizontalAlignment = Syncfusion.DocIO.DLS.HorizontalAlignment.Center;
+
+                            string footerTexto = ReemplazarVariables(currentPlantillaModel.Footer.Texto, false);
+                            if (!string.IsNullOrEmpty(footerTexto))
+                            {
+                                IWTextRange tr = footerParagraph.AppendText(footerTexto + "  -  ");
+                                tr.CharacterFormat.TextColor = Color.Gray;
+                                tr.CharacterFormat.FontSize = 9f;
+                            }
 
                             if (currentPlantillaModel.Footer.MostrarFecha)
                             {
