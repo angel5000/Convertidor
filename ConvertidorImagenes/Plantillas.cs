@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -98,24 +98,24 @@ namespace ConvertidorImagenes
 
         private void GenerarPlantillasPorDefecto()
         {
-            var p1 = new PlantillaModel { Titulo = "Contrato Laboral", ContenidoBase = "CONTRATO DE TRABAJO\n\nConste por el presente documento el contrato de trabajo que celebran de una parte [EMPRESA], y de la otra parte el se~nor(a) [NOMBRE].\n\nEl empleado desempe~nara el cargo de [CARGO] a partir del [FECHA].\n\nLa remuneracion mensual pactada es de [MONTO].\n\nAmbas partes firman en conformidad.\n\n______________________\n[EMPRESA]\n\n______________________\n[NOMBRE]" };
+            var p1 = new PlantillaModel { Titulo = "Contrato Laboral", ContenidoBase = "CONTRATO DE TRABAJO\n\nConste por el presente documento el contrato de trabajo que celebran de una parte [EMPRESA], y de la otra parte el señor(a) [NOMBRE].\n\nEl empleado desempeñará el cargo de [CARGO] a partir del [FECHA].\n\nLa remuneración mensual pactada es de [MONTO].\n\nAmbas partes firman en conformidad.\n\n______________________\n[EMPRESA]\n\n______________________\n[NOMBRE]" };
             p1.Campos.Add(new CampoPlantilla { Id = "[NOMBRE]", Etiqueta = "Nombre Completo", Tipo = "Texto" });
             p1.Campos.Add(new CampoPlantilla { Id = "[EMPRESA]", Etiqueta = "Empresa", Tipo = "Texto" });
             p1.Campos.Add(new CampoPlantilla { Id = "[CARGO]", Etiqueta = "Cargo", Tipo = "Texto" });
             p1.Campos.Add(new CampoPlantilla { Id = "[FECHA]", Etiqueta = "Fecha", Tipo = "Fecha" });
             p1.Campos.Add(new CampoPlantilla { Id = "[MONTO]", Etiqueta = "Monto", Tipo = "Monto" });
 
-            var p2 = new PlantillaModel { Titulo = "Carta de Renuncia", ContenidoBase = "CARTA DE RENUNCIA\n\n[FECHA]\n\nSe~nores,\n[EMPRESA]\n\nPor la presente, comunico mi renuncia irrevocable al cargo de [CARGO].\n\nAgradezco las oportunidades de crecimiento.\n\nAtentamente,\n\n______________________\n[NOMBRE]" };
+            var p2 = new PlantillaModel { Titulo = "Carta de Renuncia", ContenidoBase = "CARTA DE RENUNCIA\n\n[FECHA]\n\nSeñores,\n[EMPRESA]\n\nPor la presente, comunico mi renuncia irrevocable al cargo de [CARGO].\n\nAgradezco las oportunidades de crecimiento.\n\nAtentamente,\n\n______________________\n[NOMBRE]" };
             p2.Campos.Add(new CampoPlantilla { Id = "[NOMBRE]", Etiqueta = "Tu Nombre", Tipo = "Texto" });
             p2.Campos.Add(new CampoPlantilla { Id = "[EMPRESA]", Etiqueta = "Empresa", Tipo = "Texto" });
             p2.Campos.Add(new CampoPlantilla { Id = "[CARGO]", Etiqueta = "Cargo", Tipo = "Texto" });
             p2.Campos.Add(new CampoPlantilla { Id = "[FECHA]", Etiqueta = "Fecha", Tipo = "Fecha" });
 
-            var p3 = new PlantillaModel { Titulo = "Carta de inasistencia por salud", ContenidoBase = "Estimado/a [NOMBRE_JEFE]:\n\nPor medio de la presente, le informo que debido a un problema de salud no me sera posible asistir a mis labores el dia de hoy.\n\nMe encuentro siguiendo las indicaciones medicas para mi recuperacion y, de ser necesario, hare llegar el justificante o certificado medico correspondiente.\n\nAgradezco su comprension.\n\nSaludos cordiales,\n\n[NOMBRE_EMPLEADO]" };
+            var p3 = new PlantillaModel { Titulo = "Carta de inasistencia por salud", ContenidoBase = "Estimado/a [NOMBRE_JEFE]:\n\nPor medio de la presente, le informo que debido a un problema de salud no me será posible asistir a mis labores el día de hoy.\n\nMe encuentro siguiendo las indicaciones médicas para mi recuperación y, de ser necesario, haré llegar el justificante o certificado médico correspondiente.\n\nAgradezco su comprensión.\n\nSaludos cordiales,\n\n[NOMBRE_EMPLEADO]" };
             p3.Campos.Add(new CampoPlantilla { Id = "[NOMBRE_JEFE]", Etiqueta = "Nombre del jefe", Tipo = "Texto" });
             p3.Campos.Add(new CampoPlantilla { Id = "[NOMBRE_EMPLEADO]", Etiqueta = "Nombre del empleado", Tipo = "Texto" });
 
-            var p4 = new PlantillaModel { Titulo = "Carta de recomendacion laboral", ContenidoBase = "CARTA DE RECOMENDACION\n\n[FECHA]\n\nA quien corresponda:\n\nPor medio de la presente hago constar que el/la Sr(a). [NOMBRE_EMPLEADO] laboro en [EMPRESA] durante el periodo del [FECHA_INICIO] al [FECHA_FIN], desempe~nando el cargo de [CARGO].\n\nDurante su permanencia demostro excelente desempe~no profesional.\n\nAtentamente,\n\n______________________\n[NOMBRE_JEFE]\n[CARGO_JEFE]\n[EMPRESA]" };
+            var p4 = new PlantillaModel { Titulo = "Carta de recomendacion laboral", ContenidoBase = "CARTA DE RECOMENDACIÓN\n\n[FECHA]\n\nA quien corresponda:\n\nPor medio de la presente hago constar que el/la Sr(a). [NOMBRE_EMPLEADO] laboró en [EMPRESA] durante el periodo del [FECHA_INICIO] al [FECHA_FIN], desempeñando el cargo de [CARGO].\n\nDurante su permanencia demostró excelente desempeño profesional.\n\nAtentamente,\n\n______________________\n[NOMBRE_JEFE]\n[CARGO_JEFE]\n[EMPRESA]" };
             p4.Campos.Add(new CampoPlantilla { Id = "[NOMBRE_EMPLEADO]", Etiqueta = "Nombre del empleado", Tipo = "Texto" });
             p4.Campos.Add(new CampoPlantilla { Id = "[EMPRESA]", Etiqueta = "Empresa", Tipo = "Texto" });
             p4.Campos.Add(new CampoPlantilla { Id = "[CARGO]", Etiqueta = "Cargo del empleado", Tipo = "Texto" });
@@ -196,7 +196,7 @@ namespace ConvertidorImagenes
             Label lblTitle = new Label { Text = "IA para Generar Plantillas", Font = titleFont, ForeColor = textDark, AutoSize = true, Location = new Point(marginX, topY) };
             lblTitle.MouseDown += DragForm_MouseDown;
             panelSimples.Controls.Add(lblTitle);
-            Label lblSubTitle = new Label { Text = "Describe el documento que necesitas y la IA generara una plantilla lista para usar.", Font = smallFont, ForeColor = textMuted, AutoSize = true, Location = new Point(marginX, topY + 30) };
+            Label lblSubTitle = new Label { Text = "Describe el documento que necesitas y la IA generará una plantilla lista para usar.", Font = smallFont, ForeColor = textMuted, AutoSize = true, Location = new Point(marginX, topY + 30) };
             panelSimples.Controls.Add(lblSubTitle);
 
             TableLayoutPanel tlp = new TableLayoutPanel
@@ -224,7 +224,7 @@ namespace ConvertidorImagenes
 
             pnl1.Controls.Add(new Label { Text = "1", Font = new Font("Segoe UI", 8f, FontStyle.Bold), ForeColor = Color.White, BackColor = primaryColor, Size = new Size(20, 20), TextAlign = ContentAlignment.MiddleCenter, Location = new Point(15, 12) });
             pnl1.Controls.Add(new Label { Text = "Describe tu plantilla", Font = subtitleFont, ForeColor = textDark, Location = new Point(40, 10), AutoSize = true });
-            pnl1.Controls.Add(new Label { Text = "Cuentale a la IA que documento necesitas.", Font = smallFont, ForeColor = textMuted, Location = new Point(15, 32), AutoSize = true });
+            pnl1.Controls.Add(new Label { Text = "Cuéntale a la IA qué documento necesitas.", Font = smallFont, ForeColor = textMuted, Location = new Point(15, 32), AutoSize = true });
 
             txtDescripcion = new TextBox { Location = new Point(15, 55), Size = new Size(pnl1.Width - 30, pnl1.Height - 200), Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right, Font = regularFont, Multiline = true, ScrollBars = ScrollBars.Vertical };
             pnl1.Controls.Add(txtDescripcion);
@@ -236,7 +236,7 @@ namespace ConvertidorImagenes
             pnl1.Controls.Add(new Label { Text = "Sugerencias:", Font = smallBold, ForeColor = textMuted, Location = new Point(15, pnl1.Height - 120), Anchor = AnchorStyles.Bottom | AnchorStyles.Left, AutoSize = true });
             panelSugerencias = new FlowLayoutPanel { Location = new Point(15, pnl1.Height - 90), Size = new Size(pnl1.Width - 30, 35), Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right, WrapContents = true, AutoScroll = true };
             pnl1.Controls.Add(panelSugerencias);
-            string[] sugs = { "Carta de recomendacion", "Solicitud de empleo", "Contrato de alquiler", "Notificacion de pago" };
+            string[] sugs = { "Carta de recomendación", "Solicitud de empleo", "Contrato de alquiler", "Notificación de pago" };
             foreach (string s in sugs)
             {
                 Button chip = new Button { Text = s, Font = smallFont, ForeColor = textDark, BackColor = Color.FromArgb(243, 244, 246), FlatStyle = FlatStyle.Flat, AutoSize = true, Margin = new Padding(2), Padding = new Padding(6, 2, 6, 2), Cursor = Cursors.Hand };
@@ -267,14 +267,14 @@ namespace ConvertidorImagenes
             pnl2.Controls.Add(panelEstilos);
 
             var estilos = new (string texto, string prompt)[] {
-                ("ðŸ› Institucional", "Haz que parezca un comunicado oficial institucional."),
-                ("ðŸ¦ Bancario", "Haz que parezca un documento oficial emitido por una entidad bancaria, usando lenguaje financiero."),
-                ("âš– JurÃ­dico", "Haz que parezca un contrato o documento legal elaborado por un abogado."),
-                ("ðŸ‘” Empresarial", "Haz que tenga un tono altamente profesional y corporativo."),
-                ("ðŸ“„ Administrativo", "Haz que tenga un tono formal administrativo para trÃ¡mites o RRHH."),
-                ("ðŸ¤ Comercial", "Haz que tenga un tono comercial y persuasivo, orientado a clientes o ventas."),
-                ("ðŸ˜Š Cercano", "Haz que tenga un tono cordial, amable y cercano."),
-                ("ðŸŒŽ Traducir", "Traduce todo el documento al idioma inglÃ©s de manera nativa y fluida.")
+                ("🏛️ Institucional", "Haz que parezca un comunicado oficial institucional."),
+                ("🏦 Bancario", "Haz que parezca un documento oficial emitido por una entidad bancaria, usando lenguaje financiero."),
+                ("⚖️ Jurídico", "Haz que parezca un contrato o documento legal elaborado por un abogado."),
+                ("👔 Empresarial", "Haz que tenga un tono altamente profesional y corporativo."),
+                ("📄 Administrativo", "Haz que tenga un tono formal administrativo para trámites o RRHH."),
+                ("🤝 Comercial", "Haz que tenga un tono comercial y persuasivo, orientado a clientes o ventas."),
+                ("😊 Cercano", "Haz que tenga un tono cordial, amable y cercano."),
+                ("🌍 Traducir", "Traduce todo el documento al idioma inglés de manera nativa y fluida.")
             };
 
             foreach (var est in estilos)
@@ -412,7 +412,7 @@ namespace ConvertidorImagenes
             tlpDocLeft.Controls.Add(pnlDocIa, 0, 0);
 
             Panel pnlIaTop = new Panel { Dock = DockStyle.Top, Height = 70 };
-            pnlIaTop.Controls.Add(new Label { Text = "ðŸ“ SecciÃ³n de la IA", Font = smallBold, ForeColor = primaryColor, Location = new Point(0, 2), AutoSize = true });
+            pnlIaTop.Controls.Add(new Label { Text = "📋 Sección de la IA", Font = smallBold, ForeColor = primaryColor, Location = new Point(0, 2), AutoSize = true });
             pnlDocIa.Controls.Add(pnlIaTop);
 
             Panel pnlIaBottom = new Panel { Dock = DockStyle.Bottom, Height = 80 };
@@ -421,7 +421,7 @@ namespace ConvertidorImagenes
             flpDocSugerencias = new FlowLayoutPanel { Location = new Point(0, 20), Size = new Size(pnlIaBottom.Width, 30), Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right, WrapContents = false, AutoScroll = true };
             pnlIaBottom.Controls.Add(flpDocSugerencias);
 
-            string[] docSugs = { "Carta de recomendaciÃ³n", "Solicitud de empleo", "Comprobante de pago" };
+            string[] docSugs = { "Carta de recomendación", "Solicitud de empleo", "Comprobante de pago" };
             foreach (string s in docSugs)
             {
                 Button chip = new Button { Text = s, Font = smallFont, ForeColor = textDark, BackColor = Color.FromArgb(243, 244, 246), FlatStyle = FlatStyle.Flat, AutoSize = true, Margin = new Padding(2, 0, 4, 0), Cursor = Cursors.Hand };
@@ -430,7 +430,7 @@ namespace ConvertidorImagenes
                 flpDocSugerencias.Controls.Add(chip);
             }
 
-            btnDocGenerar = new Button { Text = "âœ¨ Generar plantilla con IA", Dock = DockStyle.Bottom, Height = 35, BackColor = primaryColor, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Font = smallBold, Cursor = Cursors.Hand };
+            btnDocGenerar = new Button { Text = "✨ Generar plantilla con IA", Dock = DockStyle.Bottom, Height = 35, BackColor = primaryColor, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Font = smallBold, Cursor = Cursors.Hand };
             btnDocGenerar.FlatAppearance.BorderSize = 0;
             btnDocGenerar.Click += BtnDocGenerar_Click;
             pnlIaBottom.Controls.Add(btnDocGenerar);
@@ -451,7 +451,7 @@ namespace ConvertidorImagenes
             tlpDocLeft.Controls.Add(pnlDocInputs, 0, 1);
 
             Panel pnlInpTop = new Panel { Dock = DockStyle.Top, Height = 25 };
-            pnlInpTop.Controls.Add(new Label { Text = "âœ Inputs editables", Font = smallBold, ForeColor = primaryColor, Location = new Point(0, 2), AutoSize = true });
+            pnlInpTop.Controls.Add(new Label { Text = "✏️ Inputs editables", Font = smallBold, ForeColor = primaryColor, Location = new Point(0, 2), AutoSize = true });
             pnlDocInputs.Controls.Add(pnlInpTop);
 
             flpDocInputs = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoScroll = true, FlowDirection = FlowDirection.TopDown, WrapContents = false };
@@ -468,7 +468,7 @@ namespace ConvertidorImagenes
             tlpDocLeft.Controls.Add(pnlDocAcciones, 0, 2);
 
             Panel pnlAccTop = new Panel { Dock = DockStyle.Top, Height = 22 };
-            pnlAccTop.Controls.Add(new Label { Text = "âš¡ Acciones", Font = smallBold, ForeColor = primaryColor, Location = new Point(0, 2), AutoSize = true });
+            pnlAccTop.Controls.Add(new Label { Text = "⚡ Acciones", Font = smallBold, ForeColor = primaryColor, Location = new Point(0, 2), AutoSize = true });
             pnlDocAcciones.Controls.Add(pnlAccTop);
 
             TableLayoutPanel tlpBtn = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 1 };
@@ -480,7 +480,7 @@ namespace ConvertidorImagenes
             btnDocGuardar.Click += BtnDocGuardar_Click;
             tlpBtn.Controls.Add(btnDocGuardar, 0, 0);
 
-            btnDocCargar = new Button { Text = "ðŸ“‚ Cargar plantilla", Dock = DockStyle.Fill, Margin = new Padding(5, 0, 0, 0), BackColor = Color.White, ForeColor = textDark, FlatStyle = FlatStyle.Flat, Font = smallBold, Cursor = Cursors.Hand };
+            btnDocCargar = new Button { Text = "📂 Cargar plantilla", Dock = DockStyle.Fill, Margin = new Padding(5, 0, 0, 0), BackColor = Color.White, ForeColor = textDark, FlatStyle = FlatStyle.Flat, Font = smallBold, Cursor = Cursors.Hand };
             btnDocCargar.FlatAppearance.BorderColor = borderLight;
             tlpBtn.Controls.Add(btnDocCargar, 1, 0);
 
@@ -493,7 +493,7 @@ namespace ConvertidorImagenes
 
             Panel pnlRightTop = new Panel { Dock = DockStyle.Top, Height = 50 };
             pnlRightTop.Controls.Add(new Label { Text = "ðŸ‘", Font = smallBold, ForeColor = primaryColor, Location = new Point(0, 0), AutoSize = true });
-            pnlRightTop.Controls.Add(new Label { Text = "Visualizador del diseÃ±o del documento", Font = subtitleFont, ForeColor = textDark, Location = new Point(25, -3), AutoSize = true });
+            pnlRightTop.Controls.Add(new Label { Text = "Visualizador del diseño del documento", Font = subtitleFont, ForeColor = textDark, Location = new Point(25, -3), AutoSize = true });
             pnlRightTop.Controls.Add(new Label { Text = "Vista previa basada en XML", Font = smallFont, ForeColor = textMuted, Location = new Point(25, 20), AutoSize = true });
             pnlDocRight.Controls.Add(pnlRightTop);
 
@@ -1691,6 +1691,7 @@ namespace ConvertidorImagenes
         }
     }
 }
+
 
 
 
