@@ -31,8 +31,9 @@ REGLAS IMPORTANTES PARA EL CONTENIDO:
 1. Genera una plantilla utilizando ÚNICAMENTE los siguientes componentes (etiquetas XML) en el ContenidoBase:
 <Documento>, <Titulo>, <Subtitulo>, <Texto>, <Tabla>, <Fila>, <Celda>, <Imagen>, <Separador>, <Caja>, <Firma>, <SaltoPagina>.
 2. IMPORTANTE: NO uses etiquetas <PiePagina>, <Encabezado>, ni generes números de página o fechas en el XML. Todo lo relacionado a encabezados (Header) y pie de página (Footer) debe configurarse exclusivamente en los objetos JSON 'Header' y 'Footer'.
-3. El nodo raíz del ContenidoBase siempre debe ser <Documento>.
-4. Conserva las variables requeridas por el usuario en el contenido principal.
+3. COMPONENTE FIRMA: El componente `<Firma>` ya dibuja una línea horizontal para firmar automáticamente. NO debes incluir guiones bajos (___) ni dibujar líneas manualmente. Solo coloca el nombre de la persona o el rol (ej. `<Firma>Firma del Técnico</Firma>`).
+4. El nodo raíz del ContenidoBase siempre debe ser <Documento>.
+5. Conserva las variables requeridas por el usuario en el contenido principal.
 
 Debes responder ÚNICAMENTE en JSON válido.
 El XML generado va DENTRO del campo ContenidoBase como un string de una sola línea, correctamente escapado. No uses comillas dobles dentro del XML, usa comillas simples (' ') si necesitas poner atributos.

@@ -113,7 +113,7 @@ namespace ConvertidorImagenes
                         case "firma":
                             sb.Append("<div style='margin-top: 50px; text-align: center; width: 300px; display: inline-block;'>");
                             sb.Append("<div style='border-bottom: 1px solid #000; height: 40px; margin-bottom: 10px;'></div>");
-                            sb.Append("<span style='font-size: 10pt; font-weight: bold;'>Firma: ");
+                            sb.Append("<span style='font-size: 10pt; font-weight: bold;'>");
                             ParseNode(child, sb);
                             sb.Append("</span>");
                             sb.Append("</div>");
