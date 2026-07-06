@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -1143,15 +1143,15 @@ namespace ConvertidorImagenes
             string contenido = "";
 
             if (descLower.Contains("inasistencia") || descLower.Contains("salud") || descLower.Contains("ausencia"))
-                contenido = "Estimado/a [NOMBRE_JEFE]:\n\nPor medio de la presente, le informo que debido a un problema de salud no me sera posible asistir a mis labores el dia de hoy.\n\nMe encuentro siguiendo las indicaciones medicas para mi recuperacion.\n\nAgradezco su comprension.\n\nSaludos cordiales,\n\n[NOMBRE_EMPLEADO]";
+                contenido = "Estimado/a [NOMBRE_JEFE]:\n\nPor medio de la presente, le informo que debido a un problema de salud no me será posible asistir a mis labores el día de hoy.\n\nMe encuentro siguiendo las indicaciones médicas para mi recuperación.\n\nAgradezco su comprensión.\n\nSaludos cordiales,\n\n[NOMBRE_EMPLEADO]";
             else if (descLower.Contains("recomendacion") || descLower.Contains("recomendaci"))
-                contenido = "CARTA DE RECOMENDACION\n\n[FECHA]\n\nA quien corresponda:\n\nPor medio de la presente hago constar que el/la Sr(a). [NOMBRE_EMPLEADO] laboro en [EMPRESA] desempenando el cargo de [CARGO] con excelente desempeno.\n\nAtentamente,\n\n[NOMBRE_JEFE]\n[CARGO_JEFE]";
+                contenido = "CARTA DE RECOMENDACIÓN\n\n[FECHA]\n\nA quien corresponda:\n\nPor medio de la presente hago constar que el/la Sr(a). [NOMBRE_EMPLEADO] laboró en [EMPRESA] desempeñando el cargo de [CARGO] con excelente desempeño.\n\nAtentamente,\n\n[NOMBRE_JEFE]\n[CARGO_JEFE]";
             else if (descLower.Contains("renuncia"))
-                contenido = "CARTA DE RENUNCIA\n\n[FECHA]\n\nSenores,\n[EMPRESA]\n\nPor la presente, comunico mi renuncia irrevocable al cargo de [CARGO].\n\nAtentamente,\n\n[NOMBRE]";
+                contenido = "CARTA DE RENUNCIA\n\n[FECHA]\n\nSeñores,\n[EMPRESA]\n\nPor la presente, comunico mi renuncia irrevocable al cargo de [CARGO].\n\nAtentamente,\n\n[NOMBRE]";
             else if (descLower.Contains("contrato") && descLower.Contains("alquiler"))
-                contenido = "CONTRATO DE ARRENDAMIENTO\n\nEn [CIUDAD], a [FECHA], comparecen:\n\nARRENDADOR: [NOMBRE_ARRENDADOR]\nARRENDATARIO: [NOMBRE_ARRENDATARIO]\n\nRenta mensual: [MONTO].\nDireccion: [DIRECCION].";
+                contenido = "CONTRATO DE ARRENDAMIENTO\n\nEn [CIUDAD], a [FECHA], comparecen:\n\nARRENDADOR: [NOMBRE_ARRENDADOR]\nARRENDATARIO: [NOMBRE_ARRENDATARIO]\n\nRenta mensual: [MONTO].\nDirección: [DIRECCION].";
             else if (descLower.Contains("contrato") || descLower.Contains("laboral") || descLower.Contains("empleo"))
-                contenido = "CONTRATO DE TRABAJO\n\nConste por el presente documento el contrato entre [EMPRESA] y [NOMBRE] para el cargo de [CARGO] desde [FECHA].\n\nRemuneracion: [MONTO].";
+                contenido = "CONTRATO DE TRABAJO\n\nConste por el presente documento el contrato entre [EMPRESA] y [NOMBRE] para el cargo de [CARGO] desde [FECHA].\n\nRemuneración: [MONTO].";
             else if (descLower.Contains("vacaciones"))
                 contenido = "SOLICITUD DE VACACIONES\n\n[FECHA]\n\nEstimado/a [NOMBRE_JEFE]:\n\nSolicito vacaciones del [FECHA_INICIO] al [FECHA_FIN].\n\nAtentamente,\n[NOMBRE_EMPLEADO]";
             else
@@ -1464,7 +1464,7 @@ namespace ConvertidorImagenes
         {
             Panel row = new Panel { Size = new Size(flpDocInputs.Width - 10, 35), Margin = new Padding(2) };
 
-            Label lblIcon = new Label { Text = "ðŸ“Œ", AutoSize = true, Location = new Point(2, 8), Font = new Font("Segoe UI", 9f) };
+            Label lblIcon = new Label { Text = "📌", AutoSize = true, Location = new Point(2, 8), Font = new Font("Segoe UI", 9f) };
             row.Controls.Add(lblIcon);
 
             TextBox txtTag = new TextBox { Text = tag, Location = new Point(25, 5), Size = new Size(130, 25), Font = new Font("Segoe UI", 9f) };
@@ -1475,7 +1475,7 @@ namespace ConvertidorImagenes
             txtValor.TextChanged += (s, e) => RenderDocPreview();
             row.Controls.Add(txtValor);
 
-            Button btnDel = new Button { Text = "ðŸ—‘", Location = new Point(295, 4), Size = new Size(28, 28), FlatStyle = FlatStyle.Flat, ForeColor = Color.Red, BackColor = Color.White, Cursor = Cursors.Hand };
+            Button btnDel = new Button { Text = "🗑️", Location = new Point(295, 4), Size = new Size(28, 28), FlatStyle = FlatStyle.Flat, ForeColor = Color.Red, BackColor = Color.White, Cursor = Cursors.Hand };
             btnDel.FlatAppearance.BorderSize = 0;
             btnDel.Click += (s, ev) => { flpDocInputs.Controls.Remove(row); RenderDocPreview(); };
             row.Controls.Add(btnDel);

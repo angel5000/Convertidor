@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Text;
 using System.Xml.Linq;
 
@@ -40,7 +40,7 @@ namespace ConvertidorImagenes
                     switch (tagName)
                     {
                         case "documento":
-                            sb.Append("<div style='background: white; padding: 40px; margin: 0 auto; max-width: 800px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-family: Arial, sans-serif;'>");
+                            sb.Append("<div style='background: white; font-family: Arial, sans-serif;'>");
                             ParseNode(child, sb);
                             sb.Append("</div>");
                             break;
@@ -82,11 +82,10 @@ namespace ConvertidorImagenes
                             break;
 
                         case "imagen":
-                            sb.Append("<div style='text-align: center; margin: 20px 0; padding: 20px; border: 2px dashed #BDC3C7; background: #F8F9FA; color: #7F8C8D; border-radius: 8px;'>");
-                            sb.Append("<span style='font-size: 24px; display: block; margin-bottom: 10px;'>🖼️</span>");
-                            sb.Append("<em>Imagen: ");
+                            sb.Append("<div style='text-align: center; margin: 20px 0; padding: 10px; border: 1px solid #CCC; color: #7F8C8D;'>");
+                            sb.Append("<em>[ ESPACIO PARA IMAGEN: ");
                             ParseNode(child, sb);
-                            sb.Append("</em></div>");
+                            sb.Append(" ]</em></div>");
                             break;
 
                         case "separador":
@@ -94,7 +93,7 @@ namespace ConvertidorImagenes
                             break;
 
                         case "caja":
-                            sb.Append("<div style='border: 1px solid #3498DB; background-color: #EBF5FB; padding: 20px; border-radius: 5px; margin-bottom: 20px;'>");
+                            sb.Append("<div style='margin-bottom: 15px;'>");
                             ParseNode(child, sb);
                             sb.Append("</div>");
                             break;
