@@ -186,7 +186,7 @@ public class redimension : Form
 		pp1 = vistapre.Location.X;
 		pp2 = vistapre.Location.Y;
 		button1.Enabled = false;
-		lbaviso.Show();
+		ToggleEmptyState(true);
 		btcancel.Enabled = false;
 		btapli.Enabled = false;
 		txtaltura.Enabled = false;
@@ -487,7 +487,7 @@ public class redimension : Form
 			nombrearch = openFileDialog.SafeFileName;
 			if (dialogResult == DialogResult.OK)
 			{
-				lbaviso.Hide();
+				ToggleEmptyState(false);
 				string fileName = openFileDialog.FileName;
 				string[] array = new string[1] { fileName };
 				if (fileName.Length > 0)
@@ -624,7 +624,7 @@ public class redimension : Form
 		cropBaseSize = Size.Empty;
 		trzoom.Value = DefaultCropZoom;
 		lbzoom.Text = DefaultCropZoom + "%";
-		lbaviso.Show();
+		ToggleEmptyState(true);
 		button3.Enabled = false;
 		btguardar.Enabled = false;
 		btvisua.Enabled = false;
@@ -1068,7 +1068,7 @@ public class redimension : Form
 		lbpx.Text = "n/a";
 		lbpix2.Text = "n/a";
 		lbpxrc.Text = "n/a";
-		lbaviso.Show();
+		ToggleEmptyState(true);
 		lbruta.Text = "n/a";
 	}
 
@@ -1150,7 +1150,7 @@ public class redimension : Form
 		{
 			if (IsImageFile(fileName))
 			{
-				lbaviso.Hide();
+				ToggleEmptyState(false);
 				pictureBox1.Image = Image.FromFile(array[0]);
 				lbruta.Text = array[0];
 				nombrearch = Path.GetFileName(array[0]);
@@ -1702,6 +1702,83 @@ public class redimension : Form
     
     #endregion
 
+    private Panel pnlEmptyState;
+    
+    private void ToggleEmptyState(bool show)
+    {
+        if (lbaviso != null) { if (show) ToggleEmptyState(true); else ToggleEmptyState(false); }
+        if (pnlEmptyState != null) { pnlEmptyState.Visible = show; }
+    }
+
+    private void InitEmptyState(Panel parentPanel)
+    {
+        pnlEmptyState = new Panel { Dock = DockStyle.Fill, BackColor = Color.FromArgb(13, 17, 23) };
+        parentPanel.Controls.Add(pnlEmptyState);
+        pnlEmptyState.BringToFront();
+
+        PictureBox pbGif = new PictureBox { Dock = DockStyle.Fill, SizeMode = PictureBoxSizeMode.StretchImage };
+        string gifPath = System.IO.Path.Combine(Application.StartupPath, "..", "..", "Assets", "waves_stars.gif");
+        if (System.IO.File.Exists(gifPath)) pbGif.Image = Image.FromFile(gifPath);
+        else if (System.IO.File.Exists("Assets\\waves_stars.gif")) pbGif.Image = Image.FromFile("Assets\\waves_stars.gif");
+        pnlEmptyState.Controls.Add(pbGif);
+
+        Panel pnlDashed = new Panel { Size = new Size(360, 260) };
+        pbGif.Controls.Add(pnlDashed);
+        pnlDashed.BackColor = Color.Transparent;
+
+        Action centerDashed = () => { pnlDashed.Location = new Point((pbGif.Width - pnlDashed.Width) / 2, (pbGif.Height - pnlDashed.Height) / 2); };
+        pbGif.Resize += (s, e) => centerDashed();
+        centerDashed();
+
+        pnlDashed.Paint += (s, e) => {
+            using (Pen pen = new Pen(Color.FromArgb(100, 255, 255, 255), 2) { DashStyle = System.Drawing.Drawing2D.DashStyle.Dash })
+            {
+                e.Graphics.DrawRectangle(pen, 0, 0, pnlDashed.Width - 1, pnlDashed.Height - 1);
+            }
+        };
+
+        Label lblIcon = new Label { Text = "🖼️", Font = new Font("Segoe UI", 36), AutoSize = true, ForeColor = Color.White };
+        pnlDashed.Controls.Add(lblIcon);
+        lblIcon.Location = new Point((pnlDashed.Width - 60) / 2, 30);
+
+        Label lblTitle = new Label { Text = "Carga tu imagen", Font = new Font("Segoe UI", 16, FontStyle.Bold), AutoSize = true, ForeColor = Color.White };
+        pnlDashed.Controls.Add(lblTitle);
+        lblTitle.Location = new Point((pnlDashed.Width - 180) / 2, 100);
+
+        Label lblSub = new Label { Text = "Presiona el botón para seleccionar\no arrastra tu imagen aquí", Font = new Font("Segoe UI", 10), AutoSize = true, ForeColor = Color.LightGray, TextAlign = ContentAlignment.MiddleCenter };
+        pnlDashed.Controls.Add(lblSub);
+        lblSub.Location = new Point((pnlDashed.Width - 230) / 2, 140);
+
+        Button btnSelect = new Button { Text = "📁 Seleccionar Imagen", Size = new Size(200, 40), FlatStyle = FlatStyle.Flat, ForeColor = Color.White, BackColor = Color.FromArgb(40, 20, 80), Font = new Font("Segoe UI", 10, FontStyle.Bold), Cursor = Cursors.Hand };
+        btnSelect.FlatAppearance.BorderColor = Color.FromArgb(100, 50, 150);
+        btnSelect.FlatAppearance.BorderSize = 2;
+        pnlDashed.Controls.Add(btnSelect);
+        btnSelect.Location = new Point((pnlDashed.Width - btnSelect.Width) / 2, 190);
+
+        btnSelect.Click += (s, e) => {
+            button1_Click(s, e);
+        };
+
+        DragEventHandler dEnter = (s, e) => { if (e.Data.GetDataPresent(DataFormats.FileDrop)) e.Effect = DragDropEffects.Copy; };
+        DragEventHandler dDrop = (s, e) => {
+            string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+            if (files.Length > 0 && IsImageFile(files[0]))
+            {
+                pictureBox1.Image = Image.FromFile(files[0]);
+                lbruta.Text = files[0];
+                CargarImagen(files[0]);
+                ToggleEmptyState(false);
+            }
+        };
+
+        pbGif.AllowDrop = true;
+        pnlDashed.AllowDrop = true;
+        pbGif.DragEnter += dEnter;
+        pbGif.DragDrop += dDrop;
+        pnlDashed.DragEnter += dEnter;
+        pnlDashed.DragDrop += dDrop;
+    }
+
     private void ApplyModernStyles()
     {
         this.MouseDown += new MouseEventHandler(DragForm_MouseDown);
@@ -1778,6 +1855,10 @@ public class redimension : Form
             bottomBar.Controls.Add(trzoom);
             btnAjustar.BringToFront();
             lbzoom.BringToFront();
+            lbzoom.BringToFront();
+            
+            InitEmptyState(panel1);
+            ToggleEmptyState(pictureBox1.Image == null);
         }
 
         // LEFT 2: Tools
