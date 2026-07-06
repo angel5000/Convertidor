@@ -1401,12 +1401,12 @@ namespace ConvertidorImagenes
             string descripcion = txtDocPrompt.Text.Trim();
             if (string.IsNullOrWhiteSpace(descripcion))
             {
-                MessageBox.Show("Escribe una descripciÃ³n del documento que necesitas.", "AtenciÃ³n", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Escribe una descripción del documento que necesitas.", "Atención", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             btnDocGenerar.Enabled = false;
-            btnDocGenerar.Text = "âœ¨ Generando...";
+            btnDocGenerar.Text = "✨ Generando...";
             flpDocInputs.Controls.Clear();
             templateRawXml = "";
             currentPlantillaModel = null;
@@ -1423,7 +1423,7 @@ namespace ConvertidorImagenes
                     string key = c.Id;
                     if (!key.StartsWith("[")) key = "[" + key;
                     if (!key.EndsWith("]")) key = key + "]";
-                    AddDocInputRow(key, c.Tipo ?? "Texto");
+                    AddDocInputRow(key, c.Tipo ?? "Texto", c.ValorDefecto ?? "");
                 }
 
                 AddDocInputButton();
@@ -1436,7 +1436,7 @@ namespace ConvertidorImagenes
             finally
             {
                 btnDocGenerar.Enabled = true;
-                btnDocGenerar.Text = "âœ¨ Generar plantilla con IA";
+                btnDocGenerar.Text = "✨ Generar plantilla con IA";
             }
         }
 
@@ -1460,7 +1460,7 @@ namespace ConvertidorImagenes
             RenderDocPreview();
         }
 
-        private void AddDocInputRow(string tag, string tipo)
+        private void AddDocInputRow(string tag, string tipo, string valorDefecto = "")
         {
             Panel row = new Panel { Size = new Size(flpDocInputs.Width - 10, 35), Margin = new Padding(2) };
 
@@ -1471,7 +1471,7 @@ namespace ConvertidorImagenes
             txtTag.TextChanged += (s, e) => RenderDocPreview();
             row.Controls.Add(txtTag);
 
-            TextBox txtValor = new TextBox { Text = "", Location = new Point(160, 5), Size = new Size(130, 25), Font = new Font("Segoe UI", 9f) };
+            TextBox txtValor = new TextBox { Text = valorDefecto ?? "", Location = new Point(160, 5), Size = new Size(130, 25), Font = new Font("Segoe UI", 9f) };
             txtValor.TextChanged += (s, e) => RenderDocPreview();
             row.Controls.Add(txtValor);
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -68,10 +68,14 @@ El formato de respuesta es exactamente:
     {
       ""Id"": ""[NOMBRE_VARIABLE]"",
       ""Etiqueta"": ""Nombre descriptivo del campo"",
-      ""Tipo"": ""Texto""
+      ""Tipo"": ""Texto"",
+      ""ValorDefecto"": ""Datos a rellenar si el usuario los proporcionó, si no, déjalo vacío""
     }
   ]
 }
+
+REGLA DE PRE-LLENADO DE DATOS:
+Si el usuario proporciona explícitamente los datos para rellenar los campos (ej. ""usa estos datos: Nombre: Angel...""), NO LOS PONGAS DIRECTAMENTE EN EL XML (ContenidoBase). El ContenidoBase SIEMPRE DEBE MANTENER LAS VARIABLES EN CORCHETES `[NOMBRE_VARIABLE]`. En su lugar, coloca los datos reales que el usuario te dio en la propiedad `""ValorDefecto""` del arreglo `""Campos""` del JSON. Nuestra interfaz gráfica se encargará de inyectarlos.
 
 Si el usuario solicita algo distinto de generar una plantilla, responde exactamente:
 {""error"":""Solicitud fuera del alcance.""}

@@ -11,6 +11,7 @@ namespace ConvertidorImagenes
         public string Id { get; set; } // e.g. ""[NOMBRE]""
         public string Etiqueta { get; set; } // e.g. ""Nombre Completo""
         public string Tipo { get; set; } // e.g. ""Texto"", ""Fecha""
+        public string ValorDefecto { get; set; } // Datos prellenados por la IA
     }
 
     public class ConfigHeader

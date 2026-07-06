@@ -326,6 +326,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ApiKeys.cs" />
     <Compile Include="Controllers\ImageConverterController.cs" />
     <Compile Include="Controllers\NavigationController.cs" />
     <Compile Include="Form1.cs">
