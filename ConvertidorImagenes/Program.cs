@@ -10,7 +10,7 @@ internal static class Program
 	private static void Main()
 	{
 		// TODO: Pega tu clave de licencia de Syncfusion aquí abajo (Versión 33.2.*)
-		Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("TU_CLAVE_DE_LICENCIA_AQUI");
+		Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQxAR8/V1JHaF5cWWdCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdlWXhednZVRWddUkBzXEVWYEo=");
 		
 		Application.EnableVisualStyles();
 		Application.SetCompatibleTextRenderingDefault(defaultValue: false);

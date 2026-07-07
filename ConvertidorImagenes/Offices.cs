@@ -95,7 +95,7 @@ public partial class Offices : Form
 
 	private Button button7;
 
-	private const string SyncfusionTrialLicense = "Ngo9BigBOggjHTQxAR8/V1JHaF1cXmhOYVJ3WmFZfVhgd19EaVZSTWY/P1ZhSXxVdkJjXX5bcn1WT2BeUUJ9XEE=";
+	
 
 	private string rutaArchivoSeleccionado = "";
 
@@ -443,7 +443,7 @@ public partial class Offices : Form
 			MethodInfo registerMethod = licenseProviderType.GetMethod("RegisterLicense", BindingFlags.Public | BindingFlags.Static);
 			if (registerMethod != null)
 			{
-				registerMethod.Invoke(null, new object[] { SyncfusionTrialLicense });
+				
 			}
 		}
 		catch
