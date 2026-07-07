@@ -9,8 +9,8 @@ internal static class Program
 	[STAThread]
 	private static void Main()
 	{
-		// TODO: Pega tu clave de licencia de Syncfusion aquí abajo (Versión 33.2.*)
-		Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQxAR8/V1JHaF5cWWdCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdlWXhednZVRWddUkBzXEVWYEo=");
+		// Usando la clave de licencia desde ApiKeys.cs (que está en .gitignore)
+		Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(ApiKeys.SyncfusionLicenseKey);
 		
 		Application.EnableVisualStyles();
 		Application.SetCompatibleTextRenderingDefault(defaultValue: false);
